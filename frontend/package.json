@@ -1,0 +1,28 @@
+{
+  "name": "yetanotherhealthyapp-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "codegen": "openapi-typescript ../docs/openapi.json -o src/lib/api/types.gen.ts"
+  },
+  "dependencies": {
+    "next": "14.2.5",
+    "openapi-fetch": "^0.10.4",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "20.14.12",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "@types/jest": "29.5.12",
+    "jest": "29.7.0",
+    "openapi-typescript": "^7.4.3",
+    "ts-jest": "29.2.5",
+    "typescript": "5.5.4"
+  }
+}

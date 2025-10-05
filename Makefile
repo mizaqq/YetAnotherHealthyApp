@@ -1,4 +1,4 @@
-.PHONY: help install sync dev openapi test lint format clean
+.PHONY: help install sync dev openapi test lint format clean codegen fe-typecheck fe-test fe-dev
 
 # Default target
 help:
@@ -7,6 +7,10 @@ help:
 	@echo "  sync      - Sync backend dependencies using uv"
 	@echo "  dev       - Run backend development server"
 	@echo "  openapi   - Export OpenAPI schema to docs/openapi.json"
+	@echo "  codegen   - Generate frontend OpenAPI types"
+	@echo "  fe-typecheck - Run frontend TypeScript typecheck"
+	@echo "  fe-test   - Run frontend unit tests"
+	@echo "  fe-dev    - Run frontend Next.js dev server"
 	@echo "  test      - Run backend tests"
 	@echo "  lint      - Run linter (ruff)"
 	@echo "  format    - Format code (ruff)"
@@ -27,6 +31,21 @@ dev:
 # Export OpenAPI schema
 openapi:
 	cd api && uv run python -m app.scripts.export_openapi
+
+# Generate frontend API types/client from OpenAPI
+codegen:
+	cd frontend && npm run --silent codegen
+
+# Frontend typecheck
+fe-typecheck:
+	cd frontend && npm run --silent typecheck
+
+fe-test:
+	cd frontend && npx --yes jest --runInBand --color
+
+# Frontend development server
+fe-dev:
+	cd frontend && npm run --silent dev
 
 # Run tests
 test:
