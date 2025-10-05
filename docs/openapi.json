@@ -1,0 +1,1273 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Calorie Intake Logger API",
+    "description": "\n## Overview\n\nBackend API for the Calorie Intake Logger PoC. This API enables users to:\n\n- **Parse** natural language food descriptions (Polish) into structured items\n- **Match** food items against a comprehensive nutritional database\n- **Log** meals with automatic macro calculation\n- **Retrieve** daily summaries with nutrition totals\n\n## Architecture\n\nThe API follows a multi-stage pipeline:\n\n1. **Parse**: LLM extracts structured food items from text\n2. **Match**: Hybrid search (BM25 + k-NN) finds database matches\n3. **Log**: Store meals with computed macronutrients\n4. **Summary**: Aggregate daily nutrition data\n\n## Authentication\n\nMost endpoints require authentication via Bearer token (future implementation).\n\n## Response Format\n\nAll responses include:\n- `requestId`: Unique identifier for request tracing\n- `durationMs`: Request processing time\n- Standard error envelope for consistent error handling\n        ",
+    "contact": {
+      "name": "API Support",
+      "email": "support@example.com"
+    },
+    "license": {
+      "name": "MIT"
+    },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/parse": {
+      "post": {
+        "tags": [
+          "parse"
+        ],
+        "summary": "Parse natural language food description",
+        "description": "Parse a natural language description of consumed foods (in Polish) into structured items.\n    \n    This endpoint extracts food items and normalizes quantities to grams/ml.\n    Returns a clarification flag if the input is ambiguous.",
+        "operationId": "parse_food_description_api_v1_parse_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParseResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/match": {
+      "post": {
+        "tags": [
+          "match"
+        ],
+        "summary": "Match food items to database",
+        "description": "Match parsed food items against the foods database using hybrid search (BM25 + k-NN).\n    \n    Returns the best matches with macronutrient information and match scores.",
+        "operationId": "match_foods_api_v1_match_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MatchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/log": {
+      "post": {
+        "tags": [
+          "log"
+        ],
+        "summary": "Log a meal",
+        "description": "Log a consumed meal with food items and quantities.\n    \n    Requires authentication. Computes and returns total macros for the meal.",
+        "operationId": "log_meal_api_v1_log_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/summary": {
+      "get": {
+        "tags": [
+          "summary"
+        ],
+        "summary": "Get daily summary",
+        "description": "Get a summary of all meals and totals for a specific date.\n    \n    Requires authentication. Returns meals ordered by time with computed totals.",
+        "operationId": "get_daily_summary_api_v1_summary_get",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "Date for summary in YYYY-MM-DD format",
+              "examples": [
+                "2025-10-05"
+              ],
+              "title": "Date"
+            },
+            "description": "Date for summary in YYYY-MM-DD format"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SummaryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/foods/search": {
+      "get": {
+        "tags": [
+          "foods"
+        ],
+        "summary": "Search foods",
+        "description": "Search for foods in the database by name.\n    \n    Useful for autocomplete and manual food selection.\n    Authentication is optional.",
+        "operationId": "search_foods_api_v1_foods_search_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Search query for food name",
+              "examples": [
+                "kurczak"
+              ],
+              "title": "Q"
+            },
+            "description": "Search query for food name"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "description": "Maximum number of results to return",
+              "default": 10,
+              "title": "Limit"
+            },
+            "description": "Maximum number of results to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FoodSearchResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Health Check",
+        "description": "Health check endpoint.\n\nReturns:\n    Status information",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Health Check Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DayTotals": {
+        "properties": {
+          "kcal": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Kcal",
+            "description": "Total kilocalories for the day"
+          },
+          "protein_g": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Protein G",
+            "description": "Total protein in grams for the day"
+          },
+          "fat_g": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Fat G",
+            "description": "Total fat in grams for the day"
+          },
+          "carbs_g": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Carbs G",
+            "description": "Total carbohydrates in grams for the day"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kcal",
+          "protein_g",
+          "fat_g",
+          "carbs_g"
+        ],
+        "title": "DayTotals",
+        "description": "Aggregate totals for a full day.",
+        "examples": [
+          {
+            "carbs_g": 180.0,
+            "fat_g": 65.0,
+            "kcal": 1850.0,
+            "protein_g": 120.0
+          }
+        ]
+      },
+      "FoodItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Unique food identifier"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Food name in Polish"
+          },
+          "brand": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brand",
+            "description": "Brand name for branded foods"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "description": "Data source (e.g., 'usda', 'custom', 'branded')"
+          },
+          "macros_per_100g": {
+            "$ref": "#/components/schemas/MacrosPer100g",
+            "description": "Macronutrient values per 100g"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "source",
+          "macros_per_100g"
+        ],
+        "title": "FoodItem",
+        "description": "A single food item from the database.",
+        "examples": [
+          {
+            "id": "food_12345",
+            "macros_per_100g": {
+              "carbs_g": 0.0,
+              "fat_g": 3.6,
+              "kcal": 165.0,
+              "protein_g": 31.0
+            },
+            "name": "Kurczak pierś bez skóry",
+            "source": "usda"
+          },
+          {
+            "brand": "Łaciate",
+            "id": "food_67890",
+            "macros_per_100g": {
+              "carbs_g": 4.8,
+              "fat_g": 2.0,
+              "kcal": 50.0,
+              "protein_g": 3.2
+            },
+            "name": "Mleko 2%",
+            "source": "branded"
+          }
+        ]
+      },
+      "FoodSearchResponse": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/FoodItem"
+            },
+            "type": "array",
+            "title": "Results",
+            "description": "List of matching food items"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total",
+            "description": "Total number of results found"
+          }
+        },
+        "type": "object",
+        "required": [
+          "results",
+          "total"
+        ],
+        "title": "FoodSearchResponse",
+        "description": "Response body for GET /api/v1/foods/search.",
+        "examples": [
+          {
+            "results": [
+              {
+                "id": "food_12345",
+                "macros_per_100g": {
+                  "carbs_g": 0.0,
+                  "fat_g": 3.6,
+                  "kcal": 165.0,
+                  "protein_g": 31.0
+                },
+                "name": "Kurczak pierś bez skóry",
+                "source": "usda"
+              }
+            ],
+            "total": 1
+          }
+        ]
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "LogItemInput": {
+        "properties": {
+          "food_id": {
+            "type": "string",
+            "title": "Food Id",
+            "description": "Unique food identifier from the database"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "description": "Food label for display purposes"
+          },
+          "grams": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Grams",
+            "description": "Consumed quantity in grams"
+          }
+        },
+        "type": "object",
+        "required": [
+          "food_id",
+          "label",
+          "grams"
+        ],
+        "title": "LogItemInput",
+        "description": "Input item for logging a meal.",
+        "examples": [
+          {
+            "food_id": "food_12345",
+            "grams": 150.0,
+            "label": "kurczak pierś"
+          }
+        ]
+      },
+      "LogItemOutput": {
+        "properties": {
+          "food_id": {
+            "type": "string",
+            "title": "Food Id",
+            "description": "Unique food identifier"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "description": "Food label"
+          },
+          "grams": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Grams",
+            "description": "Consumed quantity in grams"
+          },
+          "macros": {
+            "$ref": "#/components/schemas/MealTotals",
+            "description": "Computed macros for this item based on grams consumed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "food_id",
+          "label",
+          "grams",
+          "macros"
+        ],
+        "title": "LogItemOutput",
+        "description": "Output item with computed macros.",
+        "examples": [
+          {
+            "food_id": "food_12345",
+            "grams": 150.0,
+            "label": "kurczak pierś",
+            "macros": {
+              "carbs_g": 0.0,
+              "fat_g": 5.4,
+              "kcal": 247.5,
+              "protein_g": 46.5
+            }
+          }
+        ]
+      },
+      "LogRequest": {
+        "properties": {
+          "eaten_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eaten At",
+            "description": "ISO 8601 timestamp when the meal was consumed; defaults to now if omitted"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note",
+            "description": "Optional user note about the meal"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/LogItemInput"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Items",
+            "description": "List of food items consumed in this meal"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "LogRequest",
+        "description": "Request body for POST /api/v1/log.",
+        "examples": [
+          {
+            "eaten_at": "2025-10-05T12:30:00Z",
+            "items": [
+              {
+                "food_id": "food_12345",
+                "grams": 150.0,
+                "label": "kurczak pierś"
+              },
+              {
+                "food_id": "food_67890",
+                "grams": 100.0,
+                "label": "ryż biały"
+              }
+            ],
+            "note": "Lunch with colleagues"
+          }
+        ]
+      },
+      "LogResponse": {
+        "properties": {
+          "meal_id": {
+            "type": "string",
+            "title": "Meal Id",
+            "description": "Unique identifier for the logged meal"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/MealTotals",
+            "description": "Total macros for the entire meal"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/LogItemOutput"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "List of items with computed macros"
+          }
+        },
+        "type": "object",
+        "required": [
+          "meal_id",
+          "totals",
+          "items"
+        ],
+        "title": "LogResponse",
+        "description": "Response body for POST /api/v1/log.",
+        "examples": [
+          {
+            "items": [
+              {
+                "food_id": "food_12345",
+                "grams": 150.0,
+                "label": "kurczak pierś",
+                "macros": {
+                  "carbs_g": 0.0,
+                  "fat_g": 5.4,
+                  "kcal": 247.5,
+                  "protein_g": 46.5
+                }
+              }
+            ],
+            "meal_id": "meal_abc123",
+            "totals": {
+              "carbs_g": 28.0,
+              "fat_g": 5.4,
+              "kcal": 395.0,
+              "protein_g": 59.5
+            }
+          }
+        ]
+      },
+      "MacrosPer100g": {
+        "properties": {
+          "kcal": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Kcal",
+            "description": "Kilocalories per 100g"
+          },
+          "protein_g": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Protein G",
+            "description": "Protein in grams per 100g"
+          },
+          "fat_g": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Fat G",
+            "description": "Fat in grams per 100g"
+          },
+          "carbs_g": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Carbs G",
+            "description": "Carbohydrates in grams per 100g"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kcal",
+          "protein_g",
+          "fat_g",
+          "carbs_g"
+        ],
+        "title": "MacrosPer100g",
+        "description": "Macronutrient values per 100g of food.",
+        "examples": [
+          {
+            "carbs_g": 0.0,
+            "fat_g": 3.6,
+            "kcal": 165.0,
+            "protein_g": 31.0
+          }
+        ]
+      },
+      "MatchItemInput": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Label",
+            "description": "Food label to search for in the database"
+          },
+          "grams": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Grams",
+            "description": "Quantity in grams for this item"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "grams"
+        ],
+        "title": "MatchItemInput",
+        "description": "Input item for food matching.",
+        "examples": [
+          {
+            "grams": 100.0,
+            "label": "kurczak"
+          },
+          {
+            "grams": 250.0,
+            "label": "mleko 2%"
+          }
+        ]
+      },
+      "MatchItemOutput": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "description": "Matched food label from the database"
+          },
+          "food_id": {
+            "type": "string",
+            "title": "Food Id",
+            "description": "Unique food identifier in the database"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "description": "Data source (e.g., 'usda', 'custom', 'branded')"
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Ref",
+            "description": "External reference ID from the source database"
+          },
+          "match_score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Match Score",
+            "description": "Hybrid search match score (0.0-1.0); higher is better"
+          },
+          "macros_per_100g": {
+            "$ref": "#/components/schemas/MacrosPer100g",
+            "description": "Macronutrient values per 100g of this food"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "food_id",
+          "source",
+          "match_score",
+          "macros_per_100g"
+        ],
+        "title": "MatchItemOutput",
+        "description": "A matched food item with metadata and macros.",
+        "examples": [
+          {
+            "food_id": "food_12345",
+            "label": "kurczak",
+            "macros_per_100g": {
+              "carbs_g": 0.0,
+              "fat_g": 3.6,
+              "kcal": 165.0,
+              "protein_g": 31.0
+            },
+            "match_score": 0.92,
+            "source": "usda",
+            "source_ref": "05006"
+          }
+        ]
+      },
+      "MatchRequest": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MatchItemInput"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Items",
+            "description": "List of food items to match against the database"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "MatchRequest",
+        "description": "Request body for POST /api/v1/match.",
+        "examples": [
+          {
+            "items": [
+              {
+                "grams": 100.0,
+                "label": "kurczak"
+              },
+              {
+                "grams": 80.0,
+                "label": "ryż"
+              }
+            ]
+          }
+        ]
+      },
+      "MatchResponse": {
+        "properties": {
+          "matches": {
+            "items": {
+              "$ref": "#/components/schemas/MatchItemOutput"
+            },
+            "type": "array",
+            "title": "Matches",
+            "description": "List of matched food items ordered by match score (best first)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "matches"
+        ],
+        "title": "MatchResponse",
+        "description": "Response body for POST /api/v1/match.",
+        "examples": [
+          {
+            "matches": [
+              {
+                "food_id": "food_12345",
+                "label": "kurczak pierś bez skóry",
+                "macros_per_100g": {
+                  "carbs_g": 0.0,
+                  "fat_g": 3.6,
+                  "kcal": 165.0,
+                  "protein_g": 31.0
+                },
+                "match_score": 0.92,
+                "source": "usda",
+                "source_ref": "05006"
+              }
+            ]
+          }
+        ]
+      },
+      "MealSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Unique meal identifier"
+          },
+          "eaten_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Eaten At",
+            "description": "ISO 8601 timestamp when the meal was consumed"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note",
+            "description": "Optional user note about the meal"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/LogItemOutput"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "List of food items in this meal with computed macros"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/MealTotals",
+            "description": "Total macros for this meal"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "eaten_at",
+          "items",
+          "totals"
+        ],
+        "title": "MealSummary",
+        "description": "Summary of a single meal.",
+        "examples": [
+          {
+            "eaten_at": "2025-10-05T12:30:00Z",
+            "id": "meal_abc123",
+            "items": [
+              {
+                "food_id": "food_12345",
+                "grams": 150.0,
+                "label": "kurczak pierś",
+                "macros": {
+                  "carbs_g": 0.0,
+                  "fat_g": 5.4,
+                  "kcal": 247.5,
+                  "protein_g": 46.5
+                }
+              }
+            ],
+            "note": "Lunch",
+            "totals": {
+              "carbs_g": 0.0,
+              "fat_g": 5.4,
+              "kcal": 247.5,
+              "protein_g": 46.5
+            }
+          }
+        ]
+      },
+      "MealTotals": {
+        "properties": {
+          "kcal": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Kcal",
+            "description": "Total kilocalories"
+          },
+          "protein_g": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Protein G",
+            "description": "Total protein in grams"
+          },
+          "fat_g": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Fat G",
+            "description": "Total fat in grams"
+          },
+          "carbs_g": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Carbs G",
+            "description": "Total carbohydrates in grams"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kcal",
+          "protein_g",
+          "fat_g",
+          "carbs_g"
+        ],
+        "title": "MealTotals",
+        "description": "Total macronutrients for a meal or day.",
+        "examples": [
+          {
+            "carbs_g": 28.0,
+            "fat_g": 5.4,
+            "kcal": 395.0,
+            "protein_g": 59.5
+          }
+        ]
+      },
+      "ParseRequest": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Text",
+            "description": "Natural language description of consumed food items in Polish"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "ParseRequest",
+        "description": "Request body for POST /api/v1/parse.",
+        "examples": [
+          {
+            "text": "2 jajka, 100g kurczaka, szklanka mleka"
+          },
+          {
+            "text": "duża kromka chleba z masłem"
+          }
+        ]
+      },
+      "ParseResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ParsedItem"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "List of parsed food items with normalized quantities"
+          },
+          "needs_clarification": {
+            "type": "boolean",
+            "title": "Needs Clarification",
+            "description": "True if input is ambiguous and requires user clarification"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "needs_clarification"
+        ],
+        "title": "ParseResponse",
+        "description": "Response body for POST /api/v1/parse.",
+        "examples": [
+          {
+            "items": [
+              {
+                "confidence": 0.95,
+                "grams": 100.0,
+                "label": "jajko",
+                "quantity_expr": "2 sztuki"
+              },
+              {
+                "confidence": 1.0,
+                "grams": 100.0,
+                "label": "kurczak",
+                "quantity_expr": "100g"
+              }
+            ],
+            "needs_clarification": false
+          },
+          {
+            "items": [
+              {
+                "confidence": 0.6,
+                "label": "jabłko",
+                "quantity_expr": "duże"
+              }
+            ],
+            "needs_clarification": true
+          }
+        ]
+      },
+      "ParsedItem": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "description": "Normalized food label extracted from input text"
+          },
+          "quantity_expr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity Expr",
+            "description": "Original quantity expression as found in text (e.g., '2 sztuki', 'szklanka')"
+          },
+          "grams": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grams",
+            "description": "Normalized quantity in grams; None if unable to normalize"
+          },
+          "ml": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ml",
+            "description": "Volume in milliliters if applicable; converted to grams using density"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "description": "Confidence score for the parsing and normalization (0.0-1.0)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "confidence"
+        ],
+        "title": "ParsedItem",
+        "description": "A single parsed food item with optional quantity normalization.",
+        "examples": [
+          {
+            "confidence": 0.95,
+            "grams": 100.0,
+            "label": "jajko",
+            "quantity_expr": "2 sztuki"
+          },
+          {
+            "confidence": 1.0,
+            "grams": 100.0,
+            "label": "kurczak",
+            "quantity_expr": "100g"
+          },
+          {
+            "confidence": 0.85,
+            "grams": 257.5,
+            "label": "mleko",
+            "ml": 250.0,
+            "quantity_expr": "szklanka"
+          }
+        ]
+      },
+      "SummaryResponse": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date",
+            "description": "Date for this summary (YYYY-MM-DD)"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/DayTotals",
+            "description": "Aggregate totals for the entire day"
+          },
+          "meals": {
+            "items": {
+              "$ref": "#/components/schemas/MealSummary"
+            },
+            "type": "array",
+            "title": "Meals",
+            "description": "List of meals for this day ordered by eaten_at"
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "totals",
+          "meals"
+        ],
+        "title": "SummaryResponse",
+        "description": "Response body for GET /api/v1/summary.",
+        "examples": [
+          {
+            "date": "2025-10-05",
+            "meals": [
+              {
+                "eaten_at": "2025-10-05T12:30:00Z",
+                "id": "meal_abc123",
+                "items": [
+                  {
+                    "food_id": "food_12345",
+                    "grams": 150.0,
+                    "label": "kurczak pierś",
+                    "macros": {
+                      "carbs_g": 0.0,
+                      "fat_g": 5.4,
+                      "kcal": 247.5,
+                      "protein_g": 46.5
+                    }
+                  }
+                ],
+                "note": "Lunch",
+                "totals": {
+                  "carbs_g": 0.0,
+                  "fat_g": 5.4,
+                  "kcal": 247.5,
+                  "protein_g": 46.5
+                }
+              }
+            ],
+            "totals": {
+              "carbs_g": 180.0,
+              "fat_g": 65.0,
+              "kcal": 1850.0,
+              "protein_g": 120.0
+            }
+          }
+        ]
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "parse",
+      "description": "Parse natural language food descriptions into structured items."
+    },
+    {
+      "name": "match",
+      "description": "Match parsed food items against the foods database using hybrid search."
+    },
+    {
+      "name": "log",
+      "description": "Log consumed meals with computed macronutrients."
+    },
+    {
+      "name": "summary",
+      "description": "Retrieve daily meal summaries with aggregated nutrition data."
+    },
+    {
+      "name": "foods",
+      "description": "Search and browse the foods database."
+    },
+    {
+      "name": "health",
+      "description": "Health check and service status endpoints."
+    }
+  ]
+}
