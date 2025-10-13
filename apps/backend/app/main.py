@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.api import api_router
+from app.core.supabase import get_supabase_client
 
 
 def create_application() -> FastAPI:
@@ -17,6 +18,7 @@ def create_application() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    application.state.supabase = get_supabase_client()
     application.include_router(api_router, prefix="/api/v1")
     return application
 
