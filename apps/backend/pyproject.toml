@@ -1,0 +1,53 @@
+[project]
+name = "yetanotherhealthyapp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]>=0.119.0",
+    "pydantic-settings>=2.6.1",
+    "supabase>=2.22.0",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.7.0",
+]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+fix = true
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # import sorting
+    "B",   # bugbear
+    "UP",  # pyupgrade
+    "TCH", # type-checking imports
+    "TID", # tidy imports
+    "ANN", # flake8-annotations
+    "YTT", # typing tests
+]
+ignore = [
+    "ANN101", # missing-type-self
+    "ANN102", # missing-type-cls
+    "ANN401", # allow typing.Any in exceptions where unavoidable
+    "D",      # ignore pydocstyle; rely on targeted docs instead
+    "TD003",  # missing issue link in TODOs
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*" = ["S101", "ANN201", "PLR2004"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.flake8-annotations]
+mypy-init-return = true
+
+[tool.ruff.lint.mccabe]
+max-complexity = 8

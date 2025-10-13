@@ -1,2 +1,0 @@
-# TODO: Persistence to Supabase
-

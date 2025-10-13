@@ -1,0 +1,108 @@
+# Supabase Frontend Initialization
+
+This document provides a reproducible guide to integrate Supabase with the YetAnotherHealthyApp frontend stack.
+
+## Prerequisites
+
+- The project uses React 19 with Vite and TypeScript 5.
+- Tailwind 4 and shadcn/ui are configured in `apps/frontend`.
+- Install the `@supabase/supabase-js` package.
+- Ensure `apps/supabase/config.toml` exists.
+- Ensure `apps/frontend/src/db/database.types.ts` contains the generated Supabase types.
+
+IMPORTANT: Verify prerequisites before performing the steps below. If any prerequisite fails, stop and confirm how to proceed.
+
+## File Structure and Setup
+
+### 1. Supabase Client Initialization
+
+Create the file `apps/frontend/src/lib/supabaseClient.ts` with the following content:
+
+```ts
+import { createClient } from "@supabase/supabase-js";
+
+import type { Database } from "../db/database.types";
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error("Supabase environment variables are missing");
+}
+
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+```
+
+This client uses Vite-prefixed environment variables and throws early if they are missing.
+
+### 2. Authentication Helper (optional but recommended)
+
+Create the file `apps/frontend/src/lib/supabaseAuth.ts` with helper exports:
+
+```ts
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+import type { Database } from "../db/database.types";
+
+export type Supabase = SupabaseClient<Database>;
+
+export const getSupabase = (client: Supabase = window.supabase): Supabase =>
+  client;
+```
+
+Adjust the helper to match the chosen auth approach (context, hooks, etc.).
+
+### 3. Environment Typings
+
+Update or create `apps/frontend/src/env.d.ts` with:
+
+```ts
+/// <reference types="vite/client" />
+
+declare namespace NodeJS {
+  interface ProcessEnv {
+    readonly VITE_SUPABASE_URL: string;
+    readonly VITE_SUPABASE_ANON_KEY: string;
+  }
+}
+```
+
+If the project uses ambient globals for typed clients, extend them here as well.
+
+### 4. Usage Example
+
+```ts
+import { useEffect, useState } from "react";
+
+import { supabase } from "@/lib/supabaseClient";
+
+export const useProfile = () => {
+  const [profile, setProfile] = useState(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .single();
+      if (error) {
+        console.error("Error loading profile", error);
+        return;
+      }
+      setProfile(data);
+    };
+
+    fetchProfile();
+  }, []);
+
+  return profile;
+};
+```
+
+Integrate this hook or similar logic within React components as needed.
+
+### 5. Testing & Verification
+
+- `pnpm --filter frontend lint` to ensure typings and imports resolve.
+- `pnpm --filter frontend test` to validate any component tests using the Supabase client.
+- Confirm runtime by running `pnpm --filter frontend dev` and performing a sample Supabase query.

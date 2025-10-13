@@ -1,0 +1,69 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# AI Rules for YetAnotherHealthyApp
+
+YetAnotherHealthyApp to webowa aplikacja pomagająca osobom świadomie zarządzającym dietą w szybkim zapisywaniu posiłków oraz monitorowaniu spożycia kalorii i makroskładników. MVP kładzie nacisk na prosty interfejs pozwalający wprowadzić opis posiłku w wolnym tekście, wykorzystanie modeli AI do przeliczenia składników na makroelementy oraz czytelne raportowanie postępów względem ustalonych celów.
+
+## Tech Stack
+
+- React 19
+- TypeScript 5
+- Tailwind 4
+- Shadcn/ui
+- FastAPI 0.119.0
+
+## Project Structure
+
+When introducing changes to the monorepo, follow the structure below and update this section if it evolves:
+
+- `./apps` - application packages
+  - `./apps/frontend` - web client (React, Tailwind, Shadcn/ui)
+    - `src/` - application source code
+    - `src/lib/` - browser-side service wrappers (e.g., API clients)
+    - `dist/` - build output (generated; do not edit manually)
+    - `tailwind.config.js`, `vite.config.ts`, `eslint.config.js` - tooling configuration for the frontend
+  - `./apps/backend` - API service (FastAPI)
+    - `app/api/v1/` - versioned REST endpoints
+    - `app/core/` - application settings and shared infrastructure
+    - `app/db/` - database connections and sessions
+    - `app/services/` - domain services and orchestrators
+    - `tests/` - backend test suite
+- `./.cursor/rules` and `./.ai` - AI assistant guidance and product documentation
+- `./README.md`, `./apps/README.md` - high level and app-specific docs
+
+## Monorepo Practices
+
+- Configure workspace-aware tooling to optimize build and test workflows across packages.
+- Maintain clear package boundaries with explicit dependencies between packages.
+- Align on a consistent versioning strategy for all packages (independent or lockstep) before releasing.
+- Configure CI/CD to build and test only the packages affected by a change.
+- Centralize shared configurations for linting, testing, and development tooling.
+- Use code generation or scaffolding to keep similar packages or modules consistent.
+
+## Coding practices
+
+### Guidelines for clean code
+
+- Use feedback from linters to improve the code when making changes.
+- Prioritize error handling and edge cases.
+- Handle errors and edge cases at the beginning of functions.
+- Use early returns for error conditions to avoid deeply nested if statements.
+- Place the happy path last in the function for improved readability.
+- Avoid unnecessary else statements; use if-return pattern instead.
+- Use guard clauses to handle preconditions and invalid states early.
+- Implement proper error logging and user-friendly error messages.
+- Consider using custom error types or error factories for consistent error handling.
+
+### React-specific
+
+- Favor functional components and Hooks; avoid class components.
+- Strongly type props and component return types with TypeScript.
+- Keep side effects in `useEffect` with correct dependency arrays; avoid hidden dependencies.
+- Use memoization (`useMemo`, `useCallback`, `React.memo`) for expensive calculations and stable props.
+- Handle errors with Error Boundaries; use Suspense where appropriate.
+- Ensure accessibility: semantic HTML, ARIA roles, keyboard navigation, focus management.
+- Tailwind: prefer utility-first classes; extract patterns with `@apply` sparingly; use responsive and dark mode variants.

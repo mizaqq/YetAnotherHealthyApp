@@ -1,0 +1,32 @@
+---
+description:
+globs: app/**/*.py
+alwaysApply: false
+---
+
+### Backend and Database
+
+- Use FastAPI for backend services with async path operations and dependency injection.
+- Validate requests and responses using Pydantic v2 models.
+- Implement consistent error handling with `HTTPException` and custom exception handlers.
+- Use `BackgroundTasks` for non-critical work that shouldn't block responses.
+- Use Supabase Postgres via the Supabase Python client or REST APIs for data storage.
+- Enforce access control with Supabase Row Level Security policies and server-side checks.
+- Optimize queries with targeted selects, indexes, and pagination.
+- Design clients to leverage Supabase realtime subscriptions and caching where appropriate.
+
+## FastAPI
+
+- Use Pydantic models for request and response validation with strict type checking and custom validators
+- Implement dependency injection for services and database sessions to improve testability and resource management
+- Use async endpoints for I/O-bound operations to improve throughput for high-load endpoints
+- Leverage FastAPI's background tasks for non-critical operations that don't need to block the response
+- Implement proper exception handling with `HTTPException` and custom exception handlers
+- Use path operation decorators consistently with appropriate HTTP methods
+
+## Supabase (10xRules alignment)
+
+- Use Row Level Security policies to enforce access control per role and tenant
+- Prefer RPC functions or stored procedures for complex business logic close to the data
+- Limit payloads with `select` clauses that enumerate required columns only
+- Leverage Postgres features (indexes, constraints, triggers) to ensure data integrity
