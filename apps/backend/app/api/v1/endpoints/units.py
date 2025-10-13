@@ -94,4 +94,3 @@ async def get_unit_aliases(
         unit_id=unit_id,
         locale=query.locale,
     )
-

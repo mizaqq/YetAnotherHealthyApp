@@ -17,6 +17,7 @@ from app.api.v1.schemas.products import (
     ProductPortionDTO,
     ProductSource,
     ProductSummaryDTO,
+    SearchMode,
 )
 
 logger = logging.getLogger(__name__)
@@ -65,6 +66,7 @@ class ProductRepository:
         self,
         *,
         search: str | None = None,
+        search_mode: SearchMode = SearchMode.FULLTEXT,
         off_id: str | None = None,
         source: ProductSource | None = None,
         page_size: int = 20,
@@ -75,6 +77,7 @@ class ProductRepository:
 
         Args:
             search: Optional case-insensitive search on name field
+            search_mode: Search algorithm (simple ILIKE, fulltext, or fuzzy)
             off_id: Optional filter by Open Food Facts ID
             source: Optional filter by data source
             page_size: Number of results to return (1-50)
@@ -95,9 +98,24 @@ class ProductRepository:
 
         query = self._client.table(self._PRODUCTS_TABLE).select(",".join(columns))
 
-        # Apply search filter (case-insensitive ILIKE on LOWER(name))
+        # Apply search filter based on search mode
         if search:
-            query = query.ilike("name", f"%{search}%")
+            if search_mode == SearchMode.SIMPLE:
+                # Simple ILIKE pattern matching - exact phrase
+                query = query.ilike("name", f"%{search}%")
+            elif search_mode in (SearchMode.FULLTEXT, SearchMode.FUZZY):
+                # For both fulltext and fuzzy modes, use flexible word matching
+                # Split search into words and match each word independently
+                # This allows matching "raw chicken breast" to find products with those words in any order
+                words = search.lower().split()
+                if len(words) == 1:
+                    # Single word - simple ILIKE
+                    query = query.ilike("name", f"%{words[0]}%")
+                else:
+                    # Multiple words - build OR conditions for flexible matching
+                    # Each word must appear somewhere in the name
+                    for word in words:
+                        query = query.ilike("name", f"%{word}%")
 
         # Apply off_id filter
         if off_id:

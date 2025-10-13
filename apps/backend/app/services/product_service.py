@@ -65,6 +65,7 @@ class ProductService:
             # Build search filter
             search_filter = ProductSearchFilter(
                 search=query.search,
+                search_mode=query.search_mode,
                 off_id=query.off_id,
                 source=query.source,
                 page_size=query.page_size,
@@ -75,6 +76,7 @@ class ProductService:
             # Fetch page_size + 1 to detect if there are more results
             products = self._repository.list_products(
                 search=search_filter.search,
+                search_mode=search_filter.search_mode,
                 off_id=search_filter.off_id,
                 source=search_filter.source,
                 page_size=search_filter.page_size,
