@@ -13,6 +13,10 @@ class Settings(BaseSettings):
             "Supabase service role key used for server-side operations. Keep this value secret."
         ),
     )
+    analysis_model: str = Field(
+        default="openrouter/gpt-4o-mini",
+        description="AI model identifier used for meal analysis",
+    )
 
     model_config = SettingsConfigDict(
         env_file=".env",

@@ -10,11 +10,16 @@ from fastapi import Depends, HTTPException, Header, status
 from supabase import Client
 
 from app.core.supabase import get_supabase_client
+from app.db.repositories.analysis_run_items_repository import AnalysisRunItemsRepository
+from app.db.repositories.analysis_runs_repository import AnalysisRunsRepository
 from app.db.repositories.meal_categories_repository import MealCategoriesRepository
+from app.db.repositories.meal_repository import MealRepository
 from app.db.repositories.product_repository import ProductRepository
 from app.db.repositories.profile_repository import ProfileRepository
 from app.db.repositories.unit_repository import UnitRepository
+from app.services.analysis_runs_service import AnalysisRunsService
 from app.services.meal_categories_service import MealCategoriesService
+from app.services.meal_service import MealService
 from app.services.product_service import ProductService
 from app.services.profile_service import ProfileService
 from app.services.units_service import UnitsService
@@ -173,3 +178,46 @@ def get_product_service(
     """Dependency that provides a ProductService instance."""
 
     return ProductService(repository)
+
+
+def get_meal_repository(
+    client: Annotated[Client, Depends(get_supabase_dependency)],
+) -> MealRepository:
+    """Dependency that provides a MealRepository instance."""
+
+    return MealRepository(client)
+
+
+def get_meal_service(
+    repository: Annotated[MealRepository, Depends(get_meal_repository)],
+) -> MealService:
+    """Dependency that provides a MealService instance."""
+
+    return MealService(repository)
+
+
+def get_analysis_runs_repository(
+    client: Annotated[Client, Depends(get_supabase_dependency)],
+) -> AnalysisRunsRepository:
+    """Dependency that provides an AnalysisRunsRepository instance."""
+
+    return AnalysisRunsRepository(client)
+
+
+def get_analysis_run_items_repository(
+    client: Annotated[Client, Depends(get_supabase_dependency)],
+) -> AnalysisRunItemsRepository:
+    """Dependency that provides an AnalysisRunItemsRepository instance."""
+
+    return AnalysisRunItemsRepository(client)
+
+
+def get_analysis_runs_service(
+    repository: Annotated[AnalysisRunsRepository, Depends(get_analysis_runs_repository)],
+    items_repository: Annotated[
+        AnalysisRunItemsRepository, Depends(get_analysis_run_items_repository)
+    ],
+) -> AnalysisRunsService:
+    """Dependency that provides an AnalysisRunsService instance."""
+
+    return AnalysisRunsService(repository, items_repository)

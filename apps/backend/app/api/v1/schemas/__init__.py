@@ -1,9 +1,35 @@
 """API v1 schema exports."""
 
+from app.api.v1.schemas.analysis_runs import (
+    AnalysisRunCancelResponse,
+    AnalysisRunCreateRequest,
+    AnalysisRunDetailResponse,
+    AnalysisRunItemResponse,
+    AnalysisRunItemsResponse,
+    AnalysisRunListQuery,
+    AnalysisRunQueuedResponse,
+    AnalysisRunRetryRequest,
+    AnalysisRunSortField,
+    AnalysisRunStatus,
+    AnalysisRunSummaryResponse,
+)
 from app.api.v1.schemas.meal_categories import (
     MealCategoriesQueryParams,
     MealCategoriesResponse,
     MealCategoryResponseItem,
+)
+from app.api.v1.schemas.meals import (
+    MealAnalysisItem,
+    MealAnalysisRun,
+    MealCreatePayload,
+    MealDetailParams,
+    MealDetailResponse,
+    MealListItem,
+    MealListQuery,
+    MealListResponse,
+    MealResponse,
+    MealSource,
+    MealUpdatePayload,
 )
 from app.api.v1.schemas.products import (
     ProductDetailDTO,
@@ -21,9 +47,31 @@ from app.api.v1.schemas.units import (
 )
 
 __all__ = [
+    "AnalysisRunCancelResponse",
+    "AnalysisRunCreateRequest",
+    "AnalysisRunDetailResponse",
+    "AnalysisRunItemResponse",
+    "AnalysisRunItemsResponse",
+    "AnalysisRunListQuery",
+    "AnalysisRunQueuedResponse",
+    "AnalysisRunRetryRequest",
+    "AnalysisRunSortField",
+    "AnalysisRunStatus",
+    "AnalysisRunSummaryResponse",
+    "MealAnalysisItem",
+    "MealAnalysisRun",
     "MealCategoriesQueryParams",
     "MealCategoriesResponse",
     "MealCategoryResponseItem",
+    "MealCreatePayload",
+    "MealDetailParams",
+    "MealDetailResponse",
+    "MealListItem",
+    "MealListQuery",
+    "MealListResponse",
+    "MealResponse",
+    "MealSource",
+    "MealUpdatePayload",
     "ProductDetailDTO",
     "ProductDetailParams",
     "ProductListParams",
