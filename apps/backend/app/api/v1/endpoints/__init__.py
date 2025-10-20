@@ -5,6 +5,7 @@ from app.api.v1.endpoints import (
     meals,
     products,
     profile,
+    reports,
     units,
 )
 
@@ -15,5 +16,6 @@ __all__ = [
     "meals",
     "products",
     "profile",
+    "reports",
     "units",
 ]

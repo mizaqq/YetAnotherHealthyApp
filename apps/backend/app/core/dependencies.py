@@ -16,12 +16,14 @@ from app.db.repositories.meal_categories_repository import MealCategoriesReposit
 from app.db.repositories.meal_repository import MealRepository
 from app.db.repositories.product_repository import ProductRepository
 from app.db.repositories.profile_repository import ProfileRepository
+from app.db.repositories.reports_repository import ReportsRepository
 from app.db.repositories.unit_repository import UnitRepository
 from app.services.analysis_runs_service import AnalysisRunsService
 from app.services.meal_categories_service import MealCategoriesService
 from app.services.meal_service import MealService
 from app.services.product_service import ProductService
 from app.services.profile_service import ProfileService
+from app.services.reports_service import ReportsService
 from app.services.units_service import UnitsService
 
 logger = logging.getLogger(__name__)
@@ -221,3 +223,20 @@ def get_analysis_runs_service(
     """Dependency that provides an AnalysisRunsService instance."""
 
     return AnalysisRunsService(repository, items_repository)
+
+
+def get_reports_repository(
+    client: Annotated[Client, Depends(get_supabase_dependency)],
+) -> ReportsRepository:
+    """Dependency that provides a ReportsRepository instance."""
+
+    return ReportsRepository(client)
+
+
+def get_reports_service(
+    reports_repository: Annotated[ReportsRepository, Depends(get_reports_repository)],
+    profile_repository: Annotated[ProfileRepository, Depends(get_profile_repository)],
+) -> ReportsService:
+    """Dependency that provides a ReportsService instance."""
+
+    return ReportsService(reports_repository, profile_repository)

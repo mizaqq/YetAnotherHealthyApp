@@ -17,4 +17,5 @@ api_router.include_router(
 api_router.include_router(endpoints.meals.router, prefix="/meals", tags=["meals"])
 api_router.include_router(endpoints.products.router, prefix="/products", tags=["products"])
 api_router.include_router(endpoints.profile.router, prefix="/profile", tags=["profile"])
+api_router.include_router(endpoints.reports.router, prefix="/reports", tags=["reports"])
 api_router.include_router(endpoints.units.router, prefix="/units", tags=["units"])

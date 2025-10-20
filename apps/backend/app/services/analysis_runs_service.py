@@ -15,6 +15,7 @@ from app.db.repositories.analysis_run_items_repository import AnalysisRunItemsRe
 from app.db.repositories.analysis_runs_repository import AnalysisRunsRepository
 from app.db.repositories.meal_repository import MealRepository, MealSource
 from app.services.analysis_processor import AnalysisRunProcessor
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
