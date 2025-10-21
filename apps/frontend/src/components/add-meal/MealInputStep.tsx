@@ -1,4 +1,5 @@
 import { useForm, Controller } from "react-hook-form";
+import { useMemo } from "react";
 import {
   Button,
   Field,
@@ -59,6 +60,17 @@ export function MealInputStep({
   });
 
   const isManualMode = watch("isManualMode");
+  const selectedCategory = watch("category");
+
+  // Memoize the category map for efficient lookups
+  const categoryMap = useMemo(() => {
+    return new Map(categories.map((cat) => [cat.code, cat.label]));
+  }, [categories]);
+
+  // Memoize the selected category label
+  const selectedCategoryLabel = useMemo(() => {
+    return selectedCategory ? (categoryMap.get(selectedCategory) ?? "") : "";
+  }, [selectedCategory, categoryMap]);
 
   const handleFormSubmit = (data: MealInputFormViewModel) => {
     // Manual validation based on mode
@@ -103,14 +115,13 @@ export function MealInputStep({
             validationState={errors.category ? "error" : "none"}
           >
             <Dropdown
-              {...field}
-              value={
-                categories.find((c) => c.code === field.value)?.label ?? ""
-              }
+              name={field.name}
+              value={selectedCategoryLabel}
               selectedOptions={field.value ? [field.value] : []}
               onOptionSelect={(_, data) => {
                 field.onChange(data.optionValue);
               }}
+              onBlur={field.onBlur}
               placeholder="Wybierz kategorię"
               disabled={isLoading}
             >

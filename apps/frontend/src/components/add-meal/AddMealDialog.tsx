@@ -5,12 +5,14 @@ import {
   DialogBody,
   DialogTitle,
   DialogContent,
+  Button,
   makeStyles,
   tokens,
   shorthands,
   MessageBar,
   MessageBarBody,
 } from "@fluentui/react-components";
+import { Dismiss24Regular } from "@fluentui/react-icons";
 import { useAddMealStepper } from "@/hooks/useAddMealStepper";
 import { MealInputStep } from "./MealInputStep";
 import { AnalysisLoadingStep } from "./AnalysisLoadingStep";
@@ -31,6 +33,12 @@ const useStyles = makeStyles({
     display: "flex",
     flexDirection: "column",
     ...shorthands.gap(tokens.spacingVerticalL),
+  },
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    ...shorthands.gap(tokens.spacingHorizontalM),
   },
   content: {
     display: "flex",
@@ -66,12 +74,12 @@ export function AddMealDialog({
     handleReset,
   } = useAddMealStepper();
 
-  // Load categories when dialog opens
+  // Load categories when dialog opens (only if not already loaded)
   useEffect(() => {
-    if (open) {
+    if (open && categories.length === 0 && !isCategoriesLoading) {
       void loadCategories();
     }
-  }, [open, loadCategories]);
+  }, [open, categories.length, isCategoriesLoading, loadCategories]);
 
   const handleClose = () => {
     handleReset();
@@ -124,7 +132,15 @@ export function AddMealDialog({
     <Dialog open={open} onOpenChange={(_, data) => onOpenChange(data.open)}>
       <DialogSurface className={styles.surface}>
         <DialogBody className={styles.body}>
-          <DialogTitle>{getDialogTitle()}</DialogTitle>
+          <div className={styles.header}>
+            <DialogTitle>{getDialogTitle()}</DialogTitle>
+            <Button
+              appearance="subtle"
+              aria-label="Zamknij"
+              icon={<Dismiss24Regular />}
+              onClick={handleClose}
+            />
+          </div>
           <DialogContent className={styles.content}>
             {error && step === "input" && (
               <MessageBar intent="error" className={styles.errorBar}>
