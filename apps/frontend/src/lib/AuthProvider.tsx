@@ -1,8 +1,11 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
 import { getProfile } from "@/lib/api";
+
+// Auth page paths used for navigation logic
+const AUTH_PAGES = ["/login", "/register"];
 
 type AuthContextType = {
   session: Session | null;
@@ -34,7 +37,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // 2. Listen for future changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      // Auth state logging for debugging authentication flows
+      console.log("Auth state change:", event, session ? "session exists" : "no session");
       setSession(session);
     });
 
@@ -43,46 +48,79 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
+  // Handle navigation based on authentication state
+  // Uses guard clauses to reduce nesting and improve readability
+  const handleNavigation = useCallback(async (): Promise<void> => {
+    // Guard: No session - redirect to login if not on auth page
+    if (!session) {
+      if (!AUTH_PAGES.includes(window.location.pathname)) {
+        navigate("/login", { replace: true });
+      }
+      return;
+    }
+
+    // User has session - check their profile to determine navigation
+    try {
+      const profile = await getProfile();
+
+      // Guard: Redirect to onboarding if not completed
+      if (!profile.onboarding_completed_at) {
+        if (window.location.pathname !== "/onboarding") {
+          navigate("/onboarding", { replace: true });
+        }
+        return;
+      }
+
+      // Guard: Redirect authenticated users away from auth pages
+      if (AUTH_PAGES.includes(window.location.pathname)) {
+        navigate("/", { replace: true });
+      }
+    } catch (error) {
+      console.error("Failed to fetch profile:", error);
+
+      // Handle profile not found (404) - new users need onboarding
+      const isNotFoundError =
+        error instanceof Error &&
+        (error.message.toLowerCase().includes("not found") ||
+          error.message.toLowerCase().includes("404"));
+
+      if (isNotFoundError) {
+        if (window.location.pathname !== "/onboarding") {
+          navigate("/onboarding", { replace: true });
+        }
+        return;
+      }
+
+      // For other errors (unauthorized, network issues), sign out the user
+      await supabase.auth.signOut();
+      navigate("/login", { replace: true });
+    }
+  }, [session, navigate]);
+
   // Effect to handle navigation based on session state
   useEffect(() => {
     if (loading) return; // Wait until the initial session check is complete
 
-    const handleNavigation = async () => {
-      // If user is present, check their profile
-      if (session) {
-        try {
-          const profile = await getProfile();
-          // If onboarding is not complete, redirect there
-          if (!profile.onboarding_completed_at) {
-            if (window.location.pathname !== "/onboarding") {
-              navigate("/onboarding", { replace: true });
-            }
-          }
-          // If user is on an auth page after login, redirect to dashboard
-          else if (["/login", "/register"].includes(window.location.pathname)) {
-            navigate("/", { replace: true });
-          }
-        } catch (error) {
-          console.error("Failed to fetch profile:", error);
-          // If profile fetch fails, log the user out to be safe
-          await supabase.auth.signOut();
-          navigate("/login", { replace: true });
-        }
-      }
-      // If no user session, redirect to login unless already on an auth page
-      else {
-        if (!["/login", "/register"].includes(window.location.pathname)) {
-          navigate("/login", { replace: true });
-        }
-      }
-    };
-
     handleNavigation();
-  }, [session, loading, navigate]);
+  }, [loading, handleNavigation]);
 
   return (
     <AuthContext.Provider value={{ session, loading }}>
-      {loading ? <div>Loading...</div> : children}
+      {loading ? (
+        <div
+          role="status"
+          aria-live="polite"
+          aria-label="Ładowanie aplikacji"
+          className="flex items-center justify-center min-h-screen"
+        >
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Ładowanie...</p>
+          </div>
+        </div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 };

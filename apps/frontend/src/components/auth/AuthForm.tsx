@@ -14,20 +14,20 @@ import { type AuthFormProps, type AuthFormData } from "@/types";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { EyeRegular, EyeOffRegular } from "@fluentui/react-icons";
 import { useState } from "react";
 
-// TODO: Implement password validation
 const loginSchema = z.object({
-  email: z.string().email({ message: "Nieprawidłowy adres email." }),
-  password: z.string().min(1, { message: "Hasło jest wymagane." }),
+  email: z.string().trim().email({ message: "Nieprawidłowy adres email." }),
+  password: z.string().trim().min(1, { message: "Hasło jest wymagane." }),
 });
 
 const registerSchema = z.object({
-  email: z.string().email({ message: "Nieprawidłowy adres email." }),
+  email: z.string().trim().email({ message: "Nieprawidłowy adres email." }),
   password: z
     .string()
+    .trim()
     .min(8, { message: "Hasło musi mieć co najmniej 8 znaków." })
     .regex(/[a-zA-Z]/, {
       message: "Hasło musi zawierać co najmniej jedną literę.",
@@ -157,6 +157,7 @@ export function AuthForm({
               autoComplete={mode === "login" ? "current-password" : "new-password"}
               contentAfter={
                 <Button
+                  type="button"
                   appearance="transparent"
                   className={styles.passwordToggle}
                   onClick={() => setShowPassword(!showPassword)}
@@ -204,9 +205,21 @@ export function AuthForm({
               content.buttonText
             )}
           </Button>
+          {mode === "login" && (
+            <Text style={{ textAlign: "center" }}>
+              <Button
+                type="button"
+                appearance="subtle"
+                onClick={() => navigate("/reset-password")}
+              >
+                Nie pamiętasz hasła?
+              </Button>
+            </Text>
+          )}
           <Text style={{ textAlign: "center" }}>
             {content.footerText}{" "}
             <Button
+              type="button"
               appearance="subtle"
               onClick={() => navigate(content.footerTo)}
             >

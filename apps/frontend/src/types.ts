@@ -278,6 +278,27 @@ export interface AuthFormProps {
   apiError: string | null;
 }
 
+export interface ResetPasswordRequestFormData {
+  email: string;
+}
+
+export interface ResetPasswordRequestFormProps {
+  onSubmit: (data: ResetPasswordRequestFormData) => void;
+  isLoading: boolean;
+  apiError: string | null;
+}
+
+export interface ResetPasswordConfirmFormData {
+  password: string;
+  confirmPassword: string;
+}
+
+export interface ResetPasswordConfirmFormProps {
+  onSubmit: (data: ResetPasswordConfirmFormData) => void;
+  isLoading: boolean;
+  apiError: string | null;
+}
+
 // Add Meal Modal ViewModels
 export type MealInputFormViewModel = {
   category: string;

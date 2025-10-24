@@ -7,6 +7,9 @@ import HistoryPage from "./pages/HistoryPage";
 import ProfilePage from "./pages/ProfilePage";
 import { LoginPage } from "./pages/auth/LoginPage";
 import { RegisterPage } from "./pages/auth/RegisterPage";
+import { ResetPasswordRequestPage } from "./pages/auth/ResetPasswordRequestPage";
+import { ResetPasswordConfirmPage } from "./pages/auth/ResetPasswordConfirmPage";
+import { EmailConfirmationPage } from "./pages/auth/EmailConfirmationPage";
 import { OnboardingPage } from "./pages/OnboardingPage";
 import { AuthProvider } from "./lib/AuthProvider";
 import { ErrorBoundary } from "./components/common/ErrorBoundary";
@@ -34,6 +37,9 @@ function AppWithErrorBoundary() {
             <Route path="/profile" element={<AppLayout><ProfilePage /></AppLayout>} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/reset-password" element={<ResetPasswordRequestPage />} />
+            <Route path="/reset-password/confirm" element={<ResetPasswordConfirmPage />} />
+            <Route path="/email-confirmation" element={<EmailConfirmationPage />} />
             <Route path="/onboarding" element={<OnboardingPage />} />
           </Routes>
         </DashboardRefreshProvider>
