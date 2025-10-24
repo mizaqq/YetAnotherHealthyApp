@@ -15,6 +15,7 @@ from app.db.repositories.analysis_run_items_repository import AnalysisRunItemsRe
 from app.db.repositories.analysis_runs_repository import AnalysisRunsRepository
 from app.db.repositories.meal_repository import MealRepository, MealSource
 from app.services.analysis_processor import AnalysisRunProcessor
+from app.services.openrouter_service import OpenRouterService
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
@@ -27,20 +28,26 @@ class AnalysisRunsService:
         self,
         repository: AnalysisRunsRepository,
         items_repository: AnalysisRunItemsRepository | None = None,
+        product_repository=None,
+        openrouter_service: OpenRouterService | None = None,
     ):
         """Initialize service with repository dependencies.
 
         Args:
             repository: AnalysisRunsRepository instance for data access
             items_repository: Optional AnalysisRunItemsRepository for items access
+            product_repository: Optional ProductRepository for product lookups
         """
         self._repository = repository
         self._items_repository = items_repository
-        # Initialize processor for synchronous MVP processing
-        if items_repository:
+        self._product_repository = product_repository
+        self._openrouter_service = openrouter_service
+        if items_repository and product_repository:
             self._processor = AnalysisRunProcessor(
                 repository=repository,
                 items_repository=items_repository,
+                product_repository=product_repository,
+                openrouter_service=openrouter_service,
             )
         else:
             self._processor = None
@@ -226,27 +233,10 @@ class AnalysisRunsService:
                     "source": "text",
                 }
 
-                # Store category for later meal creation
-                from datetime import datetime as dt
-
-                current_hour = dt.utcnow().hour
-                # Simple heuristic for meal category based on time
-                if 5 <= current_hour < 11:
-                    meal_category = "sniadanie"
-                elif 11 <= current_hour < 15:
-                    meal_category = "obiad"
-                elif 15 <= current_hour < 18:
-                    meal_category = "podwieczorek"
-                else:
-                    meal_category = "kolacja"
-
-                meal_eaten_at = dt.utcnow()
-
                 logger.info(
-                    "Starting text-based analysis (meal will be created after processing)",
+                    "Starting text-based analysis",
                     extra={
                         "user_id": str(user_id),
-                        "category": meal_category,
                         "input_text_preview": input_text[:50]
                         if len(input_text) > 50
                         else input_text,
@@ -293,42 +283,8 @@ class AnalysisRunsService:
                     threshold=Decimal(str(threshold)),
                 )
 
-                # If analysis succeeded and this was text input, create AI meal with results
-                if final_run["status"] == "succeeded" and input_text is not None:
-                    # final_run["id"] is already a UUID, not a string
-                    run_id = (
-                        final_run["id"]
-                        if isinstance(final_run["id"], UUID)
-                        else UUID(final_run["id"])
-                    )
-
-                    created_meal_id = await self._create_ai_meal_from_analysis(
-                        user_id=user_id,
-                        analysis_run_id=run_id,
-                        category=meal_category,
-                        eaten_at=meal_eaten_at,
-                    )
-
-                    # Update the analysis run with the created meal_id
-                    await self._repository.update_meal_id(
-                        run_id=run_id,
-                        user_id=user_id,
-                        meal_id=created_meal_id,
-                    )
-
-                    # Update the returned final_run dict with meal_id
-                    final_run["meal_id"] = str(created_meal_id)
-
-                    logger.info(
-                        "Created AI meal from text analysis",
-                        extra={
-                            "meal_id": str(created_meal_id),
-                            "analysis_run_id": str(run_id),
-                        },
-                    )
-
                 # If this was an existing meal being analyzed, update it
-                elif final_run["status"] == "succeeded" and meal_id is not None:
+                if final_run["status"] == "succeeded" and meal_id is not None:
                     run_id = (
                         final_run["id"]
                         if isinstance(final_run["id"], UUID)
@@ -571,11 +527,15 @@ class AnalysisRunsService:
             # Extract meal_id from source run
             meal_id = source_run["meal_id"]
 
-            # Check for active runs (queued or running)
-            active_run = await self._repository.get_active_run(
-                meal_id=meal_id,
-                user_id=user_id,
-            )
+            # Check for active runs (queued or running) only if meal_id is present
+            if meal_id is not None:
+                active_run = await self._repository.get_active_run(
+                    meal_id=meal_id,
+                    user_id=user_id,
+                )
+            else:
+                # Ad-hoc analysis (no meal_id), skip active run check
+                active_run = None
 
             if active_run is not None:
                 raise HTTPException(
@@ -1003,3 +963,7 @@ class AnalysisRunsService:
             )
             # Don't raise - analysis succeeded, meal update is secondary
             # The meal will have placeholder values but analysis is available
+
+    @staticmethod
+    def _quantize_two_decimal_places(value: Decimal) -> Decimal:
+        return value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)

@@ -74,12 +74,11 @@ export function AddMealDialog({
     handleReset,
   } = useAddMealStepper();
 
-  // Load categories when dialog opens (only if not already loaded)
+  // Load categories on mount (eagerly, before dialog opens)
   useEffect(() => {
-    if (open && categories.length === 0 && !isCategoriesLoading) {
-      void loadCategories();
-    }
-  }, [open, categories.length, isCategoriesLoading, loadCategories]);
+    void loadCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on mount
 
   const handleClose = () => {
     handleReset();

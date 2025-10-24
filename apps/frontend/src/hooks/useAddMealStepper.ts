@@ -84,7 +84,7 @@ export function useAddMealStepper() {
         // Fetch analysis items
         const analysisItems = await getAnalysisRunItems(analysisRun.id);
 
-        // Calculate totals from items
+        // Calculate totals from items and round to 2 decimal places
         const totals = analysisItems.items.reduce(
           (acc, item) => ({
             calories: acc.calories + (item.calories ?? 0),
@@ -94,6 +94,12 @@ export function useAddMealStepper() {
           }),
           { calories: 0, protein: 0, fat: 0, carbs: 0 }
         );
+        
+        // Round all totals to 2 decimal places to match API schema constraints
+        totals.calories = Math.round(totals.calories * 100) / 100;
+        totals.protein = Math.round(totals.protein * 100) / 100;
+        totals.fat = Math.round(totals.fat * 100) / 100;
+        totals.carbs = Math.round(totals.carbs * 100) / 100;
 
         setState((prev) => ({
           ...prev,
@@ -123,7 +129,7 @@ export function useAddMealStepper() {
     []
   );
 
-  // Accept AI results and create meal
+  // Accept AI results and create meal (user has reviewed and approved)
   const handleAcceptResults = useCallback(async () => {
     if (!state.analysisResults || !state.analysisRunId) {
       toast.error("Brak wyników analizy do zaakceptowania");
@@ -133,6 +139,7 @@ export function useAddMealStepper() {
     try {
       setState((prev) => ({ ...prev, isSubmitting: true, error: null }));
 
+      // Create meal with rounded values to match API decimal_places=2 constraint
       await createMeal({
         category: state.formData.category,
         eaten_at: new Date().toISOString(),
@@ -183,7 +190,7 @@ export function useAddMealStepper() {
       // Fetch new analysis items
       const analysisItems = await getAnalysisRunItems(analysisRun.id);
 
-      // Calculate totals from items
+      // Calculate totals from items and round to 2 decimal places
       const totals = analysisItems.items.reduce(
         (acc, item) => ({
           calories: acc.calories + (item.calories ?? 0),
@@ -193,6 +200,12 @@ export function useAddMealStepper() {
         }),
         { calories: 0, protein: 0, fat: 0, carbs: 0 }
       );
+      
+      // Round all totals to 2 decimal places to match API schema constraints
+      totals.calories = Math.round(totals.calories * 100) / 100;
+      totals.protein = Math.round(totals.protein * 100) / 100;
+      totals.fat = Math.round(totals.fat * 100) / 100;
+      totals.carbs = Math.round(totals.carbs * 100) / 100;
 
       setState((prev) => ({
         ...prev,

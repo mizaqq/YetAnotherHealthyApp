@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { ErrorState } from "@/components/common/ErrorState";
@@ -10,7 +10,7 @@ import { ChartSkeleton } from "@/components/dashboard/ChartSkeleton";
 import { CalorieDisplay } from "@/components/dashboard/CalorieDisplay";
 import { ProgressDisplay } from "@/components/dashboard/ProgressDisplay";
 import { MealDetailsDialog } from "@/components/meal-details/MealDetailsDialog";
-import { DashboardRefreshProvider } from "@/lib/DashboardRefreshContext";
+import { useDashboardRefresh } from "@/lib/DashboardRefreshContext";
 import { toast } from "sonner";
 import {
   Title1,
@@ -123,8 +123,14 @@ export default function DashboardPage() {
   const styles = useStyles();
   const { dailySummary, weeklyTrend, isLoading, error, hasMeals, refetch } =
     useDashboardData();
+  const { registerRefresh } = useDashboardRefresh();
   const [mealDetailsOpen, setMealDetailsOpen] = useState(false);
   const [selectedMealId, setSelectedMealId] = useState<string | null>(null);
+
+  // Register refresh function with context so other components can trigger refresh
+  useEffect(() => {
+    registerRefresh(refetch);
+  }, [registerRefresh, refetch]);
 
   const handleMealClick = (mealId: string) => {
     setSelectedMealId(mealId);
@@ -137,7 +143,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <DashboardRefreshProvider refresh={refetch}>
+    <>
       {/* Loading state */}
       {isLoading && (
         <div className={styles.root}>
@@ -254,7 +260,7 @@ export default function DashboardPage() {
         onOpenChange={setMealDetailsOpen}
         onDeleted={handleMealDeleted}
       />
-    </DashboardRefreshProvider>
+    </>
   );
 }
 

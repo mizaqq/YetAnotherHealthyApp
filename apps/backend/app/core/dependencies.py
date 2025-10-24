@@ -6,9 +6,10 @@ import logging
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import Depends, HTTPException, Header, status
+from fastapi import Depends, Header, HTTPException, status
 from supabase import Client
 
+from app.core.config import settings
 from app.core.supabase import get_supabase_client
 from app.db.repositories.analysis_run_items_repository import AnalysisRunItemsRepository
 from app.db.repositories.analysis_runs_repository import AnalysisRunsRepository
@@ -21,6 +22,8 @@ from app.db.repositories.unit_repository import UnitRepository
 from app.services.analysis_runs_service import AnalysisRunsService
 from app.services.meal_categories_service import MealCategoriesService
 from app.services.meal_service import MealService
+from app.services.openrouter_client import OpenRouterClient
+from app.services.openrouter_service import OpenRouterService
 from app.services.product_service import ProductService
 from app.services.profile_service import ProfileService
 from app.services.reports_service import ReportsService
@@ -214,15 +217,51 @@ def get_analysis_run_items_repository(
     return AnalysisRunItemsRepository(client)
 
 
+def get_openrouter_client() -> OpenRouterClient:
+    """Dependency that provides an OpenRouterClient instance.
+
+    Returns:
+        OpenRouterClient configured with settings from environment
+    """
+    return OpenRouterClient(config=settings.openrouter)
+
+
+def get_openrouter_service(
+    client: Annotated[OpenRouterClient, Depends(get_openrouter_client)],
+    product_repository: Annotated[ProductRepository, Depends(get_product_repository)],
+) -> OpenRouterService:
+    """Dependency that provides an OpenRouterService instance.
+
+    Args:
+        client: Injected OpenRouterClient for HTTP communication
+        product_repository: Injected ProductRepository for ingredient verification
+
+    Returns:
+        OpenRouterService instance with all dependencies
+    """
+    return OpenRouterService(
+        settings=settings,
+        client=client,
+        product_repository=product_repository,
+    )
+
+
 def get_analysis_runs_service(
     repository: Annotated[AnalysisRunsRepository, Depends(get_analysis_runs_repository)],
     items_repository: Annotated[
         AnalysisRunItemsRepository, Depends(get_analysis_run_items_repository)
     ],
+    product_repository: Annotated[ProductRepository, Depends(get_product_repository)],
+    openrouter_service: Annotated[OpenRouterService, Depends(get_openrouter_service)],
 ) -> AnalysisRunsService:
     """Dependency that provides an AnalysisRunsService instance."""
 
-    return AnalysisRunsService(repository, items_repository)
+    return AnalysisRunsService(
+        repository=repository,
+        items_repository=items_repository,
+        product_repository=product_repository,
+        openrouter_service=openrouter_service,
+    )
 
 
 def get_reports_repository(

@@ -11,6 +11,7 @@ import { OnboardingPage } from "./pages/OnboardingPage";
 import { AuthProvider } from "./lib/AuthProvider";
 import { ErrorBoundary } from "./components/common/ErrorBoundary";
 import { AppLayout } from "./components/navigation/AppLayout";
+import { DashboardRefreshProvider } from "./lib/DashboardRefreshContext";
 import "./index.css";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "./lib/ThemeProvider";
@@ -26,14 +27,16 @@ function AppWithErrorBoundary() {
   return (
     <ErrorBoundary onReset={handleReset}>
       <AuthProvider>
-        <Routes>
-          <Route path="/" element={<AppLayout><DashboardPage /></AppLayout>} />
-          <Route path="/history" element={<AppLayout><HistoryPage /></AppLayout>} />
-          <Route path="/profile" element={<AppLayout><ProfilePage /></AppLayout>} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/onboarding" element={<OnboardingPage />} />
-        </Routes>
+        <DashboardRefreshProvider>
+          <Routes>
+            <Route path="/" element={<AppLayout><DashboardPage /></AppLayout>} />
+            <Route path="/history" element={<AppLayout><HistoryPage /></AppLayout>} />
+            <Route path="/profile" element={<AppLayout><ProfilePage /></AppLayout>} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/onboarding" element={<OnboardingPage />} />
+          </Routes>
+        </DashboardRefreshProvider>
         <Toaster />
       </AuthProvider>
     </ErrorBoundary>

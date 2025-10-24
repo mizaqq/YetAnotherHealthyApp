@@ -225,7 +225,7 @@ class MealRepository:
                 .execute()
             )
 
-            if not response.data:
+            if not response or not response.data:
                 return None
 
             analysis_run = response.data
@@ -240,7 +240,7 @@ class MealRepository:
             )
 
             # If already accepted by another meal, return None
-            if meals_response.data:
+            if meals_response and meals_response.data:
                 return None
 
             return analysis_run

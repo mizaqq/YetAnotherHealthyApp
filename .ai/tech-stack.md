@@ -8,7 +8,6 @@ YetAnotherHealthyApp to webowa aplikacja do szybkiego zapisywania posiłków ora
 - **Vite**: bardzo szybkie uruchamianie środowiska developerskiego i bundling produkcyjny.
 - **TypeScript 5**: statyczne typowanie i lepszy DX.
 - **Tailwind CSS 4**: stylowanie w podejściu utility‑first.
-- **shadcn/ui**: dostępne komponenty UI oparte o React.
 - **Struktura**: kod w `apps/frontend`, źródła w `apps/frontend/src`, klienci przeglądarkowi w `apps/frontend/src/lib`, build w `apps/frontend/dist`, konfiguracje w `apps/frontend/vite.config.ts`, `apps/frontend/tailwind.config.js`, `apps/frontend/eslint.config.js`, `apps/frontend/tsconfig.json`.
 
 ### Backend — FastAPI 0.119.0 (Python)
