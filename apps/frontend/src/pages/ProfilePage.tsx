@@ -1,14 +1,13 @@
 import {
   Title1,
-  Text,
-  Button,
-  Card,
   makeStyles,
   shorthands,
   tokens,
 } from "@fluentui/react-components";
-import { supabase } from "@/lib/supabaseClient";
-import { toast } from "sonner";
+import { LoadingSpinner } from "@/components/common/LoadingSpinner";
+import { ErrorState } from "@/components/common/ErrorState";
+import { UserProfileCard } from "@/components/profile/UserProfileCard";
+import { useProfile } from "@/hooks/useProfile";
 
 const useStyles = makeStyles({
   root: {
@@ -23,43 +22,49 @@ const useStyles = makeStyles({
     flexDirection: "column",
     ...shorthands.gap(tokens.spacingVerticalL),
   },
-  card: {
-    maxWidth: "600px",
-    ...shorthands.padding("24px"),
-    display: "flex",
-    flexDirection: "column",
-    ...shorthands.gap(tokens.spacingVerticalL),
-  },
 });
 
 export default function ProfilePage() {
   const styles = useStyles();
+  const { profile, updateCalorieGoal, logout } = useProfile();
 
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      toast.success("Wylogowano pomyślnie");
-      // AuthProvider will handle the redirect
-    } catch (error) {
-      toast.error("Błąd podczas wylogowywania");
-      console.error("Logout error:", error);
-    }
-  };
+  // Loading state
+  if (profile.isLoading) {
+    return (
+      <div className={styles.root}>
+        <div className={styles.container}>
+          <Title1 as="h1">Profil</Title1>
+          <LoadingSpinner message="Ładowanie profilu..." />
+        </div>
+      </div>
+    );
+  }
 
+  // Error state
+  if (profile.error) {
+    return (
+      <div className={styles.root}>
+        <div className={styles.container}>
+          <Title1 as="h1">Profil</Title1>
+          <ErrorState
+            message={profile.error}
+            onRetry={() => window.location.reload()}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Success state
   return (
     <div className={styles.root}>
       <div className={styles.container}>
         <Title1 as="h1">Profil</Title1>
-        <Card className={styles.card}>
-          <Text size={400}>Widok w przygotowaniu...</Text>
-          <Button
-            onClick={() => void handleLogout()}
-            appearance="outline"
-            size="large"
-          >
-            Wyloguj się
-          </Button>
-        </Card>
+        <UserProfileCard
+          profile={profile}
+          onSaveGoal={updateCalorieGoal}
+          onLogout={logout}
+        />
       </div>
     </div>
   );

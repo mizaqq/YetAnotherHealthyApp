@@ -12,6 +12,7 @@ import type {
   MealListItemDTO,
   MealDetailDTO,
   CreateOnboardingCommand,
+  PaginatedResponse,
 } from "../types";
 
 export type HealthResponse = { status: string };
@@ -72,6 +73,25 @@ async function handleApiError(response: Response): Promise<never> {
 
 export async function getProfile(): Promise<ProfileDTO> {
   const response = await authenticatedFetch(`${API_BASE}/profile`);
+
+  if (!response.ok) {
+    await handleApiError(response);
+  }
+
+  return (await response.json()) as ProfileDTO;
+}
+
+/**
+ * Update user profile (e.g., daily calorie goal)
+ * @param updates Partial profile updates
+ */
+export async function updateProfile(
+  updates: Partial<Pick<ProfileDTO, "daily_calorie_goal">>
+): Promise<ProfileDTO> {
+  const response = await authenticatedFetch(`${API_BASE}/profile`, {
+    method: "PATCH",
+    body: JSON.stringify(updates),
+  });
 
   if (!response.ok) {
     await handleApiError(response);
@@ -308,6 +328,30 @@ export async function deleteMeal(mealId: string): Promise<void> {
   }
 
   // 204 No Content response has no body
+}
+
+/**
+ * Get paginated list of meals
+ * @param pageSize Number of meals to fetch per page
+ * @param afterCursor Cursor for pagination (from previous response)
+ */
+export async function getMeals(
+  pageSize: number = 20,
+  afterCursor?: string | null
+): Promise<PaginatedResponse<MealListItemDTO>> {
+  const url = new URL(`${API_BASE}/meals`, window.location.origin);
+  url.searchParams.set("page[size]", pageSize.toString());
+  if (afterCursor) {
+    url.searchParams.set("page[after]", afterCursor);
+  }
+
+  const response = await authenticatedFetch(url.toString());
+
+  if (!response.ok) {
+    await handleApiError(response);
+  }
+
+  return (await response.json()) as PaginatedResponse<MealListItemDTO>;
 }
 
 

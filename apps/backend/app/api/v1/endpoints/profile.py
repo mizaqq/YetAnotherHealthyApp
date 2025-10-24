@@ -14,6 +14,8 @@ from app.schemas.profile import (
     CompleteOnboardingCommand,
     ProfileOnboardingRequest,
     ProfileResponse,
+    UpdateProfileCommand,
+    UpdateProfileRequest,
 )
 from app.services.profile_service import ProfileService
 
@@ -129,4 +131,58 @@ async def get_profile(
     """
     logger.info(f"Retrieving profile for user {user_id}")
     profile = await profile_service.get_profile(str(user_id))
+    return profile
+
+
+@router.patch(
+    "",
+    response_model=ProfileResponse,
+    summary="Update user profile",
+    description="Update the authenticated user's profile fields (e.g., daily calorie goal).",
+    responses={
+        200: {"description": "Profile updated successfully"},
+        400: {"description": "Invalid request data"},
+        401: {"description": "Missing or invalid authentication token"},
+        404: {"description": "Profile not found"},
+        500: {"description": "Internal server error"},
+    },
+)
+async def update_profile(
+    request: UpdateProfileRequest,
+    user_id: Annotated[UUID, Depends(get_current_user_id)],
+    profile_service: Annotated[ProfileService, Depends(get_profile_service)],
+) -> ProfileResponse:
+    """
+    Update the authenticated user's profile.
+
+    Allows partial updates to profile fields such as daily_calorie_goal
+    and onboarding_completed_at.
+
+    Args:
+        request: UpdateProfileRequest with optional fields to update
+        user_id: Authenticated user's UUID (from JWT token)
+        profile_service: Injected ProfileService instance
+
+    Returns:
+        ProfileResponse with the updated profile data
+
+    Raises:
+        HTTPException 400: Invalid input data
+        HTTPException 401: Authentication failed
+        HTTPException 404: Profile not found
+        HTTPException 500: Internal server error
+    """
+    logger.info(f"Updating profile for user {user_id}")
+
+    # Create command object
+    command = UpdateProfileCommand(
+        user_id=user_id,
+        daily_calorie_goal=request.daily_calorie_goal,
+        onboarding_completed_at=request.onboarding_completed_at,
+    )
+
+    # Execute business logic
+    profile = await profile_service.update_profile(command)
+
+    logger.info(f"Profile updated successfully for user {user_id}")
     return profile

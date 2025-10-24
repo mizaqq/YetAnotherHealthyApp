@@ -303,3 +303,22 @@ export type OnboardingFormProps = {
   isLoading: boolean;
   apiError: string | null;
 };
+
+// Profile ViewModels
+export type ProfileViewModel = {
+  email: string;
+  dailyCalorieGoal: number;
+  isLoading: boolean;
+  isUpdating: boolean;
+  error: string | null;
+};
+
+export type UpdateProfilePayload = {
+  daily_calorie_goal: number;
+};
+
+// History View ViewModels
+export type GroupedMealViewModel = {
+  date: ISODateString;
+  meals: MealListItemDTO[];
+};

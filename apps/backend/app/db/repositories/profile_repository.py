@@ -110,3 +110,49 @@ class ProfileRepository:
         # For now, this is the same as get_profile
         # Can be extended with locking logic if needed
         return self.get_profile(user_id)
+
+    def update_profile(
+        self,
+        user_id: UUID,
+        daily_calorie_goal: Decimal | None = None,
+        onboarding_completed_at: datetime | None = None,
+    ) -> ProfileResponse:
+        """
+        Update specific fields of an existing profile.
+
+        Args:
+            user_id: The UUID of the user
+            daily_calorie_goal: Optional new daily calorie goal
+            onboarding_completed_at: Optional onboarding completion timestamp
+
+        Returns:
+            The updated ProfileResponse
+
+        Raises:
+            Exception: For database errors
+        """
+        # Build update data with only provided fields
+        update_data: dict[str, Any] = {}
+
+        if daily_calorie_goal is not None:
+            update_data["daily_calorie_goal"] = float(daily_calorie_goal)
+
+        if onboarding_completed_at is not None:
+            update_data["onboarding_completed_at"] = onboarding_completed_at.isoformat()
+
+        # If no fields to update, just return the current profile
+        if not update_data:
+            profile = self.get_profile(user_id)
+            if profile is None:
+                raise Exception(f"Profile not found for user {user_id}")
+            return profile
+
+        # Update profile
+        response = (
+            self.client.table("profiles").update(update_data).eq("user_id", str(user_id)).execute()
+        )
+
+        if not response or not response.data or len(response.data) == 0:
+            raise Exception(f"Failed to update profile for user {user_id}")
+
+        return ProfileResponse(**response.data[0])
