@@ -67,6 +67,10 @@ async function handleApiError(response: Response): Promise<never> {
   if (response.status === 404) {
     throw new Error("Resource not found. Please complete your profile setup.");
   }
+
+  if (response.status === 409) {
+    throw new Error("Conflict");
+  }
   
   throw new Error(`API error (${response.status}): ${text || response.statusText}`);
 }
@@ -352,6 +356,54 @@ export async function getMeals(
   }
 
   return (await response.json()) as PaginatedResponse<MealListItemDTO>;
+}
+
+/**
+ * Register a new user account
+ * @param payload Email and password for the new account
+ */
+export async function postAuthRegister(payload: {
+  email: string;
+  password: string;
+}): Promise<void> {
+  const response = await fetch(`${API_BASE}/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) await handleApiError(response);
+}
+
+/**
+ * Request a password reset email
+ * @param payload Email address to send reset link to
+ */
+export async function postAuthPasswordResetRequest(payload: {
+  email: string;
+}): Promise<void> {
+  const response = await fetch(`${API_BASE}/auth/password/reset-request`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) await handleApiError(response);
+}
+
+/**
+ * Confirm password reset with new password
+ * @param payload New password for the account
+ */
+export async function postAuthPasswordResetConfirm(payload: {
+  password: string;
+}): Promise<void> {
+  const response = await authenticatedFetch(
+    `${API_BASE}/auth/password/reset-confirm`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }
+  );
+  if (!response.ok) await handleApiError(response);
 }
 
 

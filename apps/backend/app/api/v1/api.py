@@ -8,6 +8,7 @@ api_router.include_router(
     prefix="/analysis-runs",
     tags=["analysis-runs"],
 )
+api_router.include_router(endpoints.auth.router, prefix="/auth", tags=["auth"])
 api_router.include_router(endpoints.health.router, prefix="/health", tags=["health"])
 api_router.include_router(
     endpoints.meal_categories.router,

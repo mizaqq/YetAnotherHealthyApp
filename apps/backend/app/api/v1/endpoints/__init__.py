@@ -1,5 +1,6 @@
 from app.api.v1.endpoints import (
     analysis_runs,
+    auth,
     health,
     meal_categories,
     meals,
@@ -11,6 +12,7 @@ from app.api.v1.endpoints import (
 
 __all__ = [
     "analysis_runs",
+    "auth",
     "health",
     "meal_categories",
     "meals",
