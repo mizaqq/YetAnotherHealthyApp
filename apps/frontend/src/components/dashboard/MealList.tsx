@@ -69,7 +69,7 @@ export function MealList({ meals, onMealClick }: MealListProps) {
   });
 
   return (
-    <Card className={styles.card}>
+    <Card className={styles.card} data-testid="dashboard-meals-list">
       <CardHeader header={<Text size={500} weight="semibold">Dzisiejsze posiłki</Text>} />
       <ul className={styles.list}>
         {sortedMeals.map((meal) => (
@@ -86,6 +86,7 @@ export function MealList({ meals, onMealClick }: MealListProps) {
             role="button"
             tabIndex={0}
             aria-label={`Szczegóły posiłku: ${getCategoryLabel(meal.category)}`}
+            data-testid={`meal-list-item-${meal.id}`}
           >
             <div className={styles.mealDetails}>
               <Text as="h3" size={400} weight="semibold">

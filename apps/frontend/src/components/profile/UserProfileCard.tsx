@@ -86,6 +86,7 @@ export function UserProfileCard({
           icon={<SignOutRegular />}
           onClick={onLogout}
           size="large"
+          data-testid="profile-logout-button"
         >
           Wyloguj się
         </Button>

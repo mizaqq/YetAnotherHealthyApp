@@ -103,7 +103,7 @@ export function MealInputStep({
   };
 
   return (
-    <form onSubmit={(e) => void handleSubmit(handleFormSubmit)(e)} className={styles.form}>
+    <form onSubmit={(e) => void handleSubmit(handleFormSubmit)(e)} className={styles.form} data-testid="meal-input-form">
       <Controller
         name="category"
         control={control}
@@ -124,6 +124,7 @@ export function MealInputStep({
               onBlur={field.onBlur}
               placeholder="Wybierz kategorię"
               disabled={isLoading}
+              data-testid="meal-category-dropdown"
             >
               {categories.map((category) => (
                 <Option key={category.code} value={category.code}>
@@ -153,6 +154,7 @@ export function MealInputStep({
               }}
               label="Wprowadź kalorie ręcznie"
               disabled={isLoading}
+              data-testid="meal-manual-mode-switch"
             />
           </Field>
         )}
@@ -176,6 +178,7 @@ export function MealInputStep({
                 placeholder="Wprowadź opis swojego posiłku..."
                 maxLength={2000}
                 disabled={isLoading}
+                data-testid="meal-description-textarea"
               />
             </Field>
           )}
@@ -202,6 +205,7 @@ export function MealInputStep({
                 placeholder="np. 450"
                 min={1}
                 disabled={isLoading}
+                data-testid="meal-calories-input"
               />
             </Field>
           )}
@@ -213,6 +217,7 @@ export function MealInputStep({
           appearance="primary"
           type="submit"
           disabled={isLoading}
+          data-testid="meal-input-submit"
         >
           {isManualMode ? "Zapisz" : "Analizuj"}
         </Button>

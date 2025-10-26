@@ -141,6 +141,7 @@ export function AuthForm({
             {...register("email")}
             aria-invalid={errors.email ? "true" : "false"}
             aria-describedby={errors.email ? "email-error" : undefined}
+            data-testid="auth-email-input"
           />
           {errors.email && (
             <Text id="email-error" className={styles.errorText}>
@@ -164,6 +165,7 @@ export function AuthForm({
                   icon={showPassword ? <EyeOffRegular /> : <EyeRegular />}
                   aria-label={showPassword ? "Ukryj hasło" : "Pokaż hasło"}
                   tabIndex={-1}
+                  data-testid="auth-password-toggle"
                 />
               }
               {...register("password")}
@@ -171,6 +173,7 @@ export function AuthForm({
               aria-describedby={
                 errors.password ? "password-error" : undefined
               }
+              data-testid="auth-password-input"
             />
           </div>
           {errors.password && (
@@ -180,7 +183,7 @@ export function AuthForm({
           )}
         </div>
         {apiError && (
-          <div className={styles.apiErrorContainer} role="alert" aria-live="polite">
+          <div className={styles.apiErrorContainer} role="alert" aria-live="polite" data-testid="auth-api-error">
             <Text id="api-error" className={styles.errorText}>
               {apiError}
             </Text>
@@ -211,6 +214,7 @@ export function AuthForm({
                 type="button"
                 appearance="subtle"
                 onClick={() => navigate("/reset-password")}
+                data-testid="auth-forgot-password-link"
               >
                 Nie pamiętasz hasła?
               </Button>
@@ -222,6 +226,7 @@ export function AuthForm({
               type="button"
               appearance="subtle"
               onClick={() => navigate(content.footerTo)}
+              data-testid="auth-switch-mode-link"
             >
               {content.footerLinkText}
             </Button>

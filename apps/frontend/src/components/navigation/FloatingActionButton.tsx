@@ -45,6 +45,7 @@ export function FloatingActionButton({
       onClick={onClick}
       aria-label={ariaLabel}
       size="large"
+      data-testid="add-meal-fab"
     />
   );
 }

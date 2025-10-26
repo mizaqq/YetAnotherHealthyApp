@@ -149,6 +149,7 @@ export function EditableField({
             icon={<EditRegular />}
             onClick={handleEdit}
             aria-label={`Edytuj ${label.toLowerCase()}`}
+            data-testid="calorie-goal-edit-button"
           >
             Edytuj
           </Button>
@@ -176,6 +177,7 @@ export function EditableField({
             aria-invalid={!!error}
             aria-describedby={error ? `error-${label}` : undefined}
             autoFocus
+            data-testid="calorie-goal-input"
           />
           <div className={styles.buttonGroup}>
             <Button
@@ -184,6 +186,7 @@ export function EditableField({
               onClick={() => void handleSave()}
               disabled={!isValid || isSaving}
               aria-label="Zapisz"
+              data-testid="calorie-goal-save-button"
             >
               {isSaving ? "Zapisywanie..." : "Zapisz"}
             </Button>
@@ -193,13 +196,14 @@ export function EditableField({
               onClick={handleCancel}
               disabled={isSaving}
               aria-label="Anuluj"
+              data-testid="calorie-goal-cancel-button"
             >
               Anuluj
             </Button>
           </div>
         </div>
         {error && (
-          <Text id={`error-${label}`} className={styles.errorText} role="alert">
+          <Text id={`error-${label}`} className={styles.errorText} role="alert" data-testid="calorie-goal-error">
             {error}
           </Text>
         )}

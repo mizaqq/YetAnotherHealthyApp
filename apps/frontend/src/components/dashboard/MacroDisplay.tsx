@@ -139,7 +139,7 @@ export function MacroDisplay({ macros, calories }: MacroDisplayProps) {
   ];
 
   return (
-    <Card className={styles.card}>
+    <Card className={styles.card} data-testid="dashboard-macro-display">
       <CardHeader
         header={<Text size={500} weight="semibold">Makroskładniki</Text>}
         description={<Text size={300} style={{ color: tokens.colorNeutralForeground2 }}>Dzisiejsze spożycie</Text>}

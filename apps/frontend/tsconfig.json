@@ -15,8 +15,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "types": ["node"]
   },
-  "include": ["src"]
+  "include": ["src", "e2e"]
 }
 

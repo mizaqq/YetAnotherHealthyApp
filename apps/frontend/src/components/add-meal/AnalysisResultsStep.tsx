@@ -70,6 +70,7 @@ export function AnalysisResultsStep({
             fat: results.totals.fat,
             carbs: results.totals.carbs,
           }}
+          data-testid="analysis-results-macro-display"
         />
       </div>
 
@@ -78,18 +79,18 @@ export function AnalysisResultsStep({
           Wykryte składniki
         </Text>
         <div className={styles.tableContainer}>
-          <IngredientsTable items={results.items} />
+          <IngredientsTable items={results.items} data-testid="analysis-results-ingredients-table" />
         </div>
       </div>
 
       <div className={styles.buttonGroup}>
-        <Button appearance="subtle" onClick={onCancel} disabled={isLoading}>
+        <Button appearance="subtle" onClick={onCancel} disabled={isLoading} data-testid="analysis-results-cancel">
           Anuluj
         </Button>
-        <Button appearance="secondary" onClick={onRetry} disabled={isLoading}>
+        <Button appearance="secondary" onClick={onRetry} disabled={isLoading} data-testid="analysis-results-retry">
           Popraw i przelicz ponownie
         </Button>
-        <Button appearance="primary" onClick={onAccept} disabled={isLoading}>
+        <Button appearance="primary" onClick={onAccept} disabled={isLoading} data-testid="analysis-results-accept">
           Akceptuj i zapisz
         </Button>
       </div>

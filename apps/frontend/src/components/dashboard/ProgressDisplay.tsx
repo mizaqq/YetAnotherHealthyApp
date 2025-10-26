@@ -47,7 +47,7 @@ export function ProgressDisplay({
   }
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} data-testid="dashboard-progress-display">
       <ProgressBar value={value} style={{ height: "12px" }} />
       <div className={styles.progressInfo}>
         <Text

@@ -50,7 +50,7 @@ export function AnalysisLoadingStep({ onCancel }: AnalysisLoadingStepProps) {
         </Text>
       </div>
 
-      <Button appearance="secondary" onClick={onCancel}>
+      <Button appearance="secondary" onClick={onCancel} data-testid="analysis-loading-cancel">
         Anuluj
       </Button>
     </div>

@@ -99,7 +99,7 @@ export const WeeklyTrendChart = ({ data }: WeeklyTrendChartProps) => {
   const summaryText = `Trend tygodniowy kalorii: minimum ${minCalories}, maksimum ${maxCalories}, średnia ${avgCalories} kalorii`;
 
   return (
-    <Card data-testid="weekly-chart" className={styles.card}>
+    <Card data-testid="dashboard-weekly-chart" className={styles.card}>
       <CardHeader
         className={styles.header}
         header={<Text size={500} weight="semibold">Trend tygodniowy</Text>}

@@ -279,7 +279,7 @@ export function useAddMealStepper() {
 
   // Cancel ongoing analysis
   const handleCancel = useCallback(async () => {
-    if (state.analysisRunId && state.step === "loading") {
+    if (state.analysisRunId) {
       try {
         await cancelAnalysisRun(state.analysisRunId);
       } catch (error) {
@@ -296,7 +296,7 @@ export function useAddMealStepper() {
       error: null,
       isSubmitting: false,
     }));
-  }, [state.analysisRunId, state.step]);
+  }, [state.analysisRunId]);
 
   // Reset to initial state
   const handleReset = useCallback(() => {

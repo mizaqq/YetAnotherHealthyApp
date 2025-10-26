@@ -64,7 +64,7 @@ export function CalorieDisplay({
   const hasValidGoal = goalCalories && goalCalories > 0;
 
   return (
-    <>
+    <div data-testid="dashboard-calorie-display">
       {hasValidGoal ? (
         <div className={styles.caloriesDisplayWithGoal}>
           <div className={styles.valueAndLabelContainer}>
@@ -115,6 +115,6 @@ export function CalorieDisplay({
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

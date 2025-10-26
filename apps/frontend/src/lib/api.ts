@@ -59,11 +59,11 @@ async function authenticatedFetch(
  */
 async function handleApiError(response: Response): Promise<never> {
   const text = await response.text().catch(() => "");
-  
+
   if (response.status === 401) {
     throw new Error("Unauthorized. Please log in again.");
   }
-  
+
   if (response.status === 404) {
     throw new Error("Resource not found. Please complete your profile setup.");
   }
@@ -71,8 +71,8 @@ async function handleApiError(response: Response): Promise<never> {
   if (response.status === 409) {
     throw new Error("Conflict");
   }
-  
-  throw new Error(`API error (${response.status}): ${text || response.statusText}`);
+
+  throw new Error(`API error (${response.status}): ${text && text !== 'null' ? text : response.statusText}`);
 }
 
 export async function getProfile(): Promise<ProfileDTO> {

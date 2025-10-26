@@ -138,11 +138,12 @@ export function AddMealDialog({
               aria-label="Zamknij"
               icon={<Dismiss24Regular />}
               onClick={handleClose}
+              data-testid="add-meal-dialog-close"
             />
           </div>
           <DialogContent className={styles.content}>
             {error && step === "input" && (
-              <MessageBar intent="error" className={styles.errorBar}>
+              <MessageBar intent="error" className={styles.errorBar} data-testid="add-meal-error-message">
                 <MessageBarBody>{error}</MessageBarBody>
               </MessageBar>
             )}
@@ -163,7 +164,7 @@ export function AddMealDialog({
             {step === "results" && analysisResults && (
               <>
                 {error && (
-                  <MessageBar intent="error" className={styles.errorBar}>
+                  <MessageBar intent="error" className={styles.errorBar} data-testid="analysis-results-error-message">
                     <MessageBarBody>{error}</MessageBarBody>
                   </MessageBar>
                 )}
