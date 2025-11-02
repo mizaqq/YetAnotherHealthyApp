@@ -1,10 +1,5 @@
 """Schema exports for the application."""
 
-from app.schemas.profile import (
-    CompleteOnboardingCommand,
-    ProfileOnboardingRequest,
-    ProfileResponse,
-)
 from app.schemas.openrouter import (
     ChatRole,
     JsonSchemaDefinition,
@@ -17,6 +12,11 @@ from app.schemas.openrouter import (
     OpenRouterStreamChunk,
     StreamDelta,
     UsageStats,
+)
+from app.schemas.profile import (
+    CompleteOnboardingCommand,
+    ProfileOnboardingRequest,
+    ProfileResponse,
 )
 
 __all__ = [

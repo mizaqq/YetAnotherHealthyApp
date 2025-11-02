@@ -1,6 +1,7 @@
 """Unit test specific fixtures with mocked dependencies."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+from typing import Any
 from unittest.mock import AsyncMock, Mock
 from uuid import UUID, uuid4
 
@@ -8,7 +9,7 @@ import pytest
 
 
 @pytest.fixture
-def mock_meal_repository():
+def mock_meal_repository() -> Mock:
     """Mock for MealRepository (mixed sync/async methods)."""
     mock = Mock()
     # Sync method
@@ -26,7 +27,7 @@ def mock_meal_repository():
 
 
 @pytest.fixture
-def mock_product_repository():
+def mock_product_repository() -> Mock:
     """Mock for ProductRepository (sync)."""
     mock = Mock()
     mock.list_products.return_value = []
@@ -35,7 +36,7 @@ def mock_product_repository():
 
 
 @pytest.fixture
-def mock_reports_repository():
+def mock_reports_repository() -> AsyncMock:
     """AsyncMock for ReportsRepository."""
     mock = AsyncMock()
     mock.get_daily_meal_aggregates.return_value = {
@@ -50,7 +51,7 @@ def mock_reports_repository():
 
 
 @pytest.fixture
-def mock_profile_repository():
+def mock_profile_repository() -> Mock:
     """Mock for ProfileRepository (sync)."""
     mock = Mock()
     mock.get_profile.return_value = None
@@ -58,7 +59,7 @@ def mock_profile_repository():
 
 
 @pytest.fixture
-def mock_analysis_runs_repository():
+def mock_analysis_runs_repository() -> AsyncMock:
     """AsyncMock for AnalysisRunsRepository."""
     mock = AsyncMock()
     mock.get_by_id.return_value = None
@@ -75,7 +76,7 @@ def mock_analysis_runs_repository():
 
 
 @pytest.fixture
-def mock_analysis_run_items_repository():
+def mock_analysis_run_items_repository() -> AsyncMock:
     """AsyncMock for AnalysisRunItemsRepository."""
     mock = AsyncMock()
     mock.list_items.return_value = []
@@ -84,7 +85,7 @@ def mock_analysis_run_items_repository():
 
 
 @pytest.fixture
-def mock_openrouter_client():
+def mock_openrouter_client() -> AsyncMock:
     """AsyncMock for OpenRouterClient."""
     mock = AsyncMock()
     mock.post.return_value = Mock()
@@ -93,7 +94,7 @@ def mock_openrouter_client():
 
 
 @pytest.fixture
-def mock_openrouter_service():
+def mock_openrouter_service() -> AsyncMock:
     """AsyncMock for OpenRouterService."""
     mock = AsyncMock()
     mock.generate_chat_completion.return_value = Mock()
@@ -102,7 +103,7 @@ def mock_openrouter_service():
 
 
 @pytest.fixture
-def mock_supabase_client():
+def mock_supabase_client() -> Mock:
     """Mock for Supabase client."""
     mock = Mock()
     mock.auth = Mock()
@@ -116,25 +117,25 @@ def mock_supabase_client():
 
 
 @pytest.fixture
-def now():
+def now() -> datetime:
     """Fixed timestamp for testing."""
-    return datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
+    return datetime(2025, 1, 15, 12, 0, 0, tzinfo=UTC)
 
 
 @pytest.fixture
-def user_id():
+def user_id() -> UUID:
     """Fixed user UUID for testing."""
     return UUID("12345678-1234-5678-1234-567812345678")
 
 
 @pytest.fixture
-def meal_category():
+def meal_category() -> str:
     """Standard meal category code for testing."""
     return "śniadanie"
 
 
 @pytest.fixture
-def sample_meal_data(user_id, now, meal_category):
+def sample_meal_data(user_id: UUID, now: datetime, meal_category: str) -> dict[str, Any]:
     """Sample meal data dict for testing."""
     from decimal import Decimal
 

@@ -72,11 +72,11 @@ describe('IngredientsTable', () => {
 
     it('should handle null values as 0', () => {
       const item = createMockItem({
-        weight_grams: null as any,
-        calories: null as any,
-        protein: null as any,
-        fat: null as any,
-        carbs: null as any,
+        weight_grams: null as unknown as number,
+        calories: null as unknown as number,
+        protein: null as unknown as number,
+        fat: null as unknown as number,
+        carbs: null as unknown as number,
       });
       render(<IngredientsTable items={[item]} />);
       
@@ -139,7 +139,7 @@ describe('IngredientsTable', () => {
     });
 
     it('should handle null confidence as 0%', () => {
-      const item = createMockItem({ confidence: null as any });
+      const item = createMockItem({ confidence: null as unknown as number });
       render(<IngredientsTable items={[item]} />);
       
       const confidenceCell = screen.getByText('0%');

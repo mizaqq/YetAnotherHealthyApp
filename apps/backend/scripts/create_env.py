@@ -11,14 +11,12 @@ Example:
 """
 
 import argparse
-import json
-import os
 import sys
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any
 
 # Template configurations for different environments
-ENV_TEMPLATES: Dict[str, Dict[str, Any]] = {
+ENV_TEMPLATES: dict[str, dict[str, Any]] = {
     "development": {
         "APP_ENV": "development",
         "DEBUG": "true",
@@ -150,8 +148,8 @@ def create_env_file(env_name: str, output_path: Path) -> None:
             f.write("\n".join(lines))
         print(f"✓ Created {output_path}")
         print(f"  Environment: {env_name}")
-        print(f"  Edit this file and add your actual API keys and URLs")
-        print(f"  ⚠️  Required: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, OPENROUTER_API_KEY")
+        print("  Edit this file and add your actual API keys and URLs")
+        print("  ⚠️  Required: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, OPENROUTER_API_KEY")
     except Exception as e:
         print(f"Error creating {output_path}: {e}")
         sys.exit(1)

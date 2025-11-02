@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import date as Date
 from datetime import datetime
 from decimal import Decimal
-from typing import Annotated, Optional
+from typing import Annotated
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator
@@ -15,7 +15,7 @@ class DailySummaryQuery(BaseModel):
     """Query parameters for daily summary endpoint."""
 
     date: Annotated[
-        Optional[Date],
+        Date | None,
         Field(
             default=None,
             description="Target date for the summary (YYYY-MM-DD). Defaults to today in user's timezone.",
@@ -26,7 +26,7 @@ class DailySummaryQuery(BaseModel):
 
     @field_validator("date", mode="before")
     @classmethod
-    def parse_date(cls, v: str | Date | None) -> Optional[Date]:
+    def parse_date(cls, v: str | Date | None) -> Date | None:
         """Parse ISO 8601 date string (YYYY-MM-DD) to date object.
 
         Args:
@@ -147,7 +147,7 @@ class DailySummaryResponse(BaseModel):
     date: Date = Field(description="The date of this summary")
 
     calorie_goal: Annotated[
-        Optional[Decimal],
+        Decimal | None,
         Field(
             description="User's daily calorie goal (kcal). Null if not set.",
             ge=0,
@@ -203,7 +203,7 @@ class DailySummaryResponse(BaseModel):
     )
 
     @field_serializer("calorie_goal", when_used="json")
-    def serialize_calorie_goal(self, value: Optional[Decimal]) -> Optional[float]:
+    def serialize_calorie_goal(self, value: Decimal | None) -> float | None:
         """Convert Decimal to float for JSON serialization."""
         return float(value) if value is not None else None
 
@@ -232,7 +232,7 @@ class ReportPointDTO(BaseModel):
     ]
 
     protein: Annotated[
-        Optional[Decimal],
+        Decimal | None,
         Field(
             description="Total protein consumed (grams). Present only when include_macros=true.",
             ge=0,
@@ -241,7 +241,7 @@ class ReportPointDTO(BaseModel):
     ] = None
 
     fat: Annotated[
-        Optional[Decimal],
+        Decimal | None,
         Field(
             description="Total fat consumed (grams). Present only when include_macros=true.",
             ge=0,
@@ -250,7 +250,7 @@ class ReportPointDTO(BaseModel):
     ] = None
 
     carbs: Annotated[
-        Optional[Decimal],
+        Decimal | None,
         Field(
             description="Total carbohydrates consumed (grams). Present only when include_macros=true.",
             ge=0,
@@ -261,7 +261,7 @@ class ReportPointDTO(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     @field_serializer("calories", "goal", "protein", "fat", "carbs", when_used="json")
-    def serialize_decimals(self, value: Optional[Decimal]) -> Optional[float]:
+    def serialize_decimals(self, value: Decimal | None) -> float | None:
         """Convert Decimal to float for JSON serialization."""
         return float(value) if value is not None else None
 

@@ -8,7 +8,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import ValidationError
 
-from app.api.v1.pagination import PageMeta, PaginatedResponse
+from app.api.v1.pagination import PaginatedResponse
 from app.api.v1.schemas.analysis_runs import (
     AnalysisRunCancelResponse,
     AnalysisRunCreateRequest,

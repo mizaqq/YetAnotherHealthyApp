@@ -116,7 +116,7 @@ export function EditableField({
       await onSave(Number(value));
       setIsEditing(false);
       setError(null);
-    } catch (err) {
+    } catch (_err) {
       // Error is handled by the hook (toast + error state)
       // We stay in edit mode to allow user to retry
     }

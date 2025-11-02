@@ -5,10 +5,10 @@ from __future__ import annotations
 import base64
 import json
 from datetime import datetime
-from typing import Any, Generic, TypeVar
+from typing import Generic, TypeVar
 from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 
 T = TypeVar("T")
 
@@ -55,7 +55,7 @@ class AnalysisRunCursor(BaseModel):
     id: UUID = Field(description="Unique run ID for tie-breaking")
 
     @classmethod
-    def decode(cls, cursor_str: str) -> "AnalysisRunCursor":
+    def decode(cls, cursor_str: str) -> AnalysisRunCursor:
         """Decode base64-encoded cursor string to cursor object.
 
         Args:

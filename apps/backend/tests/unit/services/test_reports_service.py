@@ -1,6 +1,6 @@
 """Unit tests for ReportsService."""
 
-from datetime import date, datetime, time, timezone
+from datetime import UTC, date, datetime, time
 from decimal import Decimal
 from unittest.mock import AsyncMock, Mock
 from uuid import UUID, uuid4
@@ -9,16 +9,11 @@ import pytest
 from fastapi import HTTPException
 
 from app.api.v1.schemas.reports import (
-    DailySummaryMeal,
-    DailySummaryProgress,
     DailySummaryResponse,
-    DailySummaryTotals,
-    ReportPointDTO,
     WeeklyTrendReportDTO,
 )
 from app.schemas.profile import ProfileResponse
 from app.services.reports_service import ReportsService
-
 
 # =============================================================================
 # Get Daily Summary - Success Path Tests
@@ -27,9 +22,12 @@ from app.services.reports_service import ReportsService
 
 @pytest.mark.asyncio
 async def test_get_daily_summary__default_date_today_in_user_timezone__returns_summary(
-    user_id: UUID, now: datetime, mock_reports_repository, mock_profile_repository
+    user_id: UUID,
+    now: datetime,
+    mock_reports_repository: AsyncMock,
+    mock_profile_repository: Mock,
 ):
-    """Test get daily summary with default date (today in user's timezone) returns complete summary."""
+    """Test get daily summary with default date (today in user's timezone) returns summary."""
     # Arrange
     profile = ProfileResponse(
         user_id=user_id,
@@ -102,7 +100,7 @@ async def test_get_daily_summary__default_date_today_in_user_timezone__returns_s
 
 @pytest.mark.asyncio
 async def test_get_daily_summary__specific_date_provided__returns_summary_for_that_date(
-    user_id: UUID, now: datetime, mock_reports_repository, mock_profile_repository
+    user_id: UUID, now: datetime, mock_reports_repository: AsyncMock, mock_profile_repository: Mock
 ):
     """Test get daily summary with specific date returns summary for that date."""
     # Arrange
@@ -111,8 +109,8 @@ async def test_get_daily_summary__specific_date_provided__returns_summary_for_th
         user_id=user_id,
         daily_calorie_goal=Decimal("1800.00"),
         timezone="America/New_York",
-        onboarding_completed_at=datetime(2024, 12, 20, tzinfo=timezone.utc),  # Before target date
-        created_at=datetime(2024, 12, 20, tzinfo=timezone.utc),  # Before target date
+        onboarding_completed_at=datetime(2024, 12, 20, tzinfo=UTC),  # Before target date
+        created_at=datetime(2024, 12, 20, tzinfo=UTC),  # Before target date
         updated_at=now,
     )
     mock_profile_repository.get_profile.return_value = profile
@@ -145,7 +143,7 @@ async def test_get_daily_summary__specific_date_provided__returns_summary_for_th
 
 @pytest.mark.asyncio
 async def test_get_daily_summary__no_meals_for_date__returns_zero_totals_and_empty_meals(
-    user_id: UUID, now: datetime, mock_reports_repository, mock_profile_repository
+    user_id: UUID, now: datetime, mock_reports_repository: AsyncMock, mock_profile_repository: Mock
 ):
     """Test get daily summary when no meals exist returns zero totals and empty meals list."""
     # Arrange
@@ -190,9 +188,12 @@ async def test_get_daily_summary__no_meals_for_date__returns_zero_totals_and_emp
 
 @pytest.mark.asyncio
 async def test_get_daily_summary__profile_has_zero_calorie_goal__progress_percentage_zero(
-    user_id: UUID, now: datetime, mock_reports_repository, mock_profile_repository
+    user_id: UUID,
+    now: datetime,
+    mock_reports_repository: AsyncMock,
+    mock_profile_repository: Mock,
 ):
-    """Test get daily summary when profile has zero calorie goal returns zero progress percentage."""
+    """Test get daily summary when profile has zero calorie goal returns zero progress pct."""
     # Arrange
     profile = ProfileResponse(
         user_id=user_id,
@@ -242,7 +243,7 @@ async def test_get_daily_summary__profile_has_zero_calorie_goal__progress_percen
 
 @pytest.mark.asyncio
 async def test_get_daily_summary__profile_not_found__raises_404(
-    user_id: UUID, mock_reports_repository, mock_profile_repository
+    user_id: UUID, mock_reports_repository: AsyncMock, mock_profile_repository: Mock
 ):
     """Test get daily summary when profile not found raises 404."""
     # Arrange
@@ -263,7 +264,7 @@ async def test_get_daily_summary__profile_not_found__raises_404(
 
 @pytest.mark.asyncio
 async def test_get_daily_summary__date_before_profile_creation__raises_400(
-    user_id: UUID, now: datetime, mock_reports_repository, mock_profile_repository
+    user_id: UUID, now: datetime, mock_reports_repository: AsyncMock, mock_profile_repository: Mock
 ):
     """Test get daily summary with date before profile creation raises 400."""
     # Arrange
@@ -275,7 +276,7 @@ async def test_get_daily_summary__date_before_profile_creation__raises_400(
         daily_calorie_goal=Decimal("2000.00"),
         timezone="UTC",
         onboarding_completed_at=now,
-        created_at=datetime.combine(profile_creation_date, time.min, tzinfo=timezone.utc),
+        created_at=datetime.combine(profile_creation_date, time.min, tzinfo=UTC),
         updated_at=now,
     )
     mock_profile_repository.get_profile.return_value = profile
@@ -295,7 +296,7 @@ async def test_get_daily_summary__date_before_profile_creation__raises_400(
 
 @pytest.mark.asyncio
 async def test_get_daily_summary__repository_error__raises_500(
-    user_id: UUID, now: datetime, mock_reports_repository, mock_profile_repository
+    user_id: UUID, now: datetime, mock_reports_repository: AsyncMock, mock_profile_repository: Mock
 ):
     """Test get daily summary when repository fails raises 500."""
     # Arrange
@@ -329,7 +330,7 @@ async def test_get_daily_summary__repository_error__raises_500(
 
 @pytest.mark.asyncio
 async def test_get_daily_summary__timezone_parsing_error__falls_back_to_utc(
-    user_id: UUID, now: datetime, mock_reports_repository, mock_profile_repository
+    user_id: UUID, now: datetime, mock_reports_repository: AsyncMock, mock_profile_repository: Mock
 ):
     """Test get daily summary with invalid timezone falls back to UTC."""
     # Arrange
@@ -375,7 +376,7 @@ async def test_get_daily_summary__timezone_parsing_error__falls_back_to_utc(
 
 @pytest.mark.asyncio
 async def test_get_weekly_trend__default_end_date_today_utc__returns_7_day_trend(
-    user_id: UUID, now: datetime, mock_reports_repository, mock_profile_repository
+    user_id: UUID, now: datetime, mock_reports_repository: AsyncMock, mock_profile_repository: Mock
 ):
     """Test get weekly trend with default end date (today in UTC) returns 7 days of data."""
     # Arrange
@@ -419,7 +420,7 @@ async def test_get_weekly_trend__default_end_date_today_utc__returns_7_day_trend
 
 @pytest.mark.asyncio
 async def test_get_weekly_trend__specific_end_date_provided__returns_trend_for_that_period(
-    user_id: UUID, now: datetime, mock_reports_repository, mock_profile_repository
+    user_id: UUID, now: datetime, mock_reports_repository: AsyncMock, mock_profile_repository: Mock
 ):
     """Test get weekly trend with specific end date returns trend for that 7-day period."""
     # Arrange
@@ -473,7 +474,7 @@ async def test_get_weekly_trend__specific_end_date_provided__returns_trend_for_t
 
 @pytest.mark.asyncio
 async def test_get_weekly_trend__include_macros_false__returns_none_for_macro_fields(
-    user_id: UUID, now: datetime, mock_reports_repository, mock_profile_repository
+    user_id: UUID, now: datetime, mock_reports_repository: AsyncMock, mock_profile_repository: Mock
 ):
     """Test get weekly trend with include_macros=False returns None for protein/fat/carbs."""
     # Arrange
@@ -524,7 +525,7 @@ async def test_get_weekly_trend__include_macros_false__returns_none_for_macro_fi
 
 @pytest.mark.asyncio
 async def test_get_weekly_trend__profile_zero_calorie_goal__uses_zero_goal(
-    user_id: UUID, now: datetime, mock_reports_repository, mock_profile_repository
+    user_id: UUID, now: datetime, mock_reports_repository: AsyncMock, mock_profile_repository: Mock
 ):
     """Test get weekly trend when profile has zero calorie goal uses zero as goal."""
     # Arrange
@@ -575,7 +576,7 @@ async def test_get_weekly_trend__profile_zero_calorie_goal__uses_zero_goal(
 
 @pytest.mark.asyncio
 async def test_get_weekly_trend__profile_not_found__raises_404(
-    user_id: UUID, mock_reports_repository, mock_profile_repository
+    user_id: UUID, mock_reports_repository: AsyncMock, mock_profile_repository: Mock
 ):
     """Test get weekly trend when profile not found raises 404."""
     # Arrange
@@ -596,7 +597,7 @@ async def test_get_weekly_trend__profile_not_found__raises_404(
 
 @pytest.mark.asyncio
 async def test_get_weekly_trend__repository_error__raises_500(
-    user_id: UUID, now: datetime, mock_reports_repository, mock_profile_repository
+    user_id: UUID, now: datetime, mock_reports_repository: AsyncMock, mock_profile_repository: Mock
 ):
     """Test get weekly trend when repository fails raises 500."""
     # Arrange
@@ -634,7 +635,7 @@ async def test_get_weekly_trend__repository_error__raises_500(
 
 
 def test_calculate_progress_percentage__normal_case__returns_correct_percentage(
-    mock_reports_repository, mock_profile_repository
+    mock_reports_repository: AsyncMock, mock_profile_repository: Mock
 ):
     """Test calculate progress percentage with normal values returns correct percentage."""
     # Arrange
@@ -654,7 +655,7 @@ def test_calculate_progress_percentage__normal_case__returns_correct_percentage(
 
 
 def test_calculate_progress_percentage__goal_is_zero__returns_zero_percentage(
-    mock_reports_repository, mock_profile_repository
+    mock_reports_repository: AsyncMock, mock_profile_repository: Mock
 ):
     """Test calculate progress percentage when goal is zero returns zero."""
     # Arrange
@@ -674,7 +675,7 @@ def test_calculate_progress_percentage__goal_is_zero__returns_zero_percentage(
 
 
 def test_calculate_progress_percentage__goal_is_none__returns_zero_percentage(
-    mock_reports_repository, mock_profile_repository
+    mock_reports_repository: AsyncMock, mock_profile_repository: Mock
 ):
     """Test calculate progress percentage when goal is None returns zero."""
     # Arrange
@@ -694,7 +695,7 @@ def test_calculate_progress_percentage__goal_is_none__returns_zero_percentage(
 
 
 def test_calculate_progress_percentage__over_100_percent__returns_over_100(
-    mock_reports_repository, mock_profile_repository
+    mock_reports_repository: AsyncMock, mock_profile_repository: Mock
 ):
     """Test calculate progress percentage when consumed exceeds goal returns over 100."""
     # Arrange
@@ -714,7 +715,7 @@ def test_calculate_progress_percentage__over_100_percent__returns_over_100(
 
 
 def test_get_timezone__valid_timezone__returns_zoneinfo_object(
-    mock_reports_repository, mock_profile_repository
+    mock_reports_repository: AsyncMock, mock_profile_repository: Mock
 ):
     """Test get timezone with valid timezone string returns ZoneInfo object."""
     # Arrange
@@ -733,7 +734,7 @@ def test_get_timezone__valid_timezone__returns_zoneinfo_object(
 
 
 def test_get_timezone__invalid_timezone__falls_back_to_utc(
-    mock_reports_repository, mock_profile_repository
+    mock_reports_repository: AsyncMock, mock_profile_repository: Mock
 ):
     """Test get timezone with invalid timezone string falls back to UTC."""
     # Arrange
@@ -752,7 +753,7 @@ def test_get_timezone__invalid_timezone__falls_back_to_utc(
 
 
 def test_calculate_utc_boundaries__converts_date_to_utc_range(
-    mock_reports_repository, mock_profile_repository
+    mock_reports_repository: AsyncMock, mock_profile_repository: Mock
 ):
     """Test calculate UTC boundaries converts date in user timezone to UTC range."""
     # Arrange

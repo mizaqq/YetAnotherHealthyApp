@@ -1,7 +1,7 @@
 """Unit tests for AnalysisRunProcessor."""
 
 import json
-from datetime import datetime, timezone
+from datetime import datetime
 from decimal import Decimal
 from unittest.mock import AsyncMock, Mock
 from uuid import UUID, uuid4
@@ -9,17 +9,12 @@ from uuid import UUID, uuid4
 import pytest
 
 from app.api.v1.schemas.products import MacroBreakdownDTO, ProductSource, ProductSummaryDTO
-from app.schemas.openrouter import ChatRole, OpenRouterChatMessage
+from app.schemas.openrouter import ChatRole
 from app.services.analysis_processor import AnalysisRunProcessor
 from app.services.openrouter_service import (
-    AnalysisItem,
-    IngredientVerificationResult,
-    MacroDelta,
-    MacroProfile,
     OpenRouterServiceError,
     ServiceDataError,
 )
-
 
 # =============================================================================
 # Process - Success Path Tests
@@ -30,10 +25,10 @@ from app.services.openrouter_service import (
 async def test_process__valid_text_input__succeeds_and_creates_items(
     user_id: UUID,
     now: datetime,
-    mock_analysis_runs_repository,
-    mock_analysis_run_items_repository,
-    mock_product_repository,
-    mock_openrouter_service,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
+    mock_product_repository: Mock,
+    mock_openrouter_service: AsyncMock,
 ):
     """Test process with valid text input succeeds and creates analysis items."""
     # Arrange
@@ -140,10 +135,10 @@ async def test_process__valid_text_input__succeeds_and_creates_items(
 async def test_process__with_product_matches__uses_database_macros(
     user_id: UUID,
     now: datetime,
-    mock_analysis_runs_repository,
-    mock_analysis_run_items_repository,
-    mock_product_repository,
-    mock_openrouter_service,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
+    mock_product_repository: Mock,
+    mock_openrouter_service: AsyncMock,
 ):
     """Test process with product matches uses database macros instead of model macros."""
     # Arrange
@@ -236,10 +231,10 @@ async def test_process__with_product_matches__uses_database_macros(
 async def test_process__multiple_items__creates_with_correct_ordinals(
     user_id: UUID,
     now: datetime,
-    mock_analysis_runs_repository,
-    mock_analysis_run_items_repository,
-    mock_product_repository,
-    mock_openrouter_service,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
+    mock_product_repository: Mock,
+    mock_openrouter_service: AsyncMock,
 ):
     """Test process with multiple items creates them with correct ordinal sequence."""
     # Arrange
@@ -342,10 +337,10 @@ async def test_process__multiple_items__creates_with_correct_ordinals(
 async def test_process__no_text_input__raises_service_data_error_and_fails_run(
     user_id: UUID,
     now: datetime,
-    mock_analysis_runs_repository,
-    mock_analysis_run_items_repository,
-    mock_product_repository,
-    mock_openrouter_service,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
+    mock_product_repository: Mock,
+    mock_openrouter_service: AsyncMock,
 ):
     """Test process without text input raises ServiceDataError and fails the run."""
     # Arrange
@@ -390,10 +385,10 @@ async def test_process__no_text_input__raises_service_data_error_and_fails_run(
 async def test_process__openrouter_service_error__fails_run_with_error_code(
     user_id: UUID,
     now: datetime,
-    mock_analysis_runs_repository,
-    mock_analysis_run_items_repository,
-    mock_product_repository,
-    mock_openrouter_service,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
+    mock_product_repository: Mock,
+    mock_openrouter_service: AsyncMock,
 ):
     """Test process when OpenRouter service fails propagates error code and fails run."""
     # Arrange
@@ -440,10 +435,10 @@ async def test_process__openrouter_service_error__fails_run_with_error_code(
 async def test_process__service_data_error__fails_run_with_data_error_code(
     user_id: UUID,
     now: datetime,
-    mock_analysis_runs_repository,
-    mock_analysis_run_items_repository,
-    mock_product_repository,
-    mock_openrouter_service,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
+    mock_product_repository: Mock,
+    mock_openrouter_service: AsyncMock,
 ):
     """Test process when data validation fails uses external_data_error code."""
     # Arrange
@@ -487,10 +482,10 @@ async def test_process__service_data_error__fails_run_with_data_error_code(
 async def test_process__unexpected_exception__fails_run_with_processing_error(
     user_id: UUID,
     now: datetime,
-    mock_analysis_runs_repository,
-    mock_analysis_run_items_repository,
-    mock_product_repository,
-    mock_openrouter_service,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
+    mock_product_repository: Mock,
+    mock_openrouter_service: AsyncMock,
 ):
     """Test process when unexpected exception occurs uses PROCESSING_ERROR code."""
     # Arrange
@@ -535,10 +530,10 @@ async def test_process__unexpected_exception__fails_run_with_processing_error(
 
 
 def test_parse_model_content__nested_macros_format__parses_correctly(
-    mock_analysis_runs_repository,
-    mock_analysis_run_items_repository,
-    mock_product_repository,
-    mock_openrouter_service,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
+    mock_product_repository: Mock,
+    mock_openrouter_service: AsyncMock,
 ):
     """Test parsing model content with nested macros object format."""
     # Arrange
@@ -583,10 +578,10 @@ def test_parse_model_content__nested_macros_format__parses_correctly(
 
 
 def test_parse_model_content__flat_macros_format__parses_correctly(
-    mock_analysis_runs_repository,
-    mock_analysis_run_items_repository,
-    mock_product_repository,
-    mock_openrouter_service,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
+    mock_product_repository: Mock,
+    mock_openrouter_service: AsyncMock,
 ):
     """Test parsing model content with flat macros format (legacy)."""
     # Arrange
@@ -626,10 +621,10 @@ def test_parse_model_content__flat_macros_format__parses_correctly(
 
 
 def test_parse_model_content__missing_confidence__uses_threshold(
-    mock_analysis_runs_repository,
-    mock_analysis_run_items_repository,
-    mock_product_repository,
-    mock_openrouter_service,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
+    mock_product_repository: Mock,
+    mock_openrouter_service: AsyncMock,
 ):
     """Test parsing model content without confidence field uses threshold value."""
     # Arrange
@@ -662,10 +657,10 @@ def test_parse_model_content__missing_confidence__uses_threshold(
 
 
 def test_parse_model_content__invalid_json__raises_service_data_error(
-    mock_analysis_runs_repository,
-    mock_analysis_run_items_repository,
-    mock_product_repository,
-    mock_openrouter_service,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
+    mock_product_repository: Mock,
+    mock_openrouter_service: AsyncMock,
 ):
     """Test parsing invalid JSON raises ServiceDataError."""
     # Arrange
@@ -687,10 +682,10 @@ def test_parse_model_content__invalid_json__raises_service_data_error(
 
 
 def test_parse_model_content__missing_items_field__raises_service_data_error(
-    mock_analysis_runs_repository,
-    mock_analysis_run_items_repository,
-    mock_product_repository,
-    mock_openrouter_service,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
+    mock_product_repository: Mock,
+    mock_openrouter_service: AsyncMock,
 ):
     """Test parsing response without items field raises ServiceDataError."""
     # Arrange
@@ -712,10 +707,10 @@ def test_parse_model_content__missing_items_field__raises_service_data_error(
 
 
 def test_parse_model_content__empty_items_list__raises_service_data_error(
-    mock_analysis_runs_repository,
-    mock_analysis_run_items_repository,
-    mock_product_repository,
-    mock_openrouter_service,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
+    mock_product_repository: Mock,
+    mock_openrouter_service: AsyncMock,
 ):
     """Test parsing response with empty items list raises ServiceDataError."""
     # Arrange
@@ -743,10 +738,10 @@ def test_parse_model_content__empty_items_list__raises_service_data_error(
 
 @pytest.mark.asyncio
 async def test_lookup_product_by_name__match_found__returns_product_with_macros(
-    mock_analysis_runs_repository,
-    mock_analysis_run_items_repository,
-    mock_product_repository,
-    mock_openrouter_service,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
+    mock_product_repository: Mock,
+    mock_openrouter_service: AsyncMock,
     now: datetime,
 ):
     """Test product lookup with match found returns product data with macros."""
@@ -795,10 +790,10 @@ async def test_lookup_product_by_name__match_found__returns_product_with_macros(
 
 @pytest.mark.asyncio
 async def test_lookup_product_by_name__no_match__returns_none(
-    mock_analysis_runs_repository,
-    mock_analysis_run_items_repository,
-    mock_product_repository,
-    mock_openrouter_service,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
+    mock_product_repository: Mock,
+    mock_openrouter_service: AsyncMock,
 ):
     """Test product lookup with no match returns None."""
     # Arrange
@@ -821,10 +816,10 @@ async def test_lookup_product_by_name__no_match__returns_none(
 
 @pytest.mark.asyncio
 async def test_lookup_product_by_name__repository_error__returns_none(
-    mock_analysis_runs_repository,
-    mock_analysis_run_items_repository,
-    mock_product_repository,
-    mock_openrouter_service,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
+    mock_product_repository: Mock,
+    mock_openrouter_service: AsyncMock,
 ):
     """Test product lookup when repository fails returns None gracefully."""
     # Arrange
@@ -851,10 +846,10 @@ async def test_lookup_product_by_name__repository_error__returns_none(
 
 
 def test_build_messages__with_text__creates_proper_prompt(
-    mock_analysis_runs_repository,
-    mock_analysis_run_items_repository,
-    mock_product_repository,
-    mock_openrouter_service,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
+    mock_product_repository: Mock,
+    mock_openrouter_service: AsyncMock,
 ):
     """Test build messages with text input creates proper prompt structure."""
     # Arrange
@@ -880,10 +875,10 @@ def test_build_messages__with_text__creates_proper_prompt(
 
 
 def test_build_messages__without_text__uses_fallback(
-    mock_analysis_runs_repository,
-    mock_analysis_run_items_repository,
-    mock_product_repository,
-    mock_openrouter_service,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
+    mock_product_repository: Mock,
+    mock_openrouter_service: AsyncMock,
 ):
     """Test build messages without text uses fallback message."""
     # Arrange
@@ -903,3 +898,4 @@ def test_build_messages__without_text__uses_fallback(
     assert len(messages) == 2
     assert messages[1].role == ChatRole.USER
     assert "Brak opisu tekstowego" in messages[1].content
+

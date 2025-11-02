@@ -2,25 +2,24 @@
 
 import base64
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import pytest
 from pydantic import ValidationError
 
 from app.api.v1.schemas.meals import (
     MealCreatePayload,
-    MealListQuery,
-    MealSource,
-    PageInfo,
     MealCursorData,
     MealListItem,
+    MealListQuery,
     MealListResponse,
-    encode_meal_cursor,
+    MealSource,
+    PageInfo,
     decode_meal_cursor,
+    encode_meal_cursor,
 )
-
 
 # =============================================================================
 # MealListQuery Validation Tests
@@ -92,8 +91,8 @@ def test_meal_list_query__invalid_sort_field__raises_validation_error():
 def test_meal_list_query__date_filters():
     """Test MealListQuery accepts valid date filters."""
     # Arrange
-    from_date = datetime(2024, 1, 1, tzinfo=timezone.utc)
-    to_date = datetime(2024, 12, 31, tzinfo=timezone.utc)
+    from_date = datetime(2024, 1, 1, tzinfo=UTC)
+    to_date = datetime(2024, 12, 31, tzinfo=UTC)
 
     # Act
     query = MealListQuery(**{"from": from_date, "to": to_date})
@@ -106,8 +105,8 @@ def test_meal_list_query__date_filters():
 def test_meal_list_query__to_date_before_from_date__raises_validation_error():
     """Test MealListQuery rejects 'to' date before 'from' date."""
     # Arrange
-    from_date = datetime(2024, 12, 31, tzinfo=timezone.utc)
-    to_date = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    from_date = datetime(2024, 12, 31, tzinfo=UTC)
+    to_date = datetime(2024, 1, 1, tzinfo=UTC)
 
     # Act & Assert
     with pytest.raises(ValidationError) as exc_info:
@@ -384,7 +383,7 @@ def test_meal_create_payload__eaten_at_requires_timezone(now):
 def test_meal_create_payload__calories_validation():
     """Test MealCreatePayload validates calories constraints."""
     # Arrange
-    now_utc = datetime.now(timezone.utc)
+    now_utc = datetime.now(UTC)
 
     # Act & Assert - Valid calories
     payload = MealCreatePayload(

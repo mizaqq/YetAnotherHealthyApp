@@ -8,7 +8,13 @@ from collections.abc import AsyncIterator
 from typing import Any
 
 import httpx
-from tenacity import AsyncRetrying, before_sleep_log, retry_if_exception_type, stop_after_attempt, wait_exponential
+from tenacity import (
+    AsyncRetrying,
+    before_sleep_log,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
 
 from app.core.config import OpenRouterConfig
 
@@ -161,7 +167,7 @@ class OpenRouterClient:
 
         return headers
 
-    async def __aenter__(self) -> "OpenRouterClient":  # pragma: no cover - convenience
+    async def __aenter__(self) -> OpenRouterClient:  # pragma: no cover - convenience
         return self
 
     async def __aexit__(self, *exc_info: Any) -> None:  # pragma: no cover - convenience

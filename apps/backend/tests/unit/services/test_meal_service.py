@@ -1,8 +1,8 @@
 """Unit tests for MealService."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
-from unittest.mock import AsyncMock
+from unittest.mock import Mock
 from uuid import UUID, uuid4
 
 import pytest
@@ -18,7 +18,6 @@ from app.api.v1.schemas.meals import (
 )
 from app.services.meal_service import MealService
 
-
 # =============================================================================
 # List Meals Tests
 # =============================================================================
@@ -26,7 +25,7 @@ from app.services.meal_service import MealService
 
 @pytest.mark.asyncio
 async def test_list_meals__no_filters__returns_default_sorted_meals(
-    user_id: UUID, now: datetime, meal_category: str, mock_meal_repository
+    user_id: UUID, now: datetime, meal_category: str, mock_meal_repository: Mock
 ):
     """Test listing meals without filters returns meals sorted by eaten_at desc."""
     # Arrange
@@ -85,12 +84,12 @@ async def test_list_meals__no_filters__returns_default_sorted_meals(
 
 @pytest.mark.asyncio
 async def test_list_meals__with_date_range_filter__returns_filtered_meals(
-    user_id: UUID, mock_meal_repository
+    user_id: UUID, mock_meal_repository: Mock
 ):
     """Test listing meals with date range filter."""
     # Arrange
-    from_date = datetime(2025, 1, 10, 0, 0, 0, tzinfo=timezone.utc)
-    to_date = datetime(2025, 1, 20, 0, 0, 0, tzinfo=timezone.utc)
+    from_date = datetime(2025, 1, 10, 0, 0, 0, tzinfo=UTC)
+    to_date = datetime(2025, 1, 20, 0, 0, 0, tzinfo=UTC)
 
     meals = []
     mock_meal_repository.list_meals.return_value = meals
@@ -110,7 +109,7 @@ async def test_list_meals__with_date_range_filter__returns_filtered_meals(
 
 @pytest.mark.asyncio
 async def test_list_meals__with_category_filter__returns_category_meals(
-    user_id: UUID, meal_category: str, mock_meal_repository
+    user_id: UUID, meal_category: str, mock_meal_repository: Mock
 ):
     """Test listing meals filtered by category."""
     # Arrange
@@ -120,7 +119,7 @@ async def test_list_meals__with_category_filter__returns_category_meals(
     query = MealListQuery(category=meal_category)
 
     # Act
-    response = await service.list_meals(user_id=user_id, query=query)
+    await service.list_meals(user_id=user_id, query=query)
 
     # Assert
     call_kwargs = mock_meal_repository.list_meals.call_args.kwargs
@@ -129,7 +128,7 @@ async def test_list_meals__with_category_filter__returns_category_meals(
 
 @pytest.mark.asyncio
 async def test_list_meals__with_source_filter__returns_source_meals(
-    user_id: UUID, mock_meal_repository
+    user_id: UUID, mock_meal_repository: Mock
 ):
     """Test listing meals filtered by source."""
     # Arrange
@@ -139,7 +138,7 @@ async def test_list_meals__with_source_filter__returns_source_meals(
     query = MealListQuery(source=MealSource.AI)
 
     # Act
-    response = await service.list_meals(user_id=user_id, query=query)
+    await service.list_meals(user_id=user_id, query=query)
 
     # Assert
     call_kwargs = mock_meal_repository.list_meals.call_args.kwargs
@@ -148,7 +147,7 @@ async def test_list_meals__with_source_filter__returns_source_meals(
 
 @pytest.mark.asyncio
 async def test_list_meals__with_include_deleted__returns_all_meals(
-    user_id: UUID, mock_meal_repository
+    user_id: UUID, mock_meal_repository: Mock
 ):
     """Test listing meals with include_deleted=True."""
     # Arrange
@@ -158,7 +157,7 @@ async def test_list_meals__with_include_deleted__returns_all_meals(
     query = MealListQuery(include_deleted=True)
 
     # Act
-    response = await service.list_meals(user_id=user_id, query=query)
+    await service.list_meals(user_id=user_id, query=query)
 
     # Assert
     call_kwargs = mock_meal_repository.list_meals.call_args.kwargs
@@ -172,7 +171,7 @@ async def test_list_meals__with_include_deleted__returns_all_meals(
 
 @pytest.mark.asyncio
 async def test_list_meals__pagination_next_cursor__generated_correctly(
-    user_id: UUID, now: datetime, meal_category: str, mock_meal_repository
+    user_id: UUID, now: datetime, meal_category: str, mock_meal_repository: Mock
 ):
     """Test pagination cursor generated correctly when more results available."""
     # Arrange
@@ -237,7 +236,7 @@ async def test_list_meals__pagination_next_cursor__generated_correctly(
 
 @pytest.mark.asyncio
 async def test_list_meals__pagination_last_page__no_next_cursor(
-    user_id: UUID, now: datetime, meal_category: str, mock_meal_repository
+    user_id: UUID, now: datetime, meal_category: str, mock_meal_repository: Mock
 ):
     """Test last page has no next cursor."""
     # Arrange
@@ -282,7 +281,7 @@ async def test_list_meals__pagination_last_page__no_next_cursor(
 
 
 @pytest.mark.asyncio
-async def test_list_meals__invalid_cursor__raises_400(user_id: UUID, mock_meal_repository):
+async def test_list_meals__invalid_cursor__raises_400(user_id: UUID, mock_meal_repository: Mock):
     """Test invalid cursor raises 400 error."""
     # Arrange
     service = MealService(mock_meal_repository)
@@ -324,7 +323,9 @@ async def test_list_meals__cursor_decode_encode__symmetry(now: datetime):
 
 
 @pytest.mark.asyncio
-async def test_list_meals__repository_exception__raises_500(user_id: UUID, mock_meal_repository):
+async def test_list_meals__repository_exception__raises_500(
+    user_id: UUID, mock_meal_repository: Mock
+):
     """Test repository exception raises 500 error."""
     # Arrange
     mock_meal_repository.list_meals.side_effect = Exception("Database error")
@@ -342,7 +343,7 @@ async def test_list_meals__repository_exception__raises_500(user_id: UUID, mock_
 
 @pytest.mark.asyncio
 async def test_list_meals__repository_http_exception__propagates(
-    user_id: UUID, mock_meal_repository
+    user_id: UUID, mock_meal_repository: Mock
 ):
     """Test repository HTTPException propagates correctly."""
     # Arrange
@@ -367,7 +368,7 @@ async def test_list_meals__repository_http_exception__propagates(
 
 @pytest.mark.asyncio
 async def test_create_meal__valid_ai_meal__creates_successfully(
-    user_id: UUID, now: datetime, meal_category: str, mock_meal_repository
+    user_id: UUID, now: datetime, meal_category: str, mock_meal_repository: Mock
 ):
     """Test creating AI meal with valid data succeeds."""
     # Arrange
@@ -417,7 +418,7 @@ async def test_create_meal__valid_ai_meal__creates_successfully(
 
 @pytest.mark.asyncio
 async def test_create_meal__category_not_found__raises_404(
-    user_id: UUID, now: datetime, meal_category: str, mock_meal_repository
+    user_id: UUID, now: datetime, meal_category: str, mock_meal_repository: Mock
 ):
     """Test creating meal with non-existent category raises 404."""
     # Arrange
@@ -441,7 +442,7 @@ async def test_create_meal__category_not_found__raises_404(
 
 @pytest.mark.asyncio
 async def test_create_meal__analysis_run_not_found__raises_404(
-    user_id: UUID, now: datetime, meal_category: str, mock_meal_repository
+    user_id: UUID, now: datetime, meal_category: str, mock_meal_repository: Mock
 ):
     """Test creating AI meal with invalid analysis_run_id raises 404."""
     # Arrange
@@ -472,7 +473,7 @@ async def test_create_meal__analysis_run_not_found__raises_404(
 
 @pytest.mark.asyncio
 async def test_create_meal__manual_source__no_analysis_validation(
-    user_id: UUID, now: datetime, meal_category: str, mock_meal_repository
+    user_id: UUID, now: datetime, meal_category: str, mock_meal_repository: Mock
 ):
     """Test creating manual meal skips analysis validation."""
     # Arrange
@@ -512,7 +513,7 @@ async def test_create_meal__manual_source__no_analysis_validation(
 
 @pytest.mark.asyncio
 async def test_create_meal__repository_error__raises_500(
-    user_id: UUID, now: datetime, meal_category: str, mock_meal_repository
+    user_id: UUID, now: datetime, meal_category: str, mock_meal_repository: Mock
 ):
     """Test repository error during create raises 500."""
     # Arrange
@@ -542,7 +543,7 @@ async def test_create_meal__repository_error__raises_500(
 
 @pytest.mark.asyncio
 async def test_get_meal_detail__meal_exists__returns_detail(
-    user_id: UUID, sample_meal_data: dict, mock_meal_repository
+    user_id: UUID, sample_meal_data: dict, mock_meal_repository: Mock
 ):
     """Test getting meal detail returns complete data."""
     # Arrange
@@ -568,7 +569,7 @@ async def test_get_meal_detail__meal_exists__returns_detail(
 
 @pytest.mark.asyncio
 async def test_get_meal_detail__with_analysis__includes_analysis_data(
-    user_id: UUID, sample_meal_data: dict, mock_meal_repository
+    user_id: UUID, sample_meal_data: dict, mock_meal_repository: Mock
 ):
     """Test getting meal with analysis includes analysis data."""
     # Arrange
@@ -617,7 +618,7 @@ async def test_get_meal_detail__with_analysis__includes_analysis_data(
 
 @pytest.mark.asyncio
 async def test_get_meal_detail__with_analysis_items__includes_items(
-    user_id: UUID, sample_meal_data: dict, mock_meal_repository
+    user_id: UUID, sample_meal_data: dict, mock_meal_repository: Mock
 ):
     """Test getting meal with analysis items includes items."""
     # Arrange
@@ -677,7 +678,9 @@ async def test_get_meal_detail__with_analysis_items__includes_items(
 
 
 @pytest.mark.asyncio
-async def test_get_meal_detail__meal_not_found__raises_404(user_id: UUID, mock_meal_repository):
+async def test_get_meal_detail__meal_not_found__raises_404(
+    user_id: UUID, mock_meal_repository: Mock
+):
     """Test getting non-existent meal raises 404."""
     # Arrange
     meal_id = uuid4()
@@ -700,7 +703,7 @@ async def test_get_meal_detail__meal_not_found__raises_404(user_id: UUID, mock_m
 
 @pytest.mark.asyncio
 async def test_update_meal__valid_fields__updates_successfully(
-    user_id: UUID, sample_meal_data: dict, mock_meal_repository
+    user_id: UUID, sample_meal_data: dict, mock_meal_repository: Mock
 ):
     """Test updating meal with valid fields succeeds."""
     # Arrange
@@ -726,7 +729,9 @@ async def test_update_meal__valid_fields__updates_successfully(
 
 
 @pytest.mark.asyncio
-async def test_update_meal__no_fields_provided__raises_400(user_id: UUID, mock_meal_repository):
+async def test_update_meal__no_fields_provided__raises_400(
+    user_id: UUID, mock_meal_repository: Mock
+):
     """Test updating meal with no fields raises 400."""
     # Arrange
     meal_id = uuid4()
@@ -743,7 +748,7 @@ async def test_update_meal__no_fields_provided__raises_400(user_id: UUID, mock_m
 
 
 @pytest.mark.asyncio
-async def test_update_meal__meal_not_found__raises_404(user_id: UUID, mock_meal_repository):
+async def test_update_meal__meal_not_found__raises_404(user_id: UUID, mock_meal_repository: Mock):
     """Test updating non-existent meal raises 404."""
     # Arrange
     meal_id = uuid4()
@@ -761,7 +766,7 @@ async def test_update_meal__meal_not_found__raises_404(user_id: UUID, mock_meal_
 
 @pytest.mark.asyncio
 async def test_update_meal__change_to_manual_with_macros__raises_400(
-    user_id: UUID, sample_meal_data: dict, mock_meal_repository
+    user_id: UUID, sample_meal_data: dict, mock_meal_repository: Mock
 ):
     """Test changing source to manual when macros exist raises 400."""
     # Arrange
@@ -790,7 +795,7 @@ async def test_update_meal__change_to_manual_with_macros__raises_400(
 
 @pytest.mark.asyncio
 async def test_update_meal__category_not_exists__raises_400(
-    user_id: UUID, sample_meal_data: dict, mock_meal_repository
+    user_id: UUID, sample_meal_data: dict, mock_meal_repository: Mock
 ):
     """Test updating meal with non-existent category raises 400."""
     # Arrange
@@ -812,7 +817,7 @@ async def test_update_meal__category_not_exists__raises_400(
 
 @pytest.mark.asyncio
 async def test_update_meal__analysis_run_already_accepted__raises_409(
-    user_id: UUID, sample_meal_data: dict, mock_meal_repository
+    user_id: UUID, sample_meal_data: dict, mock_meal_repository: Mock
 ):
     """Test updating with already-accepted analysis_run_id raises 409."""
     # Arrange
@@ -845,7 +850,7 @@ async def test_update_meal__analysis_run_already_accepted__raises_409(
 
 @pytest.mark.asyncio
 async def test_soft_delete_meal__meal_exists__deletes_successfully(
-    user_id: UUID, mock_meal_repository
+    user_id: UUID, mock_meal_repository: Mock
 ):
     """Test soft deleting existing meal succeeds."""
     # Arrange
@@ -865,7 +870,9 @@ async def test_soft_delete_meal__meal_exists__deletes_successfully(
 
 
 @pytest.mark.asyncio
-async def test_soft_delete_meal__meal_not_found__raises_404(user_id: UUID, mock_meal_repository):
+async def test_soft_delete_meal__meal_not_found__raises_404(
+    user_id: UUID, mock_meal_repository: Mock
+):
     """Test soft deleting non-existent meal raises 404."""
     # Arrange
     meal_id = uuid4()

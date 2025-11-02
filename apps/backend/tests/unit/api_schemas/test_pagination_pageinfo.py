@@ -2,13 +2,12 @@
 
 import base64
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import pytest
 
 from app.api.v1.pagination import AnalysisRunCursor, PageMeta, PaginatedResponse
-
 
 # =============================================================================
 # PageMeta Tests
@@ -192,7 +191,7 @@ def test_analysis_run_cursor__decode_with_timezone__preserves_datetime(now):
 
     # Assert
     assert decoded.created_at == now
-    assert decoded.created_at.tzinfo == timezone.utc
+    assert decoded.created_at.tzinfo == UTC
 
 
 # =============================================================================
@@ -283,7 +282,7 @@ def test_analysis_run_cursor__realistic_pagination_scenario(now):
 def test_cursor_encoding__url_safe_characters():
     """Test cursor encoding uses URL-safe base64 characters."""
     # Arrange
-    cursor = AnalysisRunCursor(created_at=datetime(2024, 1, 1, tzinfo=timezone.utc), id=uuid4())
+    cursor = AnalysisRunCursor(created_at=datetime(2024, 1, 1, tzinfo=UTC), id=uuid4())
 
     # Act
     encoded = cursor.encode()

@@ -56,7 +56,7 @@ export function useAuth() {
         setApiError(mapSupabaseErrorToMessage(error));
       }
       // Success will be handled by onAuthStateChange listener
-    } catch (error) {
+    } catch (_error) {
       setApiError("Wystąpił nieoczekiwany błąd.");
     } finally {
       setIsLoading(false);

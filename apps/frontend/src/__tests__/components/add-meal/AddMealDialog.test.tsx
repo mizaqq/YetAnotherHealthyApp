@@ -152,10 +152,8 @@ describe('AddMealDialog', () => {
   });
 
   describe('success flows', () => {
-    it('should call onSuccess and close dialog after manual meal success', async () => {
+    it('should call onSuccess and close dialog after manual meal success', () => {
       mockHandleCreateManualMeal.mockResolvedValue(true);
-
-      const user = userEvent.setup();
       
       render(
         <AddMealDialog
@@ -209,7 +207,7 @@ describe('AddMealDialog', () => {
       expect(mockOnOpenChange).toHaveBeenCalledWith(false);
     });
 
-    it('should not close dialog if manual meal creation fails', async () => {
+    it('should not close dialog if manual meal creation fails', () => {
       mockHandleCreateManualMeal.mockResolvedValue(false);
 
       render(

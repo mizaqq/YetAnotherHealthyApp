@@ -69,7 +69,7 @@ class AnalysisRunCreateRequest(BaseModel):
         return normalized
 
     @model_validator(mode="after")
-    def validate_mutual_exclusivity(self) -> "AnalysisRunCreateRequest":
+    def validate_mutual_exclusivity(self) -> AnalysisRunCreateRequest:
         """Ensure exactly one of meal_id or input_text is provided."""
         has_meal = self.meal_id is not None
         has_text = self.input_text is not None
@@ -284,7 +284,7 @@ class AnalysisRunListQuery(BaseModel):
     )
 
     @model_validator(mode="after")
-    def validate_date_range(self) -> "AnalysisRunListQuery":
+    def validate_date_range(self) -> AnalysisRunListQuery:
         """Ensure created_from <= created_to when both provided."""
         if (
             self.created_from is not None

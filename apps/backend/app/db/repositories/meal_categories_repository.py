@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Final, Iterable
+from typing import Any, Final
 
 from supabase import Client
 

@@ -413,7 +413,7 @@ class OpenRouterService:
                     yield OpenRouterStreamChunk.model_validate(chunk_data)
                 except json.JSONDecodeError:
                     self._logger.warning("Dropped malformed stream chunk: %s", payload)
-                except Exception as exc:  # pragma: no cover - invalid chunk path
+                except Exception:  # pragma: no cover - invalid chunk path
                     self._logger.error("Stream chunk validation failed", exc_info=True, extra={"payload": payload})
 
     def _retain_tail(self, buffer: str) -> str:

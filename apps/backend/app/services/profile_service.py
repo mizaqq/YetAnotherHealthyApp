@@ -3,7 +3,6 @@ Service layer for profile business logic.
 """
 
 import logging
-from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
 

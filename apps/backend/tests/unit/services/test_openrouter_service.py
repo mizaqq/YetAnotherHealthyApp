@@ -1,10 +1,10 @@
 """Unit tests for OpenRouterService."""
 
 import json
-from datetime import datetime, timezone
+from datetime import datetime
 from decimal import Decimal
 from unittest.mock import AsyncMock, Mock
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 import httpx
 import pytest
@@ -15,10 +15,8 @@ from app.schemas.openrouter import (
     ChatRole,
     JsonSchemaDefinition,
     JsonSchemaResponseFormat,
-    OpenRouterChatChoice,
     OpenRouterChatMessage,
     OpenRouterChatResponse,
-    UsageStats,
 )
 from app.services.openrouter_service import (
     AnalysisItem,
@@ -31,14 +29,13 @@ from app.services.openrouter_service import (
     ServiceUnavailableError,
 )
 
-
 # =============================================================================
 # Fixtures
 # =============================================================================
 
 
 @pytest.fixture
-def mock_settings():
+def mock_settings() -> Mock:
     """Mock Settings with OpenRouter configuration."""
     settings = Mock(spec=Settings)
     settings.openrouter = OpenRouterConfig(
@@ -54,7 +51,9 @@ def mock_settings():
 
 
 @pytest.fixture
-def openrouter_service(mock_settings, mock_openrouter_client, mock_product_repository):
+def openrouter_service(
+    mock_settings: Mock, mock_openrouter_client: AsyncMock, mock_product_repository: Mock
+) -> OpenRouterService:
     """OpenRouterService instance with mocked dependencies."""
     return OpenRouterService(
         settings=mock_settings,
@@ -70,7 +69,7 @@ def openrouter_service(mock_settings, mock_openrouter_client, mock_product_repos
 
 @pytest.mark.asyncio
 async def test_generate_chat_completion__valid_request__returns_response(
-    openrouter_service, mock_openrouter_client
+    openrouter_service: OpenRouterService, mock_openrouter_client: AsyncMock
 ):
     """Test generate_chat_completion with valid request returns response."""
     # Arrange
@@ -120,7 +119,7 @@ async def test_generate_chat_completion__valid_request__returns_response(
 
 @pytest.mark.asyncio
 async def test_generate_chat_completion__custom_parameters__uses_overrides(
-    openrouter_service, mock_openrouter_client
+    openrouter_service: OpenRouterService, mock_openrouter_client: AsyncMock
 ):
     """Test generate_chat_completion with custom parameters uses provided values."""
     # Arrange
@@ -173,7 +172,7 @@ async def test_generate_chat_completion__custom_parameters__uses_overrides(
 
 @pytest.mark.asyncio
 async def test_generate_chat_completion__with_response_format__includes_json_schema(
-    openrouter_service, mock_openrouter_client
+    openrouter_service: OpenRouterService, mock_openrouter_client: AsyncMock
 ):
     """Test generate_chat_completion with response_format includes JSON schema."""
     # Arrange
@@ -224,7 +223,7 @@ async def test_generate_chat_completion__with_response_format__includes_json_sch
 
 @pytest.mark.asyncio
 async def test_generate_chat_completion__401_error__raises_authorization_error(
-    openrouter_service, mock_openrouter_client
+    openrouter_service: OpenRouterService, mock_openrouter_client: AsyncMock
 ):
     """Test 401 error maps to AuthorizationError."""
     # Arrange
@@ -250,7 +249,7 @@ async def test_generate_chat_completion__401_error__raises_authorization_error(
 
 @pytest.mark.asyncio
 async def test_generate_chat_completion__403_error__raises_authorization_error(
-    openrouter_service, mock_openrouter_client
+    openrouter_service: OpenRouterService, mock_openrouter_client: AsyncMock
 ):
     """Test 403 error maps to AuthorizationError."""
     # Arrange
@@ -274,7 +273,7 @@ async def test_generate_chat_completion__403_error__raises_authorization_error(
 
 @pytest.mark.asyncio
 async def test_generate_chat_completion__429_error__raises_rate_limit_error(
-    openrouter_service, mock_openrouter_client
+    openrouter_service: OpenRouterService, mock_openrouter_client: AsyncMock
 ):
     """Test 429 error maps to RateLimitError with retry_after."""
     # Arrange
@@ -301,7 +300,7 @@ async def test_generate_chat_completion__429_error__raises_rate_limit_error(
 
 @pytest.mark.asyncio
 async def test_generate_chat_completion__400_error__raises_invalid_request_error(
-    openrouter_service, mock_openrouter_client
+    openrouter_service: OpenRouterService, mock_openrouter_client: AsyncMock
 ):
     """Test 400-499 errors map to InvalidRequestError."""
     # Arrange
@@ -327,7 +326,7 @@ async def test_generate_chat_completion__400_error__raises_invalid_request_error
 
 @pytest.mark.asyncio
 async def test_generate_chat_completion__500_error__raises_service_unavailable_error(
-    openrouter_service, mock_openrouter_client
+    openrouter_service: OpenRouterService, mock_openrouter_client: AsyncMock
 ):
     """Test 500+ errors map to ServiceUnavailableError."""
     # Arrange
@@ -353,7 +352,7 @@ async def test_generate_chat_completion__500_error__raises_service_unavailable_e
 
 @pytest.mark.asyncio
 async def test_generate_chat_completion__invalid_json_response__raises_service_data_error(
-    openrouter_service, mock_openrouter_client
+    openrouter_service: OpenRouterService, mock_openrouter_client: AsyncMock
 ):
     """Test invalid JSON response raises ServiceDataError."""
     # Arrange
@@ -381,7 +380,7 @@ async def test_generate_chat_completion__invalid_json_response__raises_service_d
 
 @pytest.mark.asyncio
 async def test_verify_ingredients_calories__with_matching_product__returns_verification(
-    openrouter_service, mock_product_repository, now: datetime
+    openrouter_service: OpenRouterService, mock_product_repository: Mock, now: datetime
 ):
     """Test verify_ingredients with matching product returns verification result."""
     # Arrange
@@ -433,7 +432,7 @@ async def test_verify_ingredients_calories__with_matching_product__returns_verif
 
 @pytest.mark.asyncio
 async def test_verify_ingredients_calories__no_product_id__requires_manual_review(
-    openrouter_service, mock_product_repository
+    openrouter_service: OpenRouterService, mock_product_repository: Mock
 ):
     """Test verify_ingredients without product_id requires manual review."""
     # Arrange
@@ -464,7 +463,7 @@ async def test_verify_ingredients_calories__no_product_id__requires_manual_revie
 
 @pytest.mark.asyncio
 async def test_verify_ingredients_calories__product_not_found__requires_manual_review(
-    openrouter_service, mock_product_repository
+    openrouter_service: OpenRouterService, mock_product_repository: Mock
 ):
     """Test verify_ingredients with product not found requires manual review."""
     # Arrange
@@ -499,7 +498,7 @@ async def test_verify_ingredients_calories__product_not_found__requires_manual_r
 
 @pytest.mark.asyncio
 async def test_verify_ingredients_calories__macro_delta_exceeds_tolerance__requires_review(
-    openrouter_service, mock_product_repository, now: datetime
+    openrouter_service: OpenRouterService, mock_product_repository: Mock, now: datetime
 ):
     """Test verify_ingredients with macro delta >15% requires manual review."""
     # Arrange
@@ -550,7 +549,7 @@ async def test_verify_ingredients_calories__macro_delta_exceeds_tolerance__requi
 
 @pytest.mark.asyncio
 async def test_verify_ingredients_calories__all_macros_within_tolerance__no_review(
-    openrouter_service, mock_product_repository, now: datetime
+    openrouter_service: OpenRouterService, mock_product_repository: Mock, now: datetime
 ):
     """Test verify_ingredients with all macros within 15% tolerance passes review."""
     # Arrange
@@ -599,7 +598,7 @@ async def test_verify_ingredients_calories__all_macros_within_tolerance__no_revi
 # =============================================================================
 
 
-def test_build_payload__default_model_and_parameters(openrouter_service):
+def test_build_payload__default_model_and_parameters(openrouter_service: OpenRouterService):
     """Test _build_payload with default model and parameters."""
     # Arrange
     messages = [OpenRouterChatMessage(role=ChatRole.USER, content="Test")]
@@ -624,7 +623,7 @@ def test_build_payload__default_model_and_parameters(openrouter_service):
 
 
 def test_build_payload__empty_messages__raises_invalid_request_error(
-    openrouter_service,
+    openrouter_service: OpenRouterService,
 ):
     """Test _build_payload with empty messages raises InvalidRequestError."""
     # Arrange
@@ -647,7 +646,7 @@ def test_build_payload__empty_messages__raises_invalid_request_error(
 
 
 def test_enforce_input_limits__exceeds_max_chars__raises_invalid_request_error(
-    openrouter_service,
+    openrouter_service: OpenRouterService,
 ):
     """Test _enforce_input_limits with input exceeding max chars raises error."""
     # Arrange - create message that exceeds limit
@@ -664,7 +663,7 @@ def test_enforce_input_limits__exceeds_max_chars__raises_invalid_request_error(
     assert exc_info.value.details["max_chars"] == 32768
 
 
-def test_scale_macros__correctly_scales_per_100g_to_amount(openrouter_service):
+def test_scale_macros__correctly_scales_per_100g_to_amount(openrouter_service: OpenRouterService):
     """Test _scale_macros correctly scales per-100g macros to amount."""
     # Arrange
     macros_per_100g = MacroBreakdownDTO(
@@ -685,7 +684,7 @@ def test_scale_macros__correctly_scales_per_100g_to_amount(openrouter_service):
     assert result.fat == Decimal("7.2")  # 3.6 * 2
 
 
-def test_compare_macros__calculates_deltas_and_percentages(openrouter_service):
+def test_compare_macros__calculates_deltas_and_percentages(openrouter_service: OpenRouterService):
     """Test _compare_macros calculates correct deltas and percentages."""
     # Arrange
     expected = MacroProfile(
@@ -718,7 +717,7 @@ def test_compare_macros__calculates_deltas_and_percentages(openrouter_service):
     assert result.fat_pct == Decimal("20.00")  # (6-5)/5 * 100 = 20%
 
 
-def test_requires_review__detects_tolerance_violations(openrouter_service):
+def test_requires_review__detects_tolerance_violations(openrouter_service: OpenRouterService):
     """Test _requires_review detects when any macro exceeds 15% tolerance."""
     # Arrange - create delta with one macro exceeding tolerance
     from app.services.openrouter_service import MacroDelta
@@ -750,7 +749,9 @@ def test_requires_review__detects_tolerance_violations(openrouter_service):
     assert openrouter_service._requires_review(delta_within) is False
 
 
-def test_extract_error_message__from_various_response_formats(openrouter_service):
+def test_extract_error_message__from_various_response_formats(
+    openrouter_service: OpenRouterService,
+):
     """Test _extract_error_message extracts messages from different formats."""
     # Arrange & Act & Assert
 

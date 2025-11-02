@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime
 from decimal import Decimal
 from typing import Any
 from uuid import UUID
@@ -16,7 +17,6 @@ from app.db.repositories.analysis_runs_repository import AnalysisRunsRepository
 from app.db.repositories.meal_repository import MealRepository, MealSource
 from app.services.analysis_processor import AnalysisRunProcessor
 from app.services.openrouter_service import OpenRouterService
-from datetime import datetime
 
 logger = logging.getLogger(__name__)
 

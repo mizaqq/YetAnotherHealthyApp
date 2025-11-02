@@ -1,6 +1,6 @@
 """Unit tests for AnalysisRunsService."""
 
-from datetime import datetime, timezone
+from datetime import datetime
 from decimal import Decimal
 from unittest.mock import AsyncMock, Mock
 from uuid import UUID, uuid4
@@ -11,7 +11,6 @@ from fastapi import HTTPException
 from app.api.v1.pagination import AnalysisRunCursor
 from app.services.analysis_runs_service import AnalysisRunsService
 
-
 # =============================================================================
 # Get Run Detail Tests
 # =============================================================================
@@ -19,7 +18,7 @@ from app.services.analysis_runs_service import AnalysisRunsService
 
 @pytest.mark.asyncio
 async def test_get_run_detail__run_exists__returns_run_data(
-    user_id: UUID, now: datetime, mock_analysis_runs_repository
+    user_id: UUID, now: datetime, mock_analysis_runs_repository: AsyncMock
 ):
     """Test getting run detail when run exists returns complete run data."""
     # Arrange
@@ -56,7 +55,7 @@ async def test_get_run_detail__run_exists__returns_run_data(
 
 @pytest.mark.asyncio
 async def test_get_run_detail__run_not_found__raises_404(
-    user_id: UUID, mock_analysis_runs_repository
+    user_id: UUID, mock_analysis_runs_repository: AsyncMock
 ):
     """Test getting run detail when run not found raises 404."""
     # Arrange
@@ -76,7 +75,7 @@ async def test_get_run_detail__run_not_found__raises_404(
 
 @pytest.mark.asyncio
 async def test_get_run_detail__repository_error__raises_500(
-    user_id: UUID, mock_analysis_runs_repository
+    user_id: UUID, mock_analysis_runs_repository: AsyncMock
 ):
     """Test getting run detail when repository fails raises 500."""
     # Arrange
@@ -102,7 +101,7 @@ async def test_get_run_detail__repository_error__raises_500(
 
 @pytest.mark.asyncio
 async def test_create_run__neither_meal_nor_text__raises_400_missing_input(
-    user_id: UUID, mock_analysis_runs_repository
+    user_id: UUID, mock_analysis_runs_repository: AsyncMock
 ):
     """Test create run with neither meal_id nor input_text raises 400."""
     # Arrange
@@ -124,7 +123,7 @@ async def test_create_run__neither_meal_nor_text__raises_400_missing_input(
 
 @pytest.mark.asyncio
 async def test_create_run__both_meal_and_text__raises_400_conflicting_input(
-    user_id: UUID, mock_analysis_runs_repository
+    user_id: UUID, mock_analysis_runs_repository: AsyncMock
 ):
     """Test create run with both meal_id and input_text raises 400."""
     # Arrange
@@ -147,7 +146,7 @@ async def test_create_run__both_meal_and_text__raises_400_conflicting_input(
 
 @pytest.mark.asyncio
 async def test_create_run__meal_id_provided_but_meal_not_found__raises_404(
-    user_id: UUID, mock_analysis_runs_repository
+    user_id: UUID, mock_analysis_runs_repository: AsyncMock
 ):
     """Test create run with meal_id that doesn't exist raises 404."""
     # Arrange
@@ -174,7 +173,7 @@ async def test_create_run__meal_id_provided_but_meal_not_found__raises_404(
 
 @pytest.mark.asyncio
 async def test_create_run__active_run_exists__raises_409_conflict(
-    user_id: UUID, now: datetime, mock_analysis_runs_repository
+    user_id: UUID, now: datetime, mock_analysis_runs_repository: AsyncMock
 ):
     """Test create run when active run exists for meal raises 409."""
     # Arrange
@@ -214,7 +213,7 @@ async def test_create_run__active_run_exists__raises_409_conflict(
 
 @pytest.mark.asyncio
 async def test_create_run__meal_id_provided_no_processor__returns_queued_run(
-    user_id: UUID, now: datetime, mock_analysis_runs_repository
+    user_id: UUID, now: datetime, mock_analysis_runs_repository: AsyncMock
 ):
     """Test create run with meal_id without processor returns queued run."""
     # Arrange
@@ -268,9 +267,9 @@ async def test_create_run__meal_id_provided_no_processor__returns_queued_run(
 async def test_create_run__meal_id_provided_with_processor__processes_and_returns_succeeded(
     user_id: UUID,
     now: datetime,
-    mock_analysis_runs_repository,
-    mock_analysis_run_items_repository,
-    mock_openrouter_service,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
+    mock_openrouter_service: AsyncMock,
 ):
     """Test create run with meal_id and processor processes synchronously."""
     # Arrange
@@ -343,9 +342,9 @@ async def test_create_run__meal_id_provided_with_processor__processes_and_return
 async def test_create_run__text_provided_with_processor__processes_and_returns_succeeded(
     user_id: UUID,
     now: datetime,
-    mock_analysis_runs_repository,
-    mock_analysis_run_items_repository,
-    mock_openrouter_service,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
+    mock_openrouter_service: AsyncMock,
 ):
     """Test create run with text input and processor processes synchronously."""
     # Arrange
@@ -415,7 +414,7 @@ async def test_create_run__text_provided_with_processor__processes_and_returns_s
 
 @pytest.mark.asyncio
 async def test_create_run__text_provided_no_processor__returns_queued_run(
-    user_id: UUID, now: datetime, mock_analysis_runs_repository
+    user_id: UUID, now: datetime, mock_analysis_runs_repository: AsyncMock
 ):
     """Test create run with text input without processor returns queued run."""
     # Arrange
@@ -463,7 +462,7 @@ async def test_create_run__text_provided_no_processor__returns_queued_run(
 
 @pytest.mark.asyncio
 async def test_list_runs__no_filters__returns_all_user_runs(
-    user_id: UUID, now: datetime, mock_analysis_runs_repository
+    user_id: UUID, now: datetime, mock_analysis_runs_repository: AsyncMock
 ):
     """Test list runs without filters returns all user runs."""
     # Arrange
@@ -519,7 +518,7 @@ async def test_list_runs__no_filters__returns_all_user_runs(
 
 @pytest.mark.asyncio
 async def test_list_runs__with_pagination__returns_correct_page_with_cursor(
-    user_id: UUID, now: datetime, mock_analysis_runs_repository
+    user_id: UUID, now: datetime, mock_analysis_runs_repository: AsyncMock
 ):
     """Test list runs with pagination returns correct page and next cursor."""
     # Arrange
@@ -585,7 +584,9 @@ async def test_list_runs__with_pagination__returns_correct_page_with_cursor(
 
 
 @pytest.mark.asyncio
-async def test_list_runs__invalid_cursor__raises_400(user_id: UUID, mock_analysis_runs_repository):
+async def test_list_runs__invalid_cursor__raises_400(
+    user_id: UUID, mock_analysis_runs_repository: AsyncMock
+):
     """Test list runs with invalid cursor raises 400."""
     # Arrange
     service = AnalysisRunsService(repository=mock_analysis_runs_repository)
@@ -609,7 +610,7 @@ async def test_list_runs__invalid_cursor__raises_400(user_id: UUID, mock_analysi
 
 @pytest.mark.asyncio
 async def test_list_runs__with_filters__passes_filters_to_repository(
-    user_id: UUID, now: datetime, mock_analysis_runs_repository
+    user_id: UUID, now: datetime, mock_analysis_runs_repository: AsyncMock
 ):
     """Test list runs with filters passes all filters to repository."""
     # Arrange
@@ -652,7 +653,7 @@ async def test_list_runs__with_filters__passes_filters_to_repository(
 
 @pytest.mark.asyncio
 async def test_retry_run__source_run_not_found__raises_404(
-    user_id: UUID, mock_analysis_runs_repository
+    user_id: UUID, mock_analysis_runs_repository: AsyncMock
 ):
     """Test retry run when source run not found raises 404."""
     # Arrange
@@ -679,7 +680,7 @@ async def test_retry_run__source_run_not_found__raises_404(
 
 @pytest.mark.asyncio
 async def test_retry_run__source_run_not_terminal__raises_400_invalid_state(
-    user_id: UUID, now: datetime, mock_analysis_runs_repository
+    user_id: UUID, now: datetime, mock_analysis_runs_repository: AsyncMock
 ):
     """Test retry run when source run is not in terminal state raises 400."""
     # Arrange
@@ -714,7 +715,7 @@ async def test_retry_run__source_run_not_terminal__raises_400_invalid_state(
 
 @pytest.mark.asyncio
 async def test_retry_run__active_run_exists_for_meal__raises_409_conflict(
-    user_id: UUID, now: datetime, mock_analysis_runs_repository
+    user_id: UUID, now: datetime, mock_analysis_runs_repository: AsyncMock
 ):
     """Test retry run when active run exists for meal raises 409."""
     # Arrange
@@ -753,7 +754,7 @@ async def test_retry_run__active_run_exists_for_meal__raises_409_conflict(
 
 @pytest.mark.asyncio
 async def test_retry_run__terminal_state_no_overrides__creates_new_run_with_same_params(
-    user_id: UUID, now: datetime, mock_analysis_runs_repository
+    user_id: UUID, now: datetime, mock_analysis_runs_repository: AsyncMock
 ):
     """Test retry run in terminal state without overrides uses original params."""
     # Arrange
@@ -822,7 +823,7 @@ async def test_retry_run__terminal_state_no_overrides__creates_new_run_with_same
 
 @pytest.mark.asyncio
 async def test_retry_run__terminal_state_with_threshold_override__uses_new_threshold(
-    user_id: UUID, now: datetime, mock_analysis_runs_repository
+    user_id: UUID, now: datetime, mock_analysis_runs_repository: AsyncMock
 ):
     """Test retry run with threshold override uses new threshold value."""
     # Arrange
@@ -890,9 +891,9 @@ async def test_retry_run__terminal_state_with_threshold_override__uses_new_thres
 async def test_retry_run__with_processor__processes_and_returns_final_run(
     user_id: UUID,
     now: datetime,
-    mock_analysis_runs_repository,
-    mock_analysis_run_items_repository,
-    mock_openrouter_service,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
+    mock_openrouter_service: AsyncMock,
 ):
     """Test retry run with processor processes synchronously and returns final result."""
     # Arrange
@@ -966,7 +967,7 @@ async def test_retry_run__with_processor__processes_and_returns_final_run(
 
 @pytest.mark.asyncio
 async def test_retry_run__adhoc_analysis_terminal_state__creates_new_run_with_run_no_1(
-    user_id: UUID, now: datetime, mock_analysis_runs_repository
+    user_id: UUID, now: datetime, mock_analysis_runs_repository: AsyncMock
 ):
     """Test retry run for ad-hoc analysis (meal_id=None) creates new run with run_no=1."""
     # Arrange
@@ -1051,7 +1052,10 @@ async def test_retry_run__adhoc_analysis_terminal_state__creates_new_run_with_ru
 
 @pytest.mark.asyncio
 async def test_get_run_items__run_exists__returns_items(
-    user_id: UUID, now: datetime, mock_analysis_runs_repository, mock_analysis_run_items_repository
+    user_id: UUID,
+    now: datetime,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
 ):
     """Test get run items when run exists returns items list."""
     # Arrange
@@ -1121,7 +1125,9 @@ async def test_get_run_items__run_exists__returns_items(
 
 @pytest.mark.asyncio
 async def test_get_run_items__run_not_found__raises_404(
-    user_id: UUID, mock_analysis_runs_repository, mock_analysis_run_items_repository
+    user_id: UUID,
+    mock_analysis_runs_repository: AsyncMock,
+    mock_analysis_run_items_repository: AsyncMock,
 ):
     """Test get run items when run not found raises 404."""
     # Arrange
@@ -1143,7 +1149,7 @@ async def test_get_run_items__run_not_found__raises_404(
 
 @pytest.mark.asyncio
 async def test_get_run_items__items_repository_not_configured__raises_runtime_error(
-    user_id: UUID, mock_analysis_runs_repository
+    user_id: UUID, mock_analysis_runs_repository: AsyncMock
 ):
     """Test get run items when items repository not configured raises RuntimeError."""
     # Arrange
@@ -1166,7 +1172,7 @@ async def test_get_run_items__items_repository_not_configured__raises_runtime_er
 
 @pytest.mark.asyncio
 async def test_cancel_run__active_run__cancels_successfully(
-    user_id: UUID, now: datetime, mock_analysis_runs_repository
+    user_id: UUID, now: datetime, mock_analysis_runs_repository: AsyncMock
 ):
     """Test cancel run when run is active cancels successfully."""
     # Arrange
@@ -1206,7 +1212,9 @@ async def test_cancel_run__active_run__cancels_successfully(
 
 
 @pytest.mark.asyncio
-async def test_cancel_run__run_not_found__raises_404(user_id: UUID, mock_analysis_runs_repository):
+async def test_cancel_run__run_not_found__raises_404(
+    user_id: UUID, mock_analysis_runs_repository: AsyncMock
+):
     """Test cancel run when run not found raises 404."""
     # Arrange
     run_id = uuid4()
@@ -1224,7 +1232,7 @@ async def test_cancel_run__run_not_found__raises_404(user_id: UUID, mock_analysi
 
 @pytest.mark.asyncio
 async def test_cancel_run__already_terminal__raises_409_conflict(
-    user_id: UUID, now: datetime, mock_analysis_runs_repository
+    user_id: UUID, now: datetime, mock_analysis_runs_repository: AsyncMock
 ):
     """Test cancel run when run already in terminal state raises 409."""
     # Arrange
@@ -1256,7 +1264,7 @@ async def test_cancel_run__already_terminal__raises_409_conflict(
 
 @pytest.mark.asyncio
 async def test_cancel_run__race_condition__handles_gracefully(
-    user_id: UUID, now: datetime, mock_analysis_runs_repository
+    user_id: UUID, now: datetime, mock_analysis_runs_repository: AsyncMock
 ):
     """Test cancel run handles race condition when run completes before cancel."""
     # Arrange

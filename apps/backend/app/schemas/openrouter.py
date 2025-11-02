@@ -36,7 +36,7 @@ class JsonSchemaDefinition(BaseModel):
     model_config = {"extra": "forbid"}
 
     @model_validator(mode="after")
-    def validate_strict_is_true(self) -> "JsonSchemaDefinition":
+    def validate_strict_is_true(self) -> JsonSchemaDefinition:
         """Ensure strict mode is always enabled to guarantee deterministic responses."""
 
         if not self.strict:
@@ -93,7 +93,7 @@ class OpenRouterChatRequest(BaseModel):
     model_config = {"extra": "forbid"}
 
     @model_validator(mode="after")
-    def ensure_assistant_message_not_last(self) -> "OpenRouterChatRequest":
+    def ensure_assistant_message_not_last(self) -> OpenRouterChatRequest:
         """Ensure the final message is not authored by the assistant."""
 
         if self.messages and self.messages[-1].role == ChatRole.ASSISTANT:

@@ -8,7 +8,6 @@ import {
 } from "@fluentui/react-components";
 import { getWeeklyTrend } from "@/lib/api";
 import { MealHistoryList } from "@/components/history/MealHistoryList";
-import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { ErrorState } from "@/components/common/ErrorState";
 import { ChartSkeleton } from "@/components/dashboard/ChartSkeleton";
 import type { WeeklyTrendReportDTO } from "@/types";

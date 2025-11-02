@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import json
 import logging
+from collections.abc import Sequence
 from decimal import Decimal
 from time import perf_counter
-from typing import Any, Sequence
+from typing import Any
 from uuid import UUID
 
 from app.schemas.openrouter import ChatRole, OpenRouterChatMessage
@@ -286,9 +287,9 @@ class AnalysisRunProcessor:
         threshold: Decimal,
     ) -> tuple[list[AnalysisItem], dict[str, Any]]:
         # Log the raw content
-        print(f"=== MODEL RESPONSE START ===")
+        print("=== MODEL RESPONSE START ===")
         print(content)
-        print(f"=== MODEL RESPONSE END ===")
+        print("=== MODEL RESPONSE END ===")
         logger.info("Parsing model response of length: %d", len(content))
 
         try:
@@ -466,7 +467,7 @@ class AnalysisRunProcessor:
         try:
             from app.db.repositories.product_repository import SearchMode
 
-            print(f"=== PRODUCT LOOKUP START ===")
+            print("=== PRODUCT LOOKUP START ===")
             print(f"Original ingredient: '{ingredient_name}'")
 
             # Transform search query: replace ", " with "*" for better matching
@@ -534,7 +535,7 @@ class AnalysisRunProcessor:
                     product_id,
                     product_name,
                 )
-                print(f"=== PRODUCT LOOKUP END ===")
+                print("=== PRODUCT LOOKUP END ===")
 
                 return {
                     "id": str(product_id),
@@ -546,7 +547,7 @@ class AnalysisRunProcessor:
                     "No product match found for ingredient: '%s'",
                     ingredient_name,
                 )
-                print(f"=== PRODUCT LOOKUP END ===")
+                print("=== PRODUCT LOOKUP END ===")
                 return None
 
         except Exception as exc:
@@ -557,7 +558,7 @@ class AnalysisRunProcessor:
                 exc,
                 exc_info=True,
             )
-            print(f"=== PRODUCT LOOKUP END ===")
+            print("=== PRODUCT LOOKUP END ===")
             return None
 
     def _serialize_analysis_item(self, item: AnalysisItem) -> dict[str, Any]:

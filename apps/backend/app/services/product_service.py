@@ -12,8 +12,8 @@ from app.api.v1.schemas.products import (
     ProductDetailDTO,
     ProductListParams,
     ProductPortionsResponse,
-    ProductsListResponse,
     ProductSearchFilter,
+    ProductsListResponse,
     decode_cursor,
     encode_cursor,
 )

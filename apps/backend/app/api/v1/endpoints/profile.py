@@ -3,11 +3,11 @@ Profile-related API endpoints.
 """
 
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, status, Response
+from fastapi import APIRouter, Depends, Response, status
 
 from app.core.dependencies import get_current_user_id, get_profile_service
 from app.schemas.profile import (
@@ -85,7 +85,7 @@ async def complete_onboarding(
     command = CompleteOnboardingCommand(
         user_id=user_id,
         daily_calorie_goal=request.daily_calorie_goal,
-        completed_at=datetime.now(timezone.utc),
+        completed_at=datetime.now(UTC),
     )
 
     # Execute business logic
