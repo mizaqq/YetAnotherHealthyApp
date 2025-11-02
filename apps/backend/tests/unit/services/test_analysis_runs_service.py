@@ -964,6 +964,86 @@ async def test_retry_run__with_processor__processes_and_returns_final_run(
     mock_processor.process.assert_awaited_once()
 
 
+@pytest.mark.asyncio
+async def test_retry_run__adhoc_analysis_terminal_state__creates_new_run_with_run_no_1(
+    user_id: UUID, now: datetime, mock_analysis_runs_repository
+):
+    """Test retry run for ad-hoc analysis (meal_id=None) creates new run with run_no=1."""
+    # Arrange
+    source_run_id = uuid4()
+    new_run_id = uuid4()
+
+    source_run = {
+        "id": source_run_id,
+        "meal_id": None,  # Ad-hoc analysis
+        "status": "failed",
+        "threshold_used": Decimal("0.75"),
+        "raw_input": {"text": "2 eggs and bacon", "source": "text"},
+        "created_at": now,
+    }
+    mock_analysis_runs_repository.get_run_with_raw_input = AsyncMock(return_value=source_run)
+    # get_active_run should not be called for ad-hoc analysis (meal_id=None)
+    mock_analysis_runs_repository.get_active_run = AsyncMock(return_value=None)
+    mock_analysis_runs_repository.get_next_run_no = AsyncMock(return_value=1)
+    mock_analysis_runs_repository.insert_run = AsyncMock(
+        return_value={
+            "id": new_run_id,
+            "meal_id": None,
+            "run_no": 1,
+            "status": "queued",
+            "threshold_used": Decimal("0.75"),
+            "model": "anthropic/claude-3-5-sonnet",
+            "retry_of_run_id": source_run_id,
+            "created_at": now,
+        }
+    )
+    mock_analysis_runs_repository.get_by_id = AsyncMock(
+        return_value={
+            "id": new_run_id,
+            "meal_id": None,
+            "run_no": 1,
+            "status": "queued",
+            "threshold_used": Decimal("0.75"),
+            "model": "anthropic/claude-3-5-sonnet",
+            "retry_of_run_id": source_run_id,
+            "created_at": now,
+        }
+    )
+
+    service = AnalysisRunsService(repository=mock_analysis_runs_repository)
+
+    # Act
+    result = await service.retry_run(
+        user_id=user_id,
+        source_run_id=source_run_id,
+        threshold=None,  # No override
+        raw_input_override=None,  # No override
+    )
+
+    # Assert
+    assert result["id"] == new_run_id
+    assert result["meal_id"] is None
+    assert result["run_no"] == 1
+    assert result["retry_of_run_id"] == source_run_id
+
+    # Verify get_active_run was not called for ad-hoc analysis
+    mock_analysis_runs_repository.get_active_run.assert_not_awaited()
+
+    # Verify get_next_run_no was called with meal_id=None
+    mock_analysis_runs_repository.get_next_run_no.assert_awaited_once_with(
+        meal_id=None, user_id=user_id
+    )
+
+    # Verify insert_run used original threshold and raw_input
+    mock_analysis_runs_repository.insert_run.assert_awaited_once()
+    call_kwargs = mock_analysis_runs_repository.insert_run.call_args.kwargs
+    assert call_kwargs["meal_id"] is None
+    assert call_kwargs["run_no"] == 1
+    assert call_kwargs["threshold_used"] == Decimal("0.75")
+    assert call_kwargs["raw_input"] == source_run["raw_input"]
+    assert call_kwargs["retry_of_run_id"] == source_run_id
+
+
 # =============================================================================
 # Get Run Items Tests
 # =============================================================================

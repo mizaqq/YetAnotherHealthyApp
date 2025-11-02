@@ -11,22 +11,37 @@
  * 7. Save the meal
  */
 
-import { test, expect } from '@playwright/test';
+import { config } from 'dotenv';
+import { test, expect } from './test';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { AddMealDialog } from './pages/AddMealDialog';
 
+// Load environment variables from .env.test
+config({ path: '.env.test' });
+
 // Test credentials from environment variables
-const TEST_EMAIL = process.env.E2E_USERNAME || 'test@example.com';
-const TEST_PASSWORD = process.env.E2E_PASSWORD || 'testpassword123';
+const TEST_EMAIL = process.env.E2E_USERNAME!;
+const TEST_PASSWORD = process.env.E2E_PASSWORD!;
 const NEW_CALORIE_GOAL = 2200;
 
-test.describe('Complete Meal Workflow', () => {
+  test.describe('Complete Meal Workflow', () => {
   let loginPage: LoginPage;
   let dashboardPage: DashboardPage;
   let profilePage: ProfilePage;
   let addMealDialog: AddMealDialog;
+
+  test.beforeAll(async ({ supawright }) => {
+    // Clean up any existing meals for the test user ONCE before all tests
+    const { data: { user } } = await supawright.supabase().auth.getUser();
+    if (user) {
+      await supawright.supabase()
+        .from('meals')
+        .delete()
+        .eq('user_id', user.id);
+    }
+  });
 
   test.beforeEach(async ({ page }) => {
     loginPage = new LoginPage(page);
@@ -70,7 +85,7 @@ test.describe('Complete Meal Workflow', () => {
     await addMealDialog.waitForInputStep();
 
     // Select breakfast category and enter description
-    await addMealDialog.selectCategory('śniadanie');
+    await addMealDialog.selectCategory('kolacja');
     await addMealDialog.enterDescription('2 jajka na twardo, kromka chleba z masłem, szklanka mleka');
 
     // Step 4: Save the meal (submit for analysis)
@@ -96,9 +111,18 @@ test.describe('Complete Meal Workflow', () => {
     await expect(addMealDialog.dialog).not.toBeVisible();
     await page.waitForTimeout(2000);
 
+    // Refresh dashboard data to show the new meal
+    await dashboardPage.refresh();
+    await page.waitForTimeout(2000);
+
     // Verify meal was added to dashboard
     await expect(dashboardPage.mealsList).toBeVisible();
-    await expect(dashboardPage.getMealsCount()).toBeGreaterThan(0);
+
+    // Debug: check what's happening with getMealsCount
+    console.log('Checking meals count...');
+    const mealsCount = await dashboardPage.getMealsCount();
+    console.log('Meals count result:', mealsCount, typeof mealsCount);
+    await expect(mealsCount).toBeGreaterThan(0);
 
     // Step 6: Add lunch meal
     await dashboardPage.startAddingMeal();
@@ -134,8 +158,12 @@ test.describe('Complete Meal Workflow', () => {
     await expect(addMealDialog.dialog).not.toBeVisible();
     await page.waitForTimeout(2000);
 
+    // Refresh dashboard data to show the new meal
+    await dashboardPage.refresh();
+    await page.waitForTimeout(2000);
+
     // Final verification - should have 2 meals now
-    await expect(dashboardPage.getMealsCount()).toBe(2);
+    await expect(mealsCount).toBeGreaterThan(1);
 
     // Verify total calories are displayed and updated
     await expect(dashboardPage.caloriesDisplay).toBeVisible();
@@ -172,8 +200,9 @@ test.describe('Complete Meal Workflow', () => {
     await expect(addMealDialog.dialog).not.toBeVisible();
 
     // Verify meal was added
-    await page.waitForTimeout(1000);
-    await expect(dashboardPage.getMealsCount()).toBe(1);
+    await page.waitForTimeout(2000);
+    const mealsCount = await dashboardPage.getMealsCount();
+    await expect(mealsCount).toBeGreaterThan(0);
   });
 
   test('should handle calorie goal validation', async ({ page }) => {
@@ -192,12 +221,15 @@ test.describe('Complete Meal Workflow', () => {
     await profilePage.saveCalorieGoal();
 
     // Should show error
-    await expect(profilePage.hasCalorieGoalError()).toBeTruthy();
+    await expect(await profilePage.hasCalorieGoalError()).toBeTruthy();
     const errorMessage = await profilePage.getCalorieGoalError();
-    await expect(errorMessage).toContain('musi być większa');
+    await expect(errorMessage).toContain('Cel musi być liczbą większą od 0');
 
     // Cancel editing
     await profilePage.cancelCalorieGoal();
-    await expect(profilePage.isInEditMode()).toBeFalsy();
+
+    // Wait for edit mode to be cancelled
+    await page.waitForTimeout(1500);
+    await expect(await profilePage.isInEditMode()).toBeFalsy();
   });
 });

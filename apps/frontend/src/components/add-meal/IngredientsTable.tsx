@@ -14,6 +14,7 @@ import type { AnalysisRunItemDTO, MealAnalysisItemDTO } from "@/types";
 
 type IngredientsTableProps = {
   items: AnalysisRunItemDTO[] | MealAnalysisItemDTO[];
+  "data-testid"?: string;
 };
 
 const useStyles = makeStyles({
@@ -40,7 +41,7 @@ const useStyles = makeStyles({
   },
 });
 
-export function IngredientsTable({ items }: IngredientsTableProps) {
+export function IngredientsTable({ items, "data-testid": testId }: IngredientsTableProps) {
   const styles = useStyles();
 
   const getConfidenceStyle = (confidence: number) => {
@@ -58,7 +59,7 @@ export function IngredientsTable({ items }: IngredientsTableProps) {
   }
 
   return (
-    <Table className={styles.table} size="small" aria-label="Tabela składników">
+    <Table className={styles.table} size="small" aria-label="Tabela składników" data-testid={testId}>
       <TableHeader>
         <TableRow>
           <TableHeaderCell className={styles.headerCell}>Lp.</TableHeaderCell>

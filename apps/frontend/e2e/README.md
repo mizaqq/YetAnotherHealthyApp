@@ -153,12 +153,14 @@ Each page object encapsulates:
 
 Test credentials and configuration are stored in `.env.test`:
 
-- `REACT_APP_SUPABASE_URL` - Supabase project URL for testing
-- `REACT_APP_SUPABASE_PUBLISHABLE_DEFAULT_KEY` - Supabase anonymous key for testing
+- `VITE_SUPABASE_URL` - Supabase project URL for testing
+- `VITE_SUPABASE_ANON_KEY` - Supabase anonymous key for testing
 - `E2E_USERNAME_ID` - Test user ID (optional)
 - `E2E_USERNAME` - Test user email
 - `E2E_PASSWORD` - Test user password
 - `API_BASE_URL` - Backend API URL
+
+Environment variables are automatically loaded using `dotenv` in the test files.
 
 ## Test Configuration
 

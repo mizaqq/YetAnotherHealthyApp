@@ -15,6 +15,7 @@ interface MacroDisplayProps {
     carbs: number;
   };
   calories?: number;
+  "data-testid"?: string;
 }
 
 const useStyles = makeStyles({
@@ -75,7 +76,7 @@ const useStyles = makeStyles({
   },
 });
 
-export function MacroDisplay({ macros, calories }: MacroDisplayProps) {
+export function MacroDisplay({ macros, calories, "data-testid": testId }: MacroDisplayProps) {
   const styles = useStyles();
 
   // Calculate total calories from macros if not provided
@@ -139,7 +140,7 @@ export function MacroDisplay({ macros, calories }: MacroDisplayProps) {
   ];
 
   return (
-    <Card className={styles.card} data-testid="dashboard-macro-display">
+    <Card className={styles.card} data-testid={testId || "dashboard-macro-display"}>
       <CardHeader
         header={<Text size={500} weight="semibold">Makroskładniki</Text>}
         description={<Text size={300} style={{ color: tokens.colorNeutralForeground2 }}>Dzisiejsze spożycie</Text>}

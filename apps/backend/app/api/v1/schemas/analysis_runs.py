@@ -164,7 +164,10 @@ class AnalysisRunDetailResponse(BaseModel):
     """
 
     id: UUID = Field(description="Unique analysis run identifier")
-    meal_id: UUID = Field(description="Meal this analysis belongs to")
+    meal_id: UUID | None = Field(
+        default=None,
+        description="Meal this analysis belongs to (null for ad-hoc text analysis)",
+    )
     run_no: int = Field(description="Sequential run number for this meal", ge=1)
     status: AnalysisRunStatus = Field(
         description="Current status: queued, running, succeeded, failed, cancelled"
@@ -315,7 +318,10 @@ class AnalysisRunSummaryResponse(BaseModel):
     """
 
     id: UUID = Field(description="Unique analysis run identifier")
-    meal_id: UUID = Field(description="Meal this analysis belongs to")
+    meal_id: UUID | None = Field(
+        default=None,
+        description="Meal this analysis belongs to (null for ad-hoc text analysis)",
+    )
     run_no: int = Field(description="Sequential run number for this meal", ge=1)
     status: AnalysisRunStatus = Field(description="Current run status")
     threshold_used: Decimal | None = Field(

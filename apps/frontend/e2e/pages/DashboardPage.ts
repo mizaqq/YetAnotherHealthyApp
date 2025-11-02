@@ -26,14 +26,14 @@ export class DashboardPage {
     this.mealsList = page.getByTestId('dashboard-meals-list');
     this.macroDisplay = page.getByTestId('dashboard-macro-display');
     this.weeklyChart = page.getByTestId('dashboard-weekly-chart');
-    this.profileLink = page.getByRole('link', { name: /profil/i });
+    this.profileLink = page.getByRole('tab', { name: /profil/i });
   }
 
   /**
    * Navigate to the dashboard
    */
   async goto() {
-    await this.page.goto('/dashboard');
+    await this.page.goto('/');
   }
 
   /**
@@ -52,15 +52,6 @@ export class DashboardPage {
   }
 
   /**
-   * Get the current calorie count displayed
-   */
-  async getCurrentCalories() {
-    const text = await this.caloriesDisplay.textContent();
-    const match = text?.match(/(\d+)/);
-    return match ? parseInt(match[1], 10) : 0;
-  }
-
-  /**
    * Navigate to profile page
    */
   async goToProfile() {
@@ -71,7 +62,7 @@ export class DashboardPage {
    * Get current calorie value from display
    */
   async getCurrentCalories() {
-    const caloriesElement = this.caloriesDisplay.getByText(/\d+/);
+    const caloriesElement = this.caloriesDisplay.getByText('Spożyte kalorie').locator('..').getByText(/\d+/);
     const caloriesText = await caloriesElement.textContent();
     return caloriesText ? parseInt(caloriesText.replace(/\D/g, ''), 10) : 0;
   }
@@ -80,7 +71,7 @@ export class DashboardPage {
    * Get goal calories from display
    */
   async getGoalCalories() {
-    const goalElement = this.caloriesDisplay.getByText(/\d+/);
+    const goalElement = this.caloriesDisplay.getByText('Cel dzienny').locator('..').getByText(/\d+/);
     const goalText = await goalElement.textContent();
     return goalText ? parseInt(goalText.replace(/\D/g, ''), 10) : 0;
   }
@@ -97,7 +88,23 @@ export class DashboardPage {
    * Get number of meals in the list
    */
   async getMealsCount() {
-    return await this.mealsList.locator('[data-testid^="meal-list-item-"]').count();
+    try {
+      // Check if meals list exists first
+      const mealsListExists = await this.mealsList.isVisible();
+      if (!mealsListExists) {
+        console.log('Meals list is not visible');
+        return 0;
+      }
+
+      // Try to count meal items
+      const mealItems = this.page.locator('[data-testid^="meal-list-item-"]');
+      const count = await mealItems.count();
+      console.log(`Found ${count} meal items`);
+      return count;
+    } catch (error) {
+      console.error('Error in getMealsCount:', error);
+      return 0;
+    }
   }
 
   /**
@@ -115,6 +122,13 @@ export class DashboardPage {
     const fatText = await this.macroDisplay.getByText(`T: ${fat}`).isVisible();
     const carbsText = await this.macroDisplay.getByText(`W: ${carbs}`).isVisible();
     return proteinText && fatText && carbsText;
+  }
+
+  /**
+   * Refresh dashboard data by navigating to the current page
+   */
+  async refresh() {
+    await this.page.reload();
   }
 
   /**

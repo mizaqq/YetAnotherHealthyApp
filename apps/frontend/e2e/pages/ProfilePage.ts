@@ -106,6 +106,11 @@ export class ProfilePage {
    * Check if in edit mode (input field visible)
    */
   async isInEditMode() {
-    return await this.calorieGoalInput.isVisible();
+    try {
+      const count = await this.calorieGoalInput.count();
+      return count > 0;
+    } catch {
+      return false;
+    }
   }
 }

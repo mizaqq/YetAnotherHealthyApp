@@ -107,4 +107,3 @@ alter table public.meals
 
 grant select, insert, update, delete on public.analysis_runs to authenticated;
 grant select, insert, update, delete on public.analysis_run_items to authenticated;
-

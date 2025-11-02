@@ -320,13 +320,13 @@ class AnalysisRunsRepository:
     async def get_next_run_no(
         self,
         *,
-        meal_id: UUID,
+        meal_id: UUID | None,
         user_id: UUID,
     ) -> int:
-        """Determine the next run_no for a meal.
+        """Determine the next run_no for a meal or ad-hoc analysis.
 
         Args:
-            meal_id: Meal identifier
+            meal_id: Meal identifier (None for ad-hoc text analysis)
             user_id: User identifier for authorization
 
         Returns:
@@ -336,6 +336,11 @@ class AnalysisRunsRepository:
             RuntimeError: If database query fails
         """
         try:
+            # For ad-hoc analysis (meal_id is None), always return 1
+            # Each ad-hoc analysis is treated as independent
+            if meal_id is None:
+                return 1
+
             # Get max run_no for this meal
             response = (
                 self._client.table(self._ANALYSIS_RUNS_TABLE)

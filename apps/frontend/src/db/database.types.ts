@@ -9,6 +9,9 @@ export type Json =
   | Json[]
 
 export type Database = {
+  __InternalSupabase: {
+    PostgrestVersion: string;
+  };
   graphql_public: {
     Tables: {
       [_ in never]: never
