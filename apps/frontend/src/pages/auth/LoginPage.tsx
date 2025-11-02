@@ -34,7 +34,7 @@ export function LoginPage() {
         )}
         <AuthForm
           mode="login"
-          onSubmit={login}
+          onSubmit={(data) => { void login(data); }}
           isLoading={isLoading}
           apiError={apiError}
         />

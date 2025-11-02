@@ -2,6 +2,7 @@
  * Simple hook test to verify Vitest setup
  */
 
+import { describe, it, expect } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useState } from 'react';
 
@@ -14,13 +15,15 @@ function useCounter(initialValue = 0) {
   return { count, increment };
 }
 
-it('increments counter', () => {
-  const { result } = renderHook(() => useCounter());
+describe('useCounter', () => {
+  it('increments counter', () => {
+    const { result } = renderHook(() => useCounter());
 
-  act(() => {
-    result.current.increment();
+    act(() => {
+      result.current.increment();
+    });
+
+    expect(result.current.count).toBe(1);
   });
-
-  expect(result.current.count).toBe(1);
 });
 

@@ -191,7 +191,7 @@ describe('useAddMealStepper', () => {
       expect(result.current.isSubmitting).toBe(false);
     });
 
-    it('should transition to loading step before analysis', async () => {
+    it('should transition to loading step before analysis', () => {
       vi.mocked(api.createAnalysisRun).mockImplementation(
         () => new Promise((resolve) => setTimeout(() => resolve(mockAnalysisRun), 100))
       );
@@ -403,10 +403,10 @@ describe('useAddMealStepper', () => {
         category: 'breakfast',
         eaten_at: '2025-01-15T12:00:00.000Z',
         source: 'ai',
-        calories: expect.closeTo(286.57, 2),
-        protein: expect.closeTo(17.8, 2),
-        fat: expect.closeTo(13.02, 2),
-        carbs: expect.closeTo(26, 2),
+        calories: expect.closeTo(286.57, 2) as number,
+        protein: expect.closeTo(17.8, 2) as number,
+        fat: expect.closeTo(13.02, 2) as number,
+        carbs: expect.closeTo(26, 2) as number,
         analysis_run_id: 'run-123',
       });
       expect(toast.success).toHaveBeenCalledWith('Posiłek został dodany');

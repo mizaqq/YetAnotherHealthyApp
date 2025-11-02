@@ -73,8 +73,8 @@ export function OnboardingForm({
     mode: "onChange",
   });
 
-  const handleFormSubmit = async (data: CreateOnboardingCommand) => {
-    await onSubmit(data);
+  const handleFormSubmit = (data: CreateOnboardingCommand) => {
+    void onSubmit(data);
   };
 
   return (
@@ -92,7 +92,7 @@ export function OnboardingForm({
         }
       />
       <form
-        onSubmit={handleSubmit(handleFormSubmit)}
+        onSubmit={(e) => { void handleSubmit(handleFormSubmit)(e); }}
         id="onboarding-form"
         className={styles.form}
       >

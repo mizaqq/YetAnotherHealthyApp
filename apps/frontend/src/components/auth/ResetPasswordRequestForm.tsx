@@ -85,8 +85,8 @@ export function ResetPasswordRequestForm({
     mode: "onChange",
   });
 
-  const handleFormSubmit = async (data: ResetPasswordRequestFormData) => {
-    await onSubmit(data);
+  const handleFormSubmit = (data: ResetPasswordRequestFormData) => {
+    void onSubmit(data);
   };
 
   return (
@@ -105,7 +105,7 @@ export function ResetPasswordRequestForm({
         }
       />
       <form
-        onSubmit={handleSubmit(handleFormSubmit)}
+        onSubmit={(e) => { void handleSubmit(handleFormSubmit)(e); }}
         id="reset-password-request-form"
         className={styles.form}
       >

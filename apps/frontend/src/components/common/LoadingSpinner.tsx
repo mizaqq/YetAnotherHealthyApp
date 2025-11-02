@@ -1,8 +1,8 @@
 import { Spinner } from "@fluentui/react-components";
 
-interface LoadingSpinnerProps {
+type LoadingSpinnerProps = {
   message?: string;
-}
+};
 
 /**
  * Loading spinner component with optional message

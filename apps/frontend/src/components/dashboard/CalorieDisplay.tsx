@@ -5,10 +5,10 @@ import {
   tokens,
 } from "@fluentui/react-components";
 
-interface CalorieDisplayProps {
+type CalorieDisplayProps = {
   currentCalories: number;
   goalCalories: number | null | undefined;
-}
+};
 
 const useStyles = makeStyles({
   caloriesDisplayWithGoal: {

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MealInputStep } from '@/components/add-meal/MealInputStep';
@@ -319,7 +319,7 @@ describe('MealInputStep', () => {
       expect(categoryDropdown).toHaveValue('Kolacja');
     });
 
-    it('should display correct label for selected category', async () => {
+    it('should display correct label for selected category', () => {
       render(
         <MealInputStep
           initialData={{ ...defaultInitialData, category: 'breakfast' }}

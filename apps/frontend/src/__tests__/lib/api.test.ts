@@ -25,7 +25,7 @@ import * as api from '@/lib/api';
 import { supabase } from '@/lib/supabaseClient';
 
 // Extract the mock function after import
-const mockGetSession = vi.mocked(supabase.auth.getSession);
+const mockGetSession = vi.mocked(supabase.auth.getSession.bind(supabase.auth));
 
 describe('API Client', () => {
   const mockFetch = vi.fn();

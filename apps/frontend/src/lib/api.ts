@@ -164,7 +164,7 @@ export async function getDailySummary(
  */
 export async function getWeeklyTrend(
   endDate?: string,
-  includeMacros: boolean = false
+  includeMacros = false
 ): Promise<WeeklyTrendReportDTO> {
   const url = new URL(`${API_BASE}/reports/weekly-trend`, window.location.origin);
   if (endDate) {
@@ -199,8 +199,8 @@ export async function getMealCategories(
     await handleApiError(response);
   }
 
-  const data = await response.json();
-  return data.data as MealCategoryDTO[];
+  const data: unknown = await response.json();
+  return (data as { data: MealCategoryDTO[] }).data;
 }
 
 /**
@@ -340,7 +340,7 @@ export async function deleteMeal(mealId: string): Promise<void> {
  * @param afterCursor Cursor for pagination (from previous response)
  */
 export async function getMeals(
-  pageSize: number = 20,
+  pageSize = 20,
   afterCursor?: string | null
 ): Promise<PaginatedResponse<MealListItemDTO>> {
   const url = new URL(`${API_BASE}/meals`, window.location.origin);

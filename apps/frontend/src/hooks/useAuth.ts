@@ -9,8 +9,12 @@ import {
 } from "@/lib/api";
 import { type AuthFormData, type ResetPasswordRequestFormData, type ResetPasswordConfirmFormData } from "@/types";
 
-const mapSupabaseErrorToMessage = (error: any): string => {
-  const message = error?.message || "";
+const mapSupabaseErrorToMessage = (error: unknown): string => {
+  if (!error || typeof error !== 'object') {
+    return "Wystąpił nieoczekiwany błąd.";
+  }
+  
+  const message = 'message' in error && typeof error.message === 'string' ? error.message : "";
 
   switch (message) {
     case "Invalid login credentials":
@@ -22,8 +26,12 @@ const mapSupabaseErrorToMessage = (error: any): string => {
   }
 };
 
-const mapApiErrorToMessage = (error: any): string => {
-  const message = error?.message || "";
+const mapApiErrorToMessage = (error: unknown): string => {
+  if (!error || typeof error !== 'object') {
+    return "Wystąpił nieoczekiwany błąd.";
+  }
+  
+  const message = 'message' in error && typeof error.message === 'string' ? error.message : "";
 
   // Handle 409 Conflict for duplicate email
   if (message.includes("Conflict")) {
@@ -56,7 +64,7 @@ export function useAuth() {
         setApiError(mapSupabaseErrorToMessage(error));
       }
       // Success will be handled by onAuthStateChange listener
-    } catch (_error) {
+    } catch {
       setApiError("Wystąpił nieoczekiwany błąd.");
     } finally {
       setIsLoading(false);

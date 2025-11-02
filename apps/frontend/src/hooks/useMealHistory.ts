@@ -5,14 +5,14 @@ import type { MealListItemDTO, GroupedMealViewModel } from "@/types";
 
 const PAGE_SIZE = 20;
 
-interface UseMealHistoryReturn {
+type UseMealHistoryReturn = {
   groupedMeals: GroupedMealViewModel[];
   isLoading: boolean;
   error: Error | null;
   hasMore: boolean;
   loadMoreMeals: () => void;
   isLoadingMore: boolean;
-}
+};
 
 /**
  * Custom hook for managing meal history with pagination and grouping
@@ -89,7 +89,7 @@ export function useMealHistory(): UseMealHistoryReturn {
     isLoading,
     error,
     hasMore,
-    loadMoreMeals,
+    loadMoreMeals: () => { void loadMoreMeals(); },
     isLoadingMore,
   };
 }

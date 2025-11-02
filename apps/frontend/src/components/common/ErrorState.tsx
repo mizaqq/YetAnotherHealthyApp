@@ -10,11 +10,11 @@ import {
 } from "@fluentui/react-components";
 import { AlertUrgent24Regular } from "@fluentui/react-icons";
 
-interface ErrorStateProps {
+type ErrorStateProps = {
   error?: Error;
   message?: string;
   onRetry?: () => void;
-}
+};
 
 const useStyles = makeStyles({
   root: {
@@ -56,7 +56,7 @@ export function ErrorState({
 }: ErrorStateProps): JSX.Element {
   const styles = useStyles();
   const displayMessage =
-    message || error?.message || "Wystąpił błąd podczas ładowania danych.";
+    message ?? error?.message ?? "Wystąpił błąd podczas ładowania danych.";
 
   return (
     <div className={styles.root}>

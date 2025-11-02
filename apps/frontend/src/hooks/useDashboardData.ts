@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { getDailySummary, getWeeklyTrend } from "@/lib/api";
 import type { DailySummaryReportDTO, WeeklyTrendReportDTO } from "@/types";
 
-interface UseDashboardDataReturn {
+type UseDashboardDataReturn = {
   dailySummary: DailySummaryReportDTO | null;
   weeklyTrend: WeeklyTrendReportDTO | null;
   isLoading: boolean;
@@ -55,7 +55,7 @@ export function useDashboardData(): UseDashboardDataReturn {
     isLoading,
     error,
     hasMeals,
-    refetch: fetchData,
+    refetch: () => { void fetchData(); },
   };
 }
 

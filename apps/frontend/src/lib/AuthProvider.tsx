@@ -26,7 +26,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const clearPasswordRecovery = useCallback(() => {
     try {
       sessionStorage.removeItem("yah:is-password-recovery");
-    } catch {}
+    } catch {
+      // Ignore storage errors
+    }
     setIsPasswordRecovery(false);
   }, []);
 
@@ -38,7 +40,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (persistedRecovery === "1") {
         setIsPasswordRecovery(true);
       }
-    } catch {}
+    } catch {
+      // Ignore storage errors
+    }
 
     // Check URL for recovery hash on initial load
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -47,7 +51,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (type === 'recovery') {
       console.log("Password recovery detected from URL hash");
       setIsPasswordRecovery(true);
-      try { sessionStorage.setItem("yah:is-password-recovery", "1"); } catch {}
+      try { sessionStorage.setItem("yah:is-password-recovery", "1"); } catch {
+        // Ignore storage errors
+      }
     }
 
     // 1. Get the initial session
@@ -80,7 +86,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Handle password recovery flow
       if (event === "PASSWORD_RECOVERY") {
         setIsPasswordRecovery(true);
-        try { sessionStorage.setItem("yah:is-password-recovery", "1"); } catch {}
+        try {
+          sessionStorage.setItem("yah:is-password-recovery", "1");
+        } catch {
+          // Ignore storage errors
+        }
         // Strip hash before navigating to confirm page
         if (window.location.hash) {
           window.history.replaceState(null, "", window.location.pathname + window.location.search);
@@ -90,7 +100,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       // Clear recovery flag on sign out
       if (event === "SIGNED_OUT") {
-        try { sessionStorage.removeItem("yah:is-password-recovery"); } catch {}
+        try { sessionStorage.removeItem("yah:is-password-recovery"); } catch {
+          // Ignore storage errors
+        }
         setIsPasswordRecovery(false);
       }
       
@@ -174,12 +186,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
 
         // For other errors (network issues, etc.), sign out and redirect
-        await supabase.auth.signOut();
+        void supabase.auth.signOut();
         navigate("/login", { replace: true });
       }
     };
 
-    handleNavigation();
+    void handleNavigation();
   }, [loading, session, navigate, isPasswordRecovery, location.pathname]);
 
   return (

@@ -13,7 +13,7 @@ export function ResetPasswordRequestPage(): JSX.Element {
   return (
     <AuthPageLayout>
       <ResetPasswordRequestForm
-        onSubmit={handleSubmit}
+        onSubmit={(data) => { void handleSubmit(data); }}
         isLoading={isLoading}
         apiError={apiError}
       />

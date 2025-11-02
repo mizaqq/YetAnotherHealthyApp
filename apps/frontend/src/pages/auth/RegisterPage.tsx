@@ -15,7 +15,7 @@ export function RegisterPage() {
     <AuthPageLayout>
       <AuthForm
         mode="register"
-        onSubmit={register}
+        onSubmit={(data) => { void register(data); }}
         isLoading={isLoading}
         apiError={apiError}
       />

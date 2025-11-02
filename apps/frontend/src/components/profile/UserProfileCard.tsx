@@ -41,11 +41,11 @@ const useStyles = makeStyles({
   },
 });
 
-interface UserProfileCardProps {
+type UserProfileCardProps = {
   profile: ProfileViewModel;
-  onSaveGoal: (newGoal: number) => Promise<void>;
+  onSaveGoal: (newGoal: number) => void;
   onLogout: () => void;
-}
+};
 
 export function UserProfileCard({
   profile,

@@ -52,9 +52,9 @@ const useStyles = makeStyles({
   },
 });
 
-interface EmailConfirmationViewProps {
+type EmailConfirmationViewProps = {
   email?: string;
-}
+};
 
 export function EmailConfirmationView({
   email,

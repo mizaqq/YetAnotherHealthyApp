@@ -5,10 +5,10 @@ import {
   tokens,
 } from "@fluentui/react-components";
 
-interface ProgressDisplayProps {
+type ProgressDisplayProps = {
   currentCalories: number;
   goalCalories: number | null | undefined;
-}
+};
 
 const useStyles = makeStyles({
   container: {

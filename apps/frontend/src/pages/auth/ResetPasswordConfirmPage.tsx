@@ -48,7 +48,7 @@ export function ResetPasswordConfirmPage(): JSX.Element {
   return (
     <AuthPageLayout>
       <ResetPasswordConfirmForm
-        onSubmit={handleSubmit}
+        onSubmit={(data) => { void handleSubmit(data); }}
         isLoading={isLoading}
         apiError={apiError}
       />

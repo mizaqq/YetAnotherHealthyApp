@@ -10,7 +10,7 @@ import type { Session } from '@supabase/supabase-js';
 export function createMockFetchResponse<T>(
   status: number,
   data?: T,
-  statusText: string = 'OK'
+  statusText = 'OK'
 ): Response {
   const body = status === 204 ? null : JSON.stringify(data);
   
@@ -19,8 +19,8 @@ export function createMockFetchResponse<T>(
     status,
     statusText,
     headers: new Headers({ 'Content-Type': 'application/json' }),
-    json: async () => data as T,
-    text: async () => body ?? '',
+    json: () => Promise.resolve(data as T),
+    text: () => Promise.resolve(body ?? ''),
     clone: () => createMockFetchResponse(status, data, statusText),
   } as Response;
 }
@@ -35,7 +35,7 @@ export function createMockFetch() {
 /**
  * Mock Supabase session for authenticated requests
  */
-export function createMockSession(accessToken: string = 'mock-access-token'): Session {
+export function createMockSession(accessToken = 'mock-access-token'): Session {
   return {
     access_token: accessToken,
     refresh_token: 'mock-refresh-token',
@@ -67,7 +67,7 @@ export function createMockSupabaseAuth(session: Session | null = createMockSessi
 /**
  * Create a deterministic date for testing
  */
-export function setDeterministicDate(isoString: string = '2025-01-15T12:00:00.000Z') {
+export function setDeterministicDate(isoString = '2025-01-15T12:00:00.000Z') {
   vi.setSystemTime(new Date(isoString));
 }
 

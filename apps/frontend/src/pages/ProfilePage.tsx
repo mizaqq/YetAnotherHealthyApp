@@ -62,8 +62,8 @@ export default function ProfilePage() {
         <Title1 as="h1">Profil</Title1>
         <UserProfileCard
           profile={profile}
-          onSaveGoal={updateCalorieGoal}
-          onLogout={logout}
+          onSaveGoal={(newGoal) => { void updateCalorieGoal(newGoal); }}
+          onLogout={() => { void logout(); }}
         />
       </div>
     </div>

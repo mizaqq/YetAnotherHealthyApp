@@ -120,8 +120,8 @@ export function AuthForm({
     mode: "onChange",
   });
 
-  const handleFormSubmit = async (data: AuthFormData) => {
-    await onSubmit(data);
+  const handleFormSubmit = (data: AuthFormData) => {
+    void onSubmit(data);
     // Navigation will be handled by AuthProvider's onAuthStateChange
   };
 
@@ -131,7 +131,7 @@ export function AuthForm({
         header={<Text size={700} weight="bold">{content.title}</Text>}
         description={<Text size={400}>{content.description}</Text>}
       />
-      <form onSubmit={handleSubmit(handleFormSubmit)} id="auth-form" className={styles.form}>
+      <form onSubmit={(e) => { void handleSubmit(handleFormSubmit)(e); }} id="auth-form" className={styles.form}>
         <div className={styles.field}>
           <Label htmlFor="email">Email</Label>
           <Input

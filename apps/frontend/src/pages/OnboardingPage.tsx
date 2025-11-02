@@ -16,7 +16,7 @@ export function OnboardingPage() {
   return (
     <AuthPageLayout>
       <OnboardingForm
-        onSubmit={submitOnboarding}
+        onSubmit={(data) => { void submitOnboarding(data); }}
         isLoading={isLoading}
         apiError={apiError}
       />

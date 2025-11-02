@@ -1,15 +1,15 @@
 import React, { Component, ReactNode } from "react";
 import { ErrorState } from "./ErrorState";
 
-interface ErrorBoundaryProps {
+type ErrorBoundaryProps = {
   children: ReactNode;
   onReset?: () => void;
-}
+};
 
-interface ErrorBoundaryState {
+type ErrorBoundaryState = {
   hasError: boolean;
   error: Error | null;
-}
+};
 
 /**
  * Error Boundary component to catch and handle unhandled errors in the component tree

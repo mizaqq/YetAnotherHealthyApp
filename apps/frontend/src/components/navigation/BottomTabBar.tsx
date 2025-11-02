@@ -87,7 +87,7 @@ export function BottomTabBar(): JSX.Element {
   const getActiveTab = (): string => {
     const currentPath = location.pathname;
     const matchingTab = tabs.find((tab) => tab.path === currentPath);
-    return matchingTab?.path || "/";
+    return matchingTab?.path ?? "/";
   };
 
   const handleTabSelect = (_event: unknown, data: { value: string }) => {

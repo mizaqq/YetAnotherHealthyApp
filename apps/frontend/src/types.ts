@@ -239,12 +239,10 @@ export type DailySummaryReportDTO = {
   progress: {
     calories_percentage: number;
   };
-  meals: Array<
-    Pick<
-      MealRow,
-      "id" | "category" | "calories" | "eaten_at" | "protein" | "fat" | "carbs"
-    >
-  >;
+  meals: Pick<
+    MealRow,
+    "id" | "category" | "calories" | "eaten_at" | "protein" | "fat" | "carbs"
+  >[];
 };
 
 export type WeeklyTrendReportPointDTO = {
@@ -266,38 +264,38 @@ export type Meal = Pick<
 
 export type AuthMode = "login" | "register";
 
-export interface AuthFormData {
+export type AuthFormData = {
   email: string;
   password: string;
-}
+};
 
-export interface AuthFormProps {
+export type AuthFormProps = {
   mode: AuthMode;
   onSubmit: (data: AuthFormData) => void;
   isLoading: boolean;
   apiError: string | null;
-}
+};
 
-export interface ResetPasswordRequestFormData {
+export type ResetPasswordRequestFormData = {
   email: string;
-}
+};
 
-export interface ResetPasswordRequestFormProps {
+export type ResetPasswordRequestFormProps = {
   onSubmit: (data: ResetPasswordRequestFormData) => void;
   isLoading: boolean;
   apiError: string | null;
-}
+};
 
-export interface ResetPasswordConfirmFormData {
+export type ResetPasswordConfirmFormData = {
   password: string;
   confirmPassword: string;
-}
+};
 
-export interface ResetPasswordConfirmFormProps {
+export type ResetPasswordConfirmFormProps = {
   onSubmit: (data: ResetPasswordConfirmFormData) => void;
   isLoading: boolean;
   apiError: string | null;
-}
+};
 
 // Add Meal Modal ViewModels
 export type MealInputFormViewModel = {

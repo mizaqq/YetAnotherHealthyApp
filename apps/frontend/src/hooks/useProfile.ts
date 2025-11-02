@@ -60,7 +60,7 @@ export function useProfile() {
       }
     };
 
-    fetchProfile();
+    void fetchProfile();
   }, [navigate]);
 
   // Update calorie goal

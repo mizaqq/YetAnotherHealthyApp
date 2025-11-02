@@ -2,10 +2,10 @@ import React, { createContext, useState, useEffect, useContext, useMemo } from "
 
 type Theme = "light" | "dark";
 
-interface ThemeContextType {
+type ThemeContextType = {
   theme: Theme;
   toggleTheme: () => void;
-}
+};
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
@@ -18,7 +18,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       .matches
       ? "dark"
       : "light";
-    const initialTheme = savedTheme || systemTheme;
+    const initialTheme = savedTheme ?? systemTheme;
     setTheme(initialTheme);
   }, []);
 

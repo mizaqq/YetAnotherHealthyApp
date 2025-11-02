@@ -100,8 +100,8 @@ export function ResetPasswordConfirmForm({
     mode: "onChange",
   });
 
-  const handleFormSubmit = async (data: ResetPasswordConfirmFormData) => {
-    await onSubmit(data);
+  const handleFormSubmit = (data: ResetPasswordConfirmFormData) => {
+    void onSubmit(data);
   };
 
   return (
@@ -120,7 +120,7 @@ export function ResetPasswordConfirmForm({
         }
       />
       <form
-        onSubmit={handleSubmit(handleFormSubmit)}
+        onSubmit={(e) => { void handleSubmit(handleFormSubmit)(e); }}
         id="reset-password-confirm-form"
         className={styles.form}
       >

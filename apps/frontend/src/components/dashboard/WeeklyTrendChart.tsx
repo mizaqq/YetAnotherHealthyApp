@@ -19,9 +19,9 @@ import {
 import type { WeeklyTrendReportPointDTO } from "@/types";
 import { useTheme } from "@/lib/ThemeProvider";
 
-interface WeeklyTrendChartProps {
+type WeeklyTrendChartProps = {
   data: WeeklyTrendReportPointDTO[];
-}
+};
 
 const useStyles = makeStyles({
   card: {
@@ -48,9 +48,15 @@ const useStyles = makeStyles({
   },
 });
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+type TooltipProps = {
+  active?: boolean;
+  payload?: { value: number }[];
+  label?: string;
+};
+
+const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
   const { theme } = useTheme();
-  if (active && payload && payload.length) {
+  if (active && payload?.length) {
     return (
       <div
         style={{
@@ -88,7 +94,7 @@ export const WeeklyTrendChart = ({ data }: WeeklyTrendChartProps) => {
     goal: point.goal,
   }));
 
-  const goalValue = data.find((p) => p.goal > 0)?.goal || 0;
+  const goalValue = data.find((p) => p.goal > 0)?.goal ?? 0;
 
   const calories = data.map((p) => p.calories);
   const minCalories = Math.min(...calories);

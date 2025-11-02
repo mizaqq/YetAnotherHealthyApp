@@ -8,7 +8,7 @@ import {
 } from "@fluentui/react-components";
 import { Food24Regular, DrinkBeer24Regular, FoodApple24Regular, Fire24Regular } from "@fluentui/react-icons";
 
-interface MacroDisplayProps {
+type MacroDisplayProps = {
   macros: {
     protein: number;
     fat: number;
@@ -16,7 +16,7 @@ interface MacroDisplayProps {
   };
   calories?: number;
   "data-testid"?: string;
-}
+};
 
 const useStyles = makeStyles({
   card: {
@@ -140,7 +140,7 @@ export function MacroDisplay({ macros, calories, "data-testid": testId }: MacroD
   ];
 
   return (
-    <Card className={styles.card} data-testid={testId || "dashboard-macro-display"}>
+    <Card className={styles.card} data-testid={testId ?? "dashboard-macro-display"}>
       <CardHeader
         header={<Text size={500} weight="semibold">Makroskładniki</Text>}
         description={<Text size={300} style={{ color: tokens.colorNeutralForeground2 }}>Dzisiejsze spożycie</Text>}

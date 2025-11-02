@@ -50,12 +50,12 @@ const useStyles = makeStyles({
   },
 });
 
-interface EditableFieldProps {
+type EditableFieldProps = {
   label: string;
   initialValue: number;
   isUpdating: boolean;
   onSave: (newValue: number) => Promise<void>;
-}
+};
 
 export function EditableField({
   label,
@@ -116,7 +116,7 @@ export function EditableField({
       await onSave(Number(value));
       setIsEditing(false);
       setError(null);
-    } catch (_err) {
+    } catch {
       // Error is handled by the hook (toast + error state)
       // We stay in edit mode to allow user to retry
     }
