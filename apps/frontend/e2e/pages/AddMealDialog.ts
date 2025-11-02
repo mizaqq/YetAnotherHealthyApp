@@ -140,15 +140,18 @@ export class AddMealDialog {
   /**
    * Wait for loading step to be visible
    */
-  async waitForLoadingStep() {
-    await this.analysisLoadingCancel.waitFor({ state: 'visible' });
+  async waitForLoadingStep(timeout?: number) {
+    const waitTimeout = timeout || (process.env.CI ? 15000 : 10000); // 15s on CI, 10s locally
+    await this.analysisLoadingCancel.waitFor({ state: 'visible', timeout: waitTimeout });
   }
 
   /**
    * Wait for results step to be visible
+   * Increased timeout for CI environments where API calls may be slower
    */
-  async waitForResultsStep() {
-    await this.resultsAcceptButton.waitFor({ state: 'visible' });
+  async waitForResultsStep(timeout?: number) {
+    const waitTimeout = timeout || (process.env.CI ? 60000 : 30000); // 60s on CI, 30s locally
+    await this.resultsAcceptButton.waitFor({ state: 'visible', timeout: waitTimeout });
   }
 
   /**

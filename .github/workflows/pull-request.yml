@@ -196,7 +196,8 @@ jobs:
       - name: Run E2E tests
         working-directory: apps/frontend
         run: npm run test:e2e
-        env: 
+        env:
+          CI: true
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           E2E_USERNAME_ID: ${{ vars.E2E_USERNAME_ID }}
