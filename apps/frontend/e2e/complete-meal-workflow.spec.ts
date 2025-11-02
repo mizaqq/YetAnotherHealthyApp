@@ -162,8 +162,14 @@ const NEW_CALORIE_GOAL = 2200;
     await dashboardPage.refresh();
     await page.waitForTimeout(process.env.CI ? 5000 : 2000);
 
-    // Final verification - should have 2 meals now
-    await expect(mealsCount).toBeGreaterThan(1);
+    // Ensure meals list is visible and updated
+    await expect(dashboardPage.mealsList).toBeVisible();
+
+    // Final verification - should have 2 meals now (get fresh count)
+    console.log('Checking meals count after second meal...');
+    const finalMealsCount = await dashboardPage.getMealsCount();
+    console.log('Final meals count result:', finalMealsCount, typeof finalMealsCount);
+    await expect(finalMealsCount).toBeGreaterThan(1);
 
     // Verify total calories are displayed and updated
     await expect(dashboardPage.caloriesDisplay).toBeVisible();
