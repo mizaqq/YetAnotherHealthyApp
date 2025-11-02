@@ -5,9 +5,9 @@ from __future__ import annotations
 from datetime import date, datetime
 from decimal import Decimal
 from typing import Any
-from uuid import UUID
+from uuid import UUID  # type: ignore[TCH003]
 
-from supabase import Client
+from supabase import Client  # type: ignore[TCH002]
 
 
 class ReportsRepository:

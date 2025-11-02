@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import base64
 import json
-from decimal import Decimal
+from decimal import Decimal  # type: ignore[TCH003]
 from enum import Enum
 from typing import Annotated
-from uuid import UUID
+from uuid import UUID  # type: ignore[TCH003]
 
 from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator
 

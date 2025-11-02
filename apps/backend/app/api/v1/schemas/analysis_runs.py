@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from datetime import datetime
-from decimal import Decimal
+from datetime import datetime  # type: ignore[TCH003]
+from decimal import Decimal  # type: ignore[TCH003]
 from typing import Annotated, Literal
-from uuid import UUID
+from uuid import UUID  # type: ignore[TCH003]
 
 from pydantic import (
     BaseModel,
@@ -367,7 +367,9 @@ class AnalysisRunRetryRequest(BaseModel):
 
     threshold: Annotated[float, Field(ge=0.0, le=1.0)] | None = Field(
         default=None,
-        description="Optional new confidence threshold (0-1). If omitted, uses source run's threshold.",
+        description=(
+            "Optional new confidence threshold (0-1). If omitted, uses source run's threshold."
+        ),
     )
     raw_input: dict | None = Field(
         default=None,

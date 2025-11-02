@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from datetime import date as Date
 from datetime import datetime
-from decimal import Decimal
+from decimal import Decimal  # type: ignore[TCH003]
 from typing import Annotated
-from uuid import UUID
+from uuid import UUID  # type: ignore[TCH003]
 
 from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator
 
@@ -18,7 +18,9 @@ class DailySummaryQuery(BaseModel):
         Date | None,
         Field(
             default=None,
-            description="Target date for the summary (YYYY-MM-DD). Defaults to today in user's timezone.",
+            description=(
+                "Target date for the summary (YYYY-MM-DD). Defaults to today in user's timezone."
+            ),
         ),
     ] = None
 
@@ -252,7 +254,9 @@ class ReportPointDTO(BaseModel):
     carbs: Annotated[
         Decimal | None,
         Field(
-            description="Total carbohydrates consumed (grams). Present only when include_macros=true.",
+            description=(
+                "Total carbohydrates consumed (grams). Present only when include_macros=true."
+            ),
             ge=0,
             decimal_places=2,
         ),

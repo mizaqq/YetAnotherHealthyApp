@@ -39,7 +39,7 @@ class MetricsRecorder(Protocol):  # pragma: no cover - interface contract
 class Tracer(Protocol):  # pragma: no cover - interface contract
     """Abstract tracer used to create spans for external calls."""
 
-    def start_as_current_span(self, name: str): ...
+    def start_as_current_span(self, name: str) -> Any: ...
 
 
 class OpenRouterServiceError(RuntimeError):
@@ -287,12 +287,18 @@ class OpenRouterService:
                 requires_review = True
             else:
                 try:
-                    product = self._products.get_product_by_id(item.product_id, include_portions=False)
+                    product = self._products.get_product_by_id(
+                        item.product_id, include_portions=False
+                    )
                 except Exception as exc:  # pragma: no cover - supabase error path
                     self._logger.error(
-                        "Failed to fetch product for verification", exc_info=True, extra={"product_id": str(item.product_id)}
+                        "Failed to fetch product for verification",
+                        exc_info=True,
+                        extra={"product_id": str(item.product_id)},
                     )
-                    raise ServiceUnavailableError("Unable to validate ingredients against product database") from exc
+                    raise ServiceUnavailableError(
+                        "Unable to validate ingredients against product database"
+                    ) from exc
 
                 if product is None:
                     issues.append("product_not_found")
@@ -331,7 +337,9 @@ class OpenRouterService:
     ) -> OpenRouterChatRequest:
         normalized_messages = [self._coerce_message(message) for message in messages]
         if not normalized_messages:
-            raise InvalidRequestError("At least one message is required", details={"field": "messages"})
+            raise InvalidRequestError(
+                "At least one message is required", details={"field": "messages"}
+            )
 
         self._enforce_input_limits(normalized_messages)
 
@@ -357,7 +365,9 @@ class OpenRouterService:
 
         return payload
 
-    def _coerce_message(self, message: OpenRouterChatMessage | dict[str, Any]) -> OpenRouterChatMessage:
+    def _coerce_message(
+        self, message: OpenRouterChatMessage | dict[str, Any]
+    ) -> OpenRouterChatMessage:
         if isinstance(message, OpenRouterChatMessage):
             return message
         if not isinstance(message, dict):
@@ -396,7 +406,11 @@ class OpenRouterService:
         try:
             return OpenRouterChatResponse.model_validate(body)
         except Exception as exc:
-            self._logger.error("Failed to validate OpenRouter response", exc_info=True, extra={"body": body})
+            self._logger.error(
+                "Failed to validate OpenRouter response",
+                exc_info=True,
+                extra={"body": body},
+            )
             raise ServiceDataError("OpenRouter response validation failed") from exc
 
     def _parse_stream_buffer(self, buffer: str) -> Iterable[OpenRouterStreamChunk]:
@@ -412,9 +426,15 @@ class OpenRouterService:
                     chunk_data = json.loads(payload)
                     yield OpenRouterStreamChunk.model_validate(chunk_data)
                 except json.JSONDecodeError:
-                    self._logger.warning("Dropped malformed stream chunk: %s", payload)
+                    self._logger.warning(
+                        "Dropped malformed stream chunk: %s", payload
+                    )
                 except Exception:  # pragma: no cover - invalid chunk path
-                    self._logger.error("Stream chunk validation failed", exc_info=True, extra={"payload": payload})
+                    self._logger.error(
+                        "Stream chunk validation failed",
+                        exc_info=True,
+                        extra={"payload": payload},
+                    )
 
     def _retain_tail(self, buffer: str) -> str:
         if buffer.endswith(self._STREAM_BOUNDARY):
@@ -457,7 +477,9 @@ class OpenRouterService:
         except ValueError:
             return None
 
-    def _record_metric(self, name: str, value: float, *, tags: dict[str, str] | None = None) -> None:
+    def _record_metric(
+        self, name: str, value: float, *, tags: dict[str, str] | None = None
+    ) -> None:
         if not self._metrics:  # pragma: no cover - telemetry optional
             return
         try:
@@ -465,7 +487,7 @@ class OpenRouterService:
         except Exception:  # pragma: no cover - defensive logging
             self._logger.warning("Failed to record metric", exc_info=True, extra={"metric": name})
 
-    def _maybe_trace(self, span_name: str):
+    def _maybe_trace(self, span_name: str) -> Any:
         if not self._tracer:  # pragma: no cover - tracing optional
             return _NullContext()
         return self._tracer.start_as_current_span(span_name)
@@ -481,13 +503,21 @@ class OpenRouterService:
         protein = Decimal(str(macros_per_100g.protein)) * factor
         carbs = Decimal(str(macros_per_100g.carbs)) * factor
         fat = Decimal(str(macros_per_100g.fat)) * factor
-        return MacroProfile(calories=calories, protein=protein, carbs=carbs, fat=fat)
+        return MacroProfile(
+            calories=calories, protein=protein, carbs=carbs, fat=fat
+        )
 
-    def _compare_macros(self, expected: MacroProfile, actual: MacroProfile) -> MacroDelta:
-        def percent_delta(expected_value: Decimal, actual_value: Decimal) -> Decimal | None:
+    def _compare_macros(
+        self, expected: MacroProfile, actual: MacroProfile
+    ) -> MacroDelta:
+        def percent_delta(
+            expected_value: Decimal, actual_value: Decimal
+        ) -> Decimal | None:
             if expected_value == 0:
                 return None
-            return ((actual_value - expected_value) / expected_value * Decimal("100")).quantize(Decimal("0.01"))
+            return ((actual_value - expected_value) / expected_value * Decimal("100")).quantize(
+                Decimal("0.01")
+            )
 
         calories_diff = (actual.calories - expected.calories).quantize(Decimal("0.01"))
         protein_diff = (actual.protein - expected.protein).quantize(Decimal("0.01"))
@@ -520,14 +550,18 @@ class OpenRouterService:
 class _NullContext:
     """Fallback context manager used when tracing is disabled."""
 
-    def __enter__(self):  # pragma: no cover - trivial
+    def __enter__(self) -> _NullContext:  # pragma: no cover - trivial
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):  # pragma: no cover - trivial
+    def __exit__(  # pragma: no cover - trivial
+        self, exc_type: Any, exc_val: Any, exc_tb: Any
+    ) -> bool:
         return False
 
-    async def __aenter__(self):  # pragma: no cover - trivial
+    async def __aenter__(self) -> _NullContext:  # pragma: no cover - trivial
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):  # pragma: no cover - trivial
+    async def __aexit__(  # pragma: no cover - trivial
+        self, exc_type: Any, exc_val: Any, exc_tb: Any
+    ) -> bool:
         return False

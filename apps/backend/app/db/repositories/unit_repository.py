@@ -7,7 +7,7 @@ from decimal import Decimal
 from typing import Any, Final
 from uuid import UUID
 
-from supabase import Client
+from supabase import Client  # type: ignore[TCH002]
 
 from app.api.v1.schemas.units import CursorData, UnitAlias, UnitDefinition, UnitType
 

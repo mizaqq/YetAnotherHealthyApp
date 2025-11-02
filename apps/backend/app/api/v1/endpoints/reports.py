@@ -2,15 +2,15 @@
 
 from __future__ import annotations
 
-from datetime import date as Date
+from datetime import date as Date  # type: ignore[TCH003]
 from typing import Annotated
-from uuid import UUID
+from uuid import UUID  # type: ignore[TCH003]
 
 from fastapi import APIRouter, Depends, Query
 
 from app.api.v1.schemas.reports import DailySummaryResponse, WeeklyTrendReportDTO
-from app.core.dependencies import get_current_user_id, get_reports_service
-from app.services.reports_service import ReportsService
+from app.core.dependencies import get_current_user_id, get_reports_service  # type: ignore[TCH001]
+from app.services.reports_service import ReportsService  # type: ignore[TCH001]
 
 router = APIRouter()
 

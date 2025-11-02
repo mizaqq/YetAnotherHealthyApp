@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from typing import Annotated
-from uuid import UUID
+from uuid import UUID  # type: ignore[TCH003]
 
 from fastapi import APIRouter, Depends, Query
 
@@ -16,11 +16,11 @@ from app.api.v1.schemas.meals import (
     MealSource,
     MealUpdatePayload,
 )
-from app.core.dependencies import (
+from app.core.dependencies import (  # type: ignore[TCH001]
     get_current_user_id,
     get_meal_service,
 )
-from app.services.meal_service import MealService
+from app.services.meal_service import MealService  # type: ignore[TCH001]
 
 router = APIRouter()
 

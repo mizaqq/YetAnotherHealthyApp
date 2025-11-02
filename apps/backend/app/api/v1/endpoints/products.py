@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from typing import Annotated
-from uuid import UUID
+from uuid import UUID  # type: ignore[TCH003]
 
 from fastapi import APIRouter, Depends, Query
 
@@ -16,11 +16,11 @@ from app.api.v1.schemas.products import (
     ProductSource,
     SearchMode,
 )
-from app.core.dependencies import (
+from app.core.dependencies import (  # type: ignore[TCH001]
     get_current_user_id,
     get_product_service,
 )
-from app.services.product_service import ProductService
+from app.services.product_service import ProductService  # type: ignore[TCH001]
 
 router = APIRouter()
 

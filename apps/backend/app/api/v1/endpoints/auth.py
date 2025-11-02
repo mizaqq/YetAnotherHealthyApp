@@ -38,7 +38,10 @@ router = APIRouter()
             "content": {
                 "application/json": {
                     "example": {
-                        "message": "Registration successful. Please check your email to confirm your account."
+                        "message": (
+                            "Registration successful. "
+                            "Please check your email to confirm your account."
+                        )
                     }
                 }
             },
@@ -131,7 +134,10 @@ async def register(
             "content": {
                 "application/json": {
                     "example": {
-                        "message": "If the account exists, a password reset link has been sent to your email."
+                        "message": (
+                            "If the account exists, "
+                            "a password reset link has been sent to your email."
+                        )
                     }
                 }
             },

@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import json
 import logging
-from collections.abc import Sequence
+from collections.abc import Sequence  # type: ignore[TCH003]
 from decimal import Decimal
 from time import perf_counter
-from typing import Any
-from uuid import UUID
+from typing import TYPE_CHECKING, Any
+from uuid import UUID  # type: ignore[TCH003]
 
 from app.schemas.openrouter import ChatRole, OpenRouterChatMessage
 from app.services.openrouter_service import (
@@ -20,6 +20,13 @@ from app.services.openrouter_service import (
     ServiceDataError,
 )
 
+if TYPE_CHECKING:
+    from app.db.repositories.analysis_run_items_repository import (
+        AnalysisRunItemsRepository,
+    )
+    from app.db.repositories.analysis_runs_repository import AnalysisRunsRepository
+    from app.db.repositories.product_repository import ProductRepository
+
 logger = logging.getLogger(__name__)
 
 
@@ -28,8 +35,9 @@ SYSTEM_PROMPT = (
     "Analizujesz posiłki użytkowników, zwracasz listę składników z gramaturą "
     "oraz zawartością kalorii, białka, tłuszczu i węglowodanów. "
     "WAŻNE: Nazwy składników (ingredient_name) ZAWSZE podawaj w języku angielskim. "
-    "Bądź BARDZO SZCZEGÓŁOWY w opisach składników - uwzględniaj metodę przygotowania i stan (np. 'egg, fried', "
-    "'chicken breast, raw', 'rice, cooked', 'milk, whole'). "
+    "Bądź BARDZO SZCZEGÓŁOWY w opisach składników - uwzględniaj metodę "
+    "przygotowania i stan (np. 'egg, fried', 'chicken breast, raw', "
+    "'rice, cooked', 'milk, whole'). "
     "NIE zwracaj product_id - będzie on wyszukany automatycznie w bazie danych."
 )
 
@@ -86,9 +94,9 @@ class AnalysisRunProcessor:
 
     def __init__(
         self,
-        repository,
-        items_repository,
-        product_repository,
+        repository: AnalysisRunsRepository,
+        items_repository: AnalysisRunItemsRepository,
+        product_repository: ProductRepository,
         *,
         openrouter_service: OpenRouterService | None = None,
     ) -> None:
@@ -268,12 +276,15 @@ class AnalysisRunProcessor:
             prompt_parts.append(text.strip())
         else:
             prompt_parts.append(
-                "Brak opisu tekstowego. Użyj najlepszej heurystyki na podstawie historii użytkownika."
+                "Brak opisu tekstowego. Użyj najlepszej heurystyki na "
+                "podstawie historii użytkownika."
             )
 
         prompt_parts.append(
-            "Zwróć pola: ingredient_name, amount_grams, confidence (0-1), product_id (jeśli znasz UUID produktu),"
-            " oraz makra (calories, protein, fat, carbs). Wszystkie wartości liczbowo w jednostkach metrycznych."
+            "Zwróć pola: ingredient_name, amount_grams, confidence (0-1), "
+            "product_id (jeśli znasz UUID produktu), oraz makra (calories, "
+            "protein, fat, carbs). Wszystkie wartości liczbowo w jednostkach "
+            "metrycznych."
         )
 
         return [
@@ -392,7 +403,8 @@ class AnalysisRunProcessor:
                 calories_kcal = macros["calories"] * scale_factor
 
                 print(
-                    f"Using database macros for '{ingredient.ingredient_name}' ({ingredient.amount_grams}g):"
+                    f"Using database macros for '{ingredient.ingredient_name}' "
+                    f"({ingredient.amount_grams}g):"
                 )
                 print(f"  Calories: {calories_kcal} (DB: {macros['calories']}/100g)")
                 print(f"  Protein: {protein_g}g (DB: {macros['protein']}/100g)")
@@ -511,7 +523,8 @@ class AnalysisRunProcessor:
                         ingredient_name,
                     )
                     print(
-                        f"Match found for '{ingredient_name}' (id={product_id}) but macros_per_100g is missing"
+                        f"Match found for '{ingredient_name}' (id={product_id}) but "
+                        "macros_per_100g is missing"
                     )
                     print("=== PRODUCT LOOKUP END ===")
                     return None
@@ -526,7 +539,8 @@ class AnalysisRunProcessor:
 
                 print(f"Match found: id={product_id}, name='{product_name}'")
                 print(
-                    f"  Macros per 100g: Cal={macros['calories']}, P={macros['protein']}g, C={macros['carbs']}g, F={macros['fat']}g"
+                    f"  Macros per 100g: Cal={macros['calories']}, "
+                    f"P={macros['protein']}g, C={macros['carbs']}g, F={macros['fat']}g"
                 )
 
                 logger.info(

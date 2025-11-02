@@ -172,7 +172,7 @@ def test_meal_source__invalid_value__raises_value_error():
 # =============================================================================
 
 
-def test_encode_meal_cursor__returns_base64_string(now):
+def test_encode_meal_cursor__returns_base64_string(now: datetime) -> None:
     """Test encode_meal_cursor returns valid base64 string."""
     # Arrange
     meal_id = uuid4()
@@ -190,7 +190,7 @@ def test_encode_meal_cursor__returns_base64_string(now):
     assert isinstance(decoded, bytes)
 
 
-def test_decode_meal_cursor__symmetry_with_encode(now):
+def test_decode_meal_cursor__symmetry_with_encode(now: datetime) -> None:
     """Test decode_meal_cursor reverses encode_meal_cursor correctly."""
     # Arrange
     original_id = uuid4()
@@ -205,7 +205,7 @@ def test_decode_meal_cursor__symmetry_with_encode(now):
     assert decoded.last_id == original_id
 
 
-def test_decode_meal_cursor__with_datetime_precision(now):
+def test_decode_meal_cursor__with_datetime_precision(now: datetime) -> None:
     """Test cursor encoding/decoding preserves datetime precision."""
     # Arrange
     meal_id = uuid4()
@@ -287,7 +287,7 @@ def test_decode_meal_cursor__invalid_datetime__raises_value_error():
 # =============================================================================
 
 
-def test_meal_create_payload__ai_source_requires_macros_and_analysis_run_id(now):
+def test_meal_create_payload__ai_source_requires_macros_and_analysis_run_id(now: datetime) -> None:
     """Test MealCreatePayload with AI source requires all macro fields and analysis_run_id."""
     # Arrange
     valid_payload = {
@@ -307,7 +307,9 @@ def test_meal_create_payload__ai_source_requires_macros_and_analysis_run_id(now)
     assert payload.analysis_run_id is not None
 
 
-def test_meal_create_payload__ai_source_missing_protein__raises_validation_error(now):
+def test_meal_create_payload__ai_source_missing_protein__raises_validation_error(
+    now: datetime,
+) -> None:
     """Test MealCreatePayload with AI source missing protein raises validation error."""
     # Arrange
     invalid_payload = {
@@ -328,7 +330,9 @@ def test_meal_create_payload__ai_source_missing_protein__raises_validation_error
     assert "protein" in str(exc_info.value)
 
 
-def test_meal_create_payload__manual_source_forbids_macros_and_analysis_run_id(now):
+def test_meal_create_payload__manual_source_forbids_macros_and_analysis_run_id(
+    now: datetime,
+) -> None:
     """Test MealCreatePayload with MANUAL source forbids macro fields and analysis_run_id."""
     # Arrange
     invalid_payload = {
@@ -346,7 +350,7 @@ def test_meal_create_payload__manual_source_forbids_macros_and_analysis_run_id(n
     assert "manual" in str(exc_info.value).lower()
 
 
-def test_meal_create_payload__normalize_category(now):
+def test_meal_create_payload__normalize_category(now: datetime) -> None:
     """Test MealCreatePayload normalizes category to lowercase."""
     # Arrange
     payload_data = {
@@ -363,7 +367,7 @@ def test_meal_create_payload__normalize_category(now):
     assert payload.category == "śniadanie"
 
 
-def test_meal_create_payload__eaten_at_requires_timezone(now):
+def test_meal_create_payload__eaten_at_requires_timezone(now: datetime) -> None:
     """Test MealCreatePayload requires timezone-aware eaten_at."""
     # Arrange
     payload_data = {
@@ -409,7 +413,7 @@ def test_meal_create_payload__calories_validation():
 # =============================================================================
 
 
-def test_meal_list_item__decimal_serialization(now):
+def test_meal_list_item__decimal_serialization(now: datetime) -> None:
     """Test MealListItem serializes Decimal fields to float."""
     # Arrange
     meal_data = MealListItem(
@@ -444,7 +448,7 @@ def test_page_info__valid_construction():
     assert page_info.after == "cursor123"
 
 
-def test_meal_list_response__valid_construction(now):
+def test_meal_list_response__valid_construction(now: datetime) -> None:
     """Test MealListResponse constructs correctly."""
     # Arrange
     meals = [
@@ -468,7 +472,7 @@ def test_meal_list_response__valid_construction(now):
     assert response.page.after is None
 
 
-def test_meal_cursor_data__valid_construction(now):
+def test_meal_cursor_data__valid_construction(now: datetime) -> None:
     """Test MealCursorData constructs correctly."""
     # Arrange
     meal_id = uuid4()

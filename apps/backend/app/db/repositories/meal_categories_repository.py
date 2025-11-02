@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 from typing import Any, Final
 
-from supabase import Client
+from supabase import Client  # type: ignore[TCH002]
 
 from app.api.v1.schemas import MealCategoryResponseItem
 

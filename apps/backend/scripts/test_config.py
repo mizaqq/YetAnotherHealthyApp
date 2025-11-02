@@ -16,7 +16,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 
-def test_configuration():
+def test_configuration() -> bool | None:
     """Test that configuration loads correctly."""
     try:
         # Add the parent directory to sys.path to import the app module
@@ -73,7 +73,7 @@ def test_configuration():
         return False
 
 
-def test_environment_files():
+def test_environment_files() -> None:
     """Test which environment files are being loaded."""
     import os
     import sys

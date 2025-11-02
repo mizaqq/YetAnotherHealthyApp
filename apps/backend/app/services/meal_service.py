@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from uuid import UUID
+from uuid import UUID  # type: ignore[TCH003]
 
 from fastapi import HTTPException, status
 
@@ -16,7 +16,7 @@ from app.api.v1.schemas.meals import (
     decode_meal_cursor,
     encode_meal_cursor,
 )
-from app.db.repositories.meal_repository import MealRepository
+from app.db.repositories.meal_repository import MealRepository  # type: ignore[TCH001]
 
 logger = logging.getLogger(__name__)
 

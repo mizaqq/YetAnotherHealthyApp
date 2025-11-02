@@ -4,19 +4,26 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from decimal import Decimal
-from typing import Any
+from decimal import ROUND_HALF_UP, Decimal
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 from fastapi import HTTPException, status
 
 from app.api.v1.pagination import AnalysisRunCursor, PageMeta
 from app.core.config import settings
-from app.db.repositories.analysis_run_items_repository import AnalysisRunItemsRepository
-from app.db.repositories.analysis_runs_repository import AnalysisRunsRepository
-from app.db.repositories.meal_repository import MealRepository, MealSource
-from app.services.analysis_processor import AnalysisRunProcessor
-from app.services.openrouter_service import OpenRouterService
+from app.db.repositories.analysis_run_items_repository import (  # type: ignore[TCH001]
+    AnalysisRunItemsRepository,
+)
+from app.db.repositories.analysis_runs_repository import (  # type: ignore[TCH001]
+    AnalysisRunsRepository,
+)
+from app.db.repositories.meal_repository import MealRepository, MealSource  # type: ignore[TCH001]
+from app.services.analysis_processor import AnalysisRunProcessor  # type: ignore[TCH001]
+from app.services.openrouter_service import OpenRouterService  # type: ignore[TCH001]
+
+if TYPE_CHECKING:
+    from app.db.repositories.product_repository import ProductRepository
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +35,7 @@ class AnalysisRunsService:
         self,
         repository: AnalysisRunsRepository,
         items_repository: AnalysisRunItemsRepository | None = None,
-        product_repository=None,
+        product_repository: ProductRepository | None = None,
         openrouter_service: OpenRouterService | None = None,
     ):
         """Initialize service with repository dependencies.
@@ -202,7 +209,10 @@ class AnalysisRunsService:
                         status_code=status.HTTP_409_CONFLICT,
                         detail={
                             "code": "analysis_run_active",
-                            "message": f"Active analysis run {active_run['id']} already exists for this meal",
+                            "message": (
+                                f"Active analysis run {active_run['id']} already exists "
+                                "for this meal"
+                            ),
                         },
                     )
 
@@ -542,7 +552,9 @@ class AnalysisRunsService:
                     status_code=status.HTTP_409_CONFLICT,
                     detail={
                         "code": "analysis_run_active",
-                        "message": f"Active analysis run {active_run['id']} already exists for this meal",
+                        "message": (
+                            f"Active analysis run {active_run['id']} already exists for this meal"
+                        ),
                     },
                 )
 
@@ -777,12 +789,19 @@ class AnalysisRunsService:
             if not cancelled_run:
                 # Re-fetch to get the actual current state
                 run = await self._repository.get_by_id(run_id=run_id, user_id=user_id)
-                if run and run.get("status") in ("succeeded", "failed", "cancelled"):
+                if run and run.get("status") in (
+                    "succeeded",
+                    "failed",
+                    "cancelled",
+                ):
                     raise HTTPException(
                         status_code=status.HTTP_409_CONFLICT,
                         detail={
                             "code": "analysis_run_already_finished",
-                            "message": f"Run completed before cancellation with status '{run.get('status')}'",
+                            "message": (
+                                f"Run completed before cancellation with status "
+                                f"'{run.get('status')}'"
+                            ),
                         },
                     )
                 # Should not happen unless run was deleted

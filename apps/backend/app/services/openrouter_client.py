@@ -84,7 +84,9 @@ class OpenRouterClient:
 
                 if response.status_code in self._retry_status_codes:
                     body_text = await _consume_body(response)
-                    logger.warning(f"OpenRouter response body: {response.status_code} {response.content}")
+                    logger.warning(
+                        f"OpenRouter response body: {response.status_code} {response.content}"
+                    )
                     logger.warning(
                         "OpenRouter returned retryable error",
                         extra={
@@ -179,7 +181,7 @@ async def _consume_body(response: httpx.Response) -> str:
     return body_bytes.decode("utf-8", errors="replace")
 
 
-def _retry_wait(config: OpenRouterConfig):
+def _retry_wait(config: OpenRouterConfig) -> wait_exponential:
     return wait_exponential(
         multiplier=config.retry_backoff_initial,
         max=config.retry_backoff_max,

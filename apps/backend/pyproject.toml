@@ -48,6 +48,9 @@ ignore = [
     "ANN401", # allow typing.Any in exceptions where unavoidable
     "D",      # ignore pydocstyle; rely on targeted docs instead
     "TD003",  # missing issue link in TODOs
+    "TCH001", # Move application import into TYPE_CHECKING block - breaks FastAPI DI
+    "TCH002", # Move third-party import into TYPE_CHECKING block - breaks runtime usage
+    "TCH003", # Move standard library import into TYPE_CHECKING block - breaks runtime usage
 ]
 
 [tool.ruff.lint.per-file-ignores]

@@ -5,7 +5,7 @@ from __future__ import annotations
 import base64
 import json
 from datetime import datetime
-from decimal import Decimal
+from decimal import Decimal  # type: ignore[TCH003]
 from enum import Enum
 from typing import Annotated
 from uuid import UUID
@@ -94,7 +94,9 @@ class ProductListParams(BaseModel):
         SearchMode,
         Field(
             default=SearchMode.FULLTEXT,
-            description="Search mode: simple (ILIKE), fulltext (word matching), fuzzy (typo-tolerant)",
+            description=(
+                "Search mode: simple (ILIKE), fulltext (word matching), fuzzy (typo-tolerant)"
+            ),
             alias="search_mode",
         ),
     ] = SearchMode.FULLTEXT

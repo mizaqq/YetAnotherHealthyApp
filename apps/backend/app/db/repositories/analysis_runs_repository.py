@@ -8,7 +8,7 @@ from decimal import Decimal
 from typing import Any, Final
 from uuid import UUID
 
-from supabase import Client
+from supabase import Client  # type: ignore[TCH002]
 
 logger = logging.getLogger(__name__)
 

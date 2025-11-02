@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import base64
 import json
-from datetime import datetime
+from datetime import datetime  # type: ignore[TCH003]
 from typing import Generic, TypeVar
-from uuid import UUID
+from uuid import UUID  # type: ignore[TCH003]
 
 from pydantic import BaseModel, Field
 
@@ -29,7 +29,10 @@ class PageMeta(BaseModel):
         "json_schema_extra": {
             "example": {
                 "size": 20,
-                "after": "eyJjcmVhdGVkX2F0IjoiMjAyNS0xMC0xMlQwNzoyOTozMFoiLCJpZCI6IjEyM2U0NTY3LWU4OWItMTJkMy1hNDU2LTQyNjYxNDE3NDAwMCJ9",
+                "after": (
+                    "eyJjcmVhdGVkX2F0IjoiMjAyNS0xMC0xMlQwNzoyOTozMFoiLCJpZCI6IjEyM2U0NTY"
+                    "3LWU4OWItMTJkMy1hNDU2LTQyNjYxNDE3NDAwMCJ9"
+                ),
             }
         }
     }

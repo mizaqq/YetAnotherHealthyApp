@@ -3,6 +3,7 @@
 import base64
 import json
 from datetime import UTC, datetime
+from typing import Any
 from uuid import uuid4
 
 import pytest
@@ -58,7 +59,7 @@ def test_page_meta__no_after_cursor():
 # =============================================================================
 
 
-def test_analysis_run_cursor__valid_construction(now):
+def test_analysis_run_cursor__valid_construction(now: Any) -> None:
     """Test AnalysisRunCursor constructs correctly."""
     # Arrange
     run_id = uuid4()
@@ -72,7 +73,7 @@ def test_analysis_run_cursor__valid_construction(now):
     assert cursor.id == run_id
 
 
-def test_analysis_run_cursor__encode_returns_base64_string(now):
+def test_analysis_run_cursor__encode_returns_base64_string(now: Any) -> None:
     """Test AnalysisRunCursor.encode returns valid base64 string."""
     # Arrange
     cursor = AnalysisRunCursor(created_at=now, id=uuid4())
@@ -89,7 +90,7 @@ def test_analysis_run_cursor__encode_returns_base64_string(now):
     assert isinstance(decoded_bytes, bytes)
 
 
-def test_analysis_run_cursor__encode_decode_symmetry(now):
+def test_analysis_run_cursor__encode_decode_symmetry(now: Any) -> None:
     """Test AnalysisRunCursor encode/decode maintains data integrity."""
     # Arrange
     original_cursor = AnalysisRunCursor(created_at=now, id=uuid4())
@@ -103,7 +104,7 @@ def test_analysis_run_cursor__encode_decode_symmetry(now):
     assert decoded_cursor.id == original_cursor.id
 
 
-def test_analysis_run_cursor__decode_valid_cursor(now):
+def test_analysis_run_cursor__decode_valid_cursor(now: Any) -> None:
     """Test AnalysisRunCursor.decode with valid cursor string."""
     # Arrange
     original_cursor = AnalysisRunCursor(created_at=now, id=uuid4())
@@ -180,7 +181,7 @@ def test_analysis_run_cursor__decode_invalid_uuid__raises_value_error():
     assert "Invalid cursor format" in str(exc_info.value)
 
 
-def test_analysis_run_cursor__decode_with_timezone__preserves_datetime(now):
+def test_analysis_run_cursor__decode_with_timezone__preserves_datetime(now: Any) -> None:
     """Test AnalysisRunCursor decode preserves timezone information."""
     # Arrange
     utc_cursor = AnalysisRunCursor(created_at=now, id=uuid4())
@@ -251,7 +252,7 @@ def test_paginated_response__with_cursor():
 # =============================================================================
 
 
-def test_analysis_run_cursor__realistic_pagination_scenario(now):
+def test_analysis_run_cursor__realistic_pagination_scenario(now: Any) -> None:
     """Test AnalysisRunCursor in a realistic pagination scenario."""
     # Simulate pagination through analysis runs
 

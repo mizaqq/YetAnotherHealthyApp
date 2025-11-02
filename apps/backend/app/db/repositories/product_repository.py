@@ -8,7 +8,7 @@ from decimal import Decimal
 from typing import Any, Final
 from uuid import UUID
 
-from supabase import Client
+from supabase import Client  # type: ignore[TCH002]
 
 from app.api.v1.schemas.products import (
     CursorData,
@@ -106,7 +106,8 @@ class ProductRepository:
             elif search_mode in (SearchMode.FULLTEXT, SearchMode.FUZZY):
                 # For both fulltext and fuzzy modes, use flexible word matching
                 # Split search into words and match each word independently
-                # This allows matching "raw chicken breast" to find products with those words in any order
+                # This allows matching "raw chicken breast" to find products with
+                # those words in any order
                 words = search.lower().split()
                 if len(words) == 1:
                     # Single word - simple ILIKE

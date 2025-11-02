@@ -6,6 +6,7 @@ from uuid import UUID
 
 import pytest
 from fastapi import HTTPException, status
+from pytest import LogCaptureFixture, MonkeyPatch
 
 logger = logging.getLogger(__name__)
 
@@ -64,12 +65,12 @@ async def get_current_user_id(
         user_id_str = user_response.user.id
         try:
             return UUID(user_id_str)
-        except (ValueError, TypeError):
+        except (ValueError, TypeError) as err:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid or expired token",
                 headers={"WWW-Authenticate": "Bearer"},
-            )
+            ) from err
 
     except HTTPException:
         raise
@@ -89,8 +90,8 @@ async def get_current_user_id(
 
 @pytest.mark.asyncio
 async def test_get_current_user_id__no_authorization_header__raises_401(
-    mock_supabase_client, monkeypatch
-):
+    mock_supabase_client: Mock, monkeypatch: MonkeyPatch
+) -> None:
     """Test get_current_user_id with no Authorization header raises 401."""
     # Arrange
     monkeypatch.setattr("app.core.supabase.get_supabase_client", lambda: mock_supabase_client)
@@ -106,8 +107,8 @@ async def test_get_current_user_id__no_authorization_header__raises_401(
 
 @pytest.mark.asyncio
 async def test_get_current_user_id__malformed_bearer_header__raises_401(
-    mock_supabase_client, monkeypatch
-):
+    mock_supabase_client: Mock, monkeypatch: MonkeyPatch
+) -> None:
     """Test get_current_user_id with malformed Bearer header raises 401."""
     # Arrange
     monkeypatch.setattr("app.core.supabase.get_supabase_client", lambda: mock_supabase_client)
@@ -133,8 +134,8 @@ async def test_get_current_user_id__malformed_bearer_header__raises_401(
 
 @pytest.mark.asyncio
 async def test_get_current_user_id__non_bearer_scheme__raises_401(
-    mock_supabase_client, monkeypatch
-):
+    mock_supabase_client: Mock, monkeypatch: MonkeyPatch
+) -> None:
     """Test get_current_user_id with non-Bearer scheme raises 401."""
     # Arrange
     monkeypatch.setattr("app.core.supabase.get_supabase_client", lambda: mock_supabase_client)
@@ -148,7 +149,9 @@ async def test_get_current_user_id__non_bearer_scheme__raises_401(
 
 
 @pytest.mark.asyncio
-async def test_get_current_user_id__too_many_parts__raises_401(mock_supabase_client, monkeypatch):
+async def test_get_current_user_id__too_many_parts__raises_401(
+    mock_supabase_client: Mock, monkeypatch: MonkeyPatch
+) -> None:
     """Test get_current_user_id with too many parts in header raises 401."""
     # Arrange
     monkeypatch.setattr("app.core.supabase.get_supabase_client", lambda: mock_supabase_client)
@@ -168,8 +171,8 @@ async def test_get_current_user_id__too_many_parts__raises_401(mock_supabase_cli
 
 @pytest.mark.asyncio
 async def test_get_current_user_id__valid_token__returns_uuid(
-    user_id, mock_supabase_client, monkeypatch
-):
+    user_id: UUID, mock_supabase_client: Mock, monkeypatch: MonkeyPatch
+) -> None:
     """Test get_current_user_id with valid token returns user UUID."""
     # Arrange
     monkeypatch.setattr("app.core.supabase.get_supabase_client", lambda: mock_supabase_client)
@@ -189,7 +192,9 @@ async def test_get_current_user_id__valid_token__returns_uuid(
 
 
 @pytest.mark.asyncio
-async def test_get_current_user_id__invalid_token__raises_401(mock_supabase_client, monkeypatch):
+async def test_get_current_user_id__invalid_token__raises_401(
+    mock_supabase_client: Mock, monkeypatch: MonkeyPatch
+) -> None:
     """Test get_current_user_id with invalid token raises 401."""
     # Arrange
     monkeypatch.setattr("app.core.supabase.get_supabase_client", lambda: mock_supabase_client)
@@ -207,7 +212,9 @@ async def test_get_current_user_id__invalid_token__raises_401(mock_supabase_clie
 
 
 @pytest.mark.asyncio
-async def test_get_current_user_id__expired_token__raises_401(mock_supabase_client, monkeypatch):
+async def test_get_current_user_id__expired_token__raises_401(
+    mock_supabase_client: Mock, monkeypatch: MonkeyPatch
+) -> None:
     """Test get_current_user_id with expired token raises 401."""
     # Arrange
     monkeypatch.setattr("app.core.supabase.get_supabase_client", lambda: mock_supabase_client)
@@ -225,8 +232,8 @@ async def test_get_current_user_id__expired_token__raises_401(mock_supabase_clie
 
 @pytest.mark.asyncio
 async def test_get_current_user_id__supabase_client_error__logs_and_raises_401(
-    mock_supabase_client, monkeypatch, caplog
-):
+    mock_supabase_client: Mock, monkeypatch: MonkeyPatch, caplog: LogCaptureFixture
+) -> None:
     """Test get_current_user_id with Supabase client error logs and raises 401."""
     # Arrange
     monkeypatch.setattr("app.core.supabase.get_supabase_client", lambda: mock_supabase_client)
@@ -248,8 +255,8 @@ async def test_get_current_user_id__supabase_client_error__logs_and_raises_401(
 
 @pytest.mark.asyncio
 async def test_get_current_user_id__valid_token_but_no_user_object__raises_401(
-    mock_supabase_client, monkeypatch
-):
+    mock_supabase_client: Mock, monkeypatch: MonkeyPatch
+) -> None:
     """Test get_current_user_id with valid token but missing user object raises 401."""
     # Arrange
     monkeypatch.setattr("app.core.supabase.get_supabase_client", lambda: mock_supabase_client)
@@ -269,8 +276,8 @@ async def test_get_current_user_id__valid_token_but_no_user_object__raises_401(
 
 @pytest.mark.asyncio
 async def test_get_current_user_id__valid_token_but_empty_user_id__raises_401(
-    mock_supabase_client, monkeypatch
-):
+    mock_supabase_client: Mock, monkeypatch: MonkeyPatch
+) -> None:
     """Test get_current_user_id with valid token but empty user ID raises 401."""
     # Arrange
     monkeypatch.setattr("app.core.supabase.get_supabase_client", lambda: mock_supabase_client)
@@ -291,8 +298,8 @@ async def test_get_current_user_id__valid_token_but_empty_user_id__raises_401(
 
 @pytest.mark.asyncio
 async def test_get_current_user_id__invalid_uuid_format__raises_401(
-    mock_supabase_client, monkeypatch
-):
+    mock_supabase_client: Mock, monkeypatch: MonkeyPatch
+) -> None:
     """Test get_current_user_id with invalid UUID format from Supabase raises 401."""
     # Arrange
     monkeypatch.setattr("app.core.supabase.get_supabase_client", lambda: mock_supabase_client)

@@ -160,7 +160,7 @@ def create_base_env() -> None:
     create_env_file("base", Path(".env.example"))
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="Create environment configuration files",
         formatter_class=argparse.RawDescriptionHelpFormatter,

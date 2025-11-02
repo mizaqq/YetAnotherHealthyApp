@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from typing import Annotated
-from uuid import UUID
+from uuid import UUID  # type: ignore[TCH003]
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import ValidationError
@@ -20,11 +20,11 @@ from app.api.v1.schemas.analysis_runs import (
     AnalysisRunRetryRequest,
     AnalysisRunSummaryResponse,
 )
-from app.core.dependencies import (
+from app.core.dependencies import (  # type: ignore[TCH001]
     get_analysis_runs_service,
     get_current_user_id,
 )
-from app.services.analysis_runs_service import AnalysisRunsService
+from app.services.analysis_runs_service import AnalysisRunsService  # type: ignore[TCH001]
 
 router = APIRouter()
 
@@ -524,7 +524,10 @@ async def retry_analysis_run(
     "/{run_id}/items",
     response_model=AnalysisRunItemsResponse,
     summary="Get analysis run items",
-    description="Retrieve all ingredients (items) generated during an analysis run with nutritional details.",
+    description=(
+        "Retrieve all ingredients (items) generated during an analysis run "
+        "with nutritional details."
+    ),
     responses={
         200: {
             "description": "Analysis run items retrieved successfully",
@@ -630,7 +633,10 @@ async def get_analysis_run_items(
     "/{run_id}/cancel",
     response_model=AnalysisRunCancelResponse,
     summary="Cancel analysis run",
-    description="Cancels a running or queued analysis run. Cannot cancel runs that are already completed, failed, or cancelled.",
+    description=(
+        "Cancels a running or queued analysis run. Cannot cancel runs that are "
+        "already completed, failed, or cancelled."
+    ),
     responses={
         200: {
             "description": "Analysis run cancelled successfully",

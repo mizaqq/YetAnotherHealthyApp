@@ -19,8 +19,8 @@ from app.api.v1.schemas.reports import (
     ReportPointDTO,
     WeeklyTrendReportDTO,
 )
-from app.db.repositories.profile_repository import ProfileRepository
-from app.db.repositories.reports_repository import ReportsRepository
+from app.db.repositories.profile_repository import ProfileRepository  # type: ignore[TCH001]
+from app.db.repositories.reports_repository import ReportsRepository  # type: ignore[TCH001]
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +80,9 @@ class ReportsService:
                 if target_date < profile_created_date:
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
-                        detail=f"Date cannot be before profile creation date ({profile_created_date})",
+                        detail=(
+                            f"Date cannot be before profile creation date ({profile_created_date})"
+                        ),
                     )
 
             # Step 4: Calculate UTC time boundaries for the target date

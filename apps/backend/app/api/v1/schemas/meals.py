@@ -14,7 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_valid
 if TYPE_CHECKING:
     from decimal import Decimal
 else:
-    from decimal import Decimal
+    from decimal import Decimal  # type: ignore[TCH003]
 
 
 class MealSource(str, Enum):
