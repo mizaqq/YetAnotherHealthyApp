@@ -72,7 +72,7 @@ const NEW_CALORIE_GOAL = 2200;
     await profilePage.saveCalorieGoal();
 
     // Verify goal was updated (wait for save to complete)
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(process.env.CI ? 3000 : 1000);
     await expect(profilePage.calorieGoalInput).not.toBeVisible();
 
     // Go back to dashboard
@@ -156,11 +156,11 @@ const NEW_CALORIE_GOAL = 2200;
 
     // Wait for dialog to close
     await expect(addMealDialog.dialog).not.toBeVisible();
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(process.env.CI ? 5000 : 2000);
 
     // Refresh dashboard data to show the new meal
     await dashboardPage.refresh();
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(process.env.CI ? 5000 : 2000);
 
     // Final verification - should have 2 meals now
     await expect(mealsCount).toBeGreaterThan(1);
