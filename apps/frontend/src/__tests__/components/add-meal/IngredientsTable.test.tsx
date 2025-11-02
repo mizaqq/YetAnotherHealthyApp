@@ -6,17 +6,19 @@ import type { AnalysisRunItemDTO } from '@/types';
 describe('IngredientsTable', () => {
   const createMockItem = (overrides: Partial<AnalysisRunItemDTO> = {}): AnalysisRunItemDTO => ({
     id: 'item-1',
-    analysis_run_id: 'run-1',
     ordinal: 1,
     raw_name: 'Test Ingredient',
-    matched_product_id: 'product-1',
+    raw_unit: null,
+    quantity: 1,
+    unit_definition_id: null,
+    product_id: 'product-1',
+    product_portion_id: null,
     weight_grams: 100.5,
     calories: 450,
     protein: 23.7,
     fat: 12.3,
     carbs: 45.6,
     confidence: 0.85,
-    created_at: '2025-01-15T12:00:00Z',
     ...overrides,
   });
 

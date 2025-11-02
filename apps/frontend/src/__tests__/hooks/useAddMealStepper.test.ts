@@ -17,18 +17,24 @@ vi.mock('sonner');
 
 describe('useAddMealStepper', () => {
   const mockCategories: MealCategoryDTO[] = [
-    { code: 'breakfast', locale: 'pl', label: 'Śniadanie' },
-    { code: 'lunch', locale: 'pl', label: 'Obiad' },
+    { code: 'breakfast', label: 'Śniadanie', sort_order: 1 },
+    { code: 'lunch', label: 'Obiad', sort_order: 2 },
   ];
 
   const mockAnalysisRun: AnalysisRunDetailDTO = {
     id: 'run-123',
-    user_id: 'user-1',
-    meal_id: null,
-    status: 'completed',
-    raw_input: '2 jajka',
+    meal_id: 'meal-123',
+    run_no: 1,
+    status: 'succeeded',
+    latency_ms: 1000,
+    tokens: 500,
+    cost_minor_units: 10,
+    cost_currency: 'USD',
+    threshold_used: 0.5,
+    retry_of_run_id: null,
+    error_code: null,
+    error_message: null,
     created_at: '2025-01-15T12:00:00Z',
-    started_at: '2025-01-15T12:00:01Z',
     completed_at: '2025-01-15T12:00:05Z',
   };
 
@@ -37,38 +43,41 @@ describe('useAddMealStepper', () => {
     items: [
       {
         id: 'item-1',
-        analysis_run_id: 'run-123',
         ordinal: 1,
         raw_name: 'Jajka',
-        matched_product_id: 'product-1',
+        raw_unit: null,
+        quantity: 2,
+        unit_definition_id: null,
+        product_id: 'product-1',
+        product_portion_id: null,
         weight_grams: 100,
         calories: 155.567, // Will be rounded to 2 decimals
         protein: 13.234,
         fat: 11.789,
         carbs: 1.123,
         confidence: 0.95,
-        created_at: '2025-01-15T12:00:00Z',
       },
       {
         id: 'item-2',
-        analysis_run_id: 'run-123',
         ordinal: 2,
         raw_name: 'Chleb',
-        matched_product_id: 'product-2',
+        raw_unit: null,
+        quantity: 1,
+        unit_definition_id: null,
+        product_id: 'product-2',
+        product_portion_id: null,
         weight_grams: 50,
         calories: 130.999,
         protein: 4.567,
         fat: 1.234,
         carbs: 24.876,
         confidence: 0.85,
-        created_at: '2025-01-15T12:00:00Z',
       },
     ],
   };
 
   const mockMeal: MealListItemDTO = {
     id: 'meal-1',
-    user_id: 'user-1',
     category: 'breakfast',
     eaten_at: '2025-01-15T12:00:00.000Z',
     source: 'ai',
@@ -76,8 +85,7 @@ describe('useAddMealStepper', () => {
     protein: 17.8,
     fat: 13.02,
     carbs: 26,
-    analysis_run_id: 'run-123',
-    created_at: '2025-01-15T12:00:00Z',
+    accepted_analysis_run_id: 'run-123',
   };
 
   beforeEach(() => {
@@ -434,7 +442,6 @@ describe('useAddMealStepper', () => {
 
       expect(result.current.step).toBe('input');
       expect(result.current.analysisResults).toBeFalsy();
-      expect(result.current.analysisRunId).toBeFalsy();
       expect(result.current.error).toBeFalsy();
       expect(result.current.isSubmitting).toBe(false);
     });
@@ -628,7 +635,6 @@ describe('useAddMealStepper', () => {
       expect(api.cancelAnalysisRun).toHaveBeenCalledWith('run-123');
       expect(result.current.step).toBe('input');
       expect(result.current.analysisResults).toBeFalsy();
-      expect(result.current.analysisRunId).toBeFalsy();
     });
 
     it('should not call cancelAnalysisRun when no analysisRunId exists', async () => {
@@ -681,7 +687,6 @@ describe('useAddMealStepper', () => {
         isManualMode: false,
         manualCalories: null,
       });
-      expect(result.current.analysisRunId).toBeFalsy();
       expect(result.current.analysisResults).toBeFalsy();
       expect(result.current.error).toBeFalsy();
       expect(result.current.isSubmitting).toBe(false);

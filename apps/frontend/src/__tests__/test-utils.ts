@@ -29,7 +29,7 @@ export function createMockFetchResponse<T>(
  * Create a mock fetch function that can be configured per-test
  */
 export function createMockFetch() {
-  return vi.fn<Parameters<typeof fetch>, ReturnType<typeof fetch>>();
+  return vi.fn<typeof fetch>();
 }
 
 /**

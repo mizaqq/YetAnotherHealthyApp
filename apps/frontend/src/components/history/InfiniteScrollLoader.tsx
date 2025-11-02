@@ -81,9 +81,7 @@ export function InfiniteScrollLoader({
       {error && (
         <div className={styles.error}>
           <Text size={300}>Nie udało się załadować więcej posiłków.</Text>
-          <Text
-            as="button"
-            size={300}
+          <button
             onClick={onLoadMore}
             style={{
               cursor: "pointer",
@@ -92,10 +90,11 @@ export function InfiniteScrollLoader({
               border: "none",
               padding: 0,
               color: tokens.colorBrandForeground1,
+              fontSize: tokens.fontSizeBase300,
             }}
           >
             Spróbuj ponownie
-          </Text>
+          </button>
         </div>
       )}
     </div>

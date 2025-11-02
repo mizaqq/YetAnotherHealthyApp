@@ -10,10 +10,11 @@ vi.mock('@/hooks/useAddMealStepper');
 
 describe('AddMealDialog', () => {
   const mockCategories: MealCategoryDTO[] = [
-    { code: 'breakfast', locale: 'pl', label: 'Śniadanie' },
+    { code: 'breakfast', label: 'Śniadanie', sort_order: 1 },
   ];
 
   const mockAnalysisResults: AnalysisResultsViewModel = {
+    runId: 'run-1',
     totals: {
       calories: 450,
       protein: 25,
@@ -23,17 +24,19 @@ describe('AddMealDialog', () => {
     items: [
       {
         id: 'item-1',
-        analysis_run_id: 'run-1',
         ordinal: 1,
         raw_name: 'Jajka',
-        matched_product_id: 'product-1',
+        raw_unit: null,
+        quantity: 2,
+        unit_definition_id: null,
+        product_id: 'product-1',
+        product_portion_id: null,
         weight_grams: 100,
         calories: 155,
         protein: 13,
         fat: 11,
         carbs: 1.1,
         confidence: 0.95,
-        created_at: '2025-01-15T12:00:00Z',
       },
     ],
   };

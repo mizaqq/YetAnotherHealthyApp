@@ -6,6 +6,7 @@ import type { AnalysisResultsViewModel } from '@/types';
 
 describe('AnalysisResultsStep', () => {
   const mockResults: AnalysisResultsViewModel = {
+    runId: 'run-1',
     totals: {
       calories: 450.5,
       protein: 25.3,
@@ -15,31 +16,35 @@ describe('AnalysisResultsStep', () => {
     items: [
       {
         id: 'item-1',
-        analysis_run_id: 'run-1',
         ordinal: 1,
         raw_name: 'Jajka',
-        matched_product_id: 'product-1',
+        raw_unit: null,
+        quantity: 2,
+        unit_definition_id: null,
+        product_id: 'product-1',
+        product_portion_id: null,
         weight_grams: 100,
         calories: 155,
         protein: 13,
         fat: 11,
         carbs: 1.1,
         confidence: 0.95,
-        created_at: '2025-01-15T12:00:00Z',
       },
       {
         id: 'item-2',
-        analysis_run_id: 'run-1',
         ordinal: 2,
         raw_name: 'Chleb',
-        matched_product_id: 'product-2',
+        raw_unit: null,
+        quantity: 1,
+        unit_definition_id: null,
+        product_id: 'product-2',
+        product_portion_id: null,
         weight_grams: 50,
         calories: 130,
         protein: 4.5,
         fat: 1.2,
         carbs: 24.8,
         confidence: 0.85,
-        created_at: '2025-01-15T12:00:00Z',
       },
     ],
   };
@@ -232,6 +237,7 @@ describe('AnalysisResultsStep', () => {
   describe('edge cases', () => {
     it('should render with empty items list', () => {
       const emptyResults: AnalysisResultsViewModel = {
+        runId: 'run-123',
         totals: {
           calories: 0,
           protein: 0,
@@ -256,6 +262,7 @@ describe('AnalysisResultsStep', () => {
 
     it('should render with single item', () => {
       const singleItemResults: AnalysisResultsViewModel = {
+        runId: 'run-123',
         totals: {
           calories: 155,
           protein: 13,

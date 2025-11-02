@@ -90,8 +90,8 @@ export function BottomTabBar(): JSX.Element {
     return matchingTab?.path ?? "/";
   };
 
-  const handleTabSelect = (_event: unknown, data: { value: string }) => {
-    navigate(data.value);
+  const handleTabSelect = (_event: unknown, data: { value: unknown }) => {
+    navigate(data.value as string);
   };
 
   const activeTab = getActiveTab();

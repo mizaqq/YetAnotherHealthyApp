@@ -25,7 +25,7 @@ import * as api from '@/lib/api';
 import { supabase } from '@/lib/supabaseClient';
 
 // Extract the mock function after import
-const mockGetSession = vi.mocked(supabase.auth.getSession.bind(supabase.auth));
+const mockGetSession = vi.mocked(supabase.auth.getSession);
 
 describe('API Client', () => {
   const mockFetch = vi.fn();
@@ -164,9 +164,10 @@ describe('API Client', () => {
       it('should fetch daily summary without date parameter', async () => {
         const mockSummary: DailySummaryReportDTO = {
           date: '2025-01-15',
+          calorie_goal: 2000,
           totals: { calories: 1500, protein: 75, fat: 50, carbs: 150 },
-          goal: { daily_calorie_goal: 2000 },
-          meals_count: 3,
+          progress: { calories_percentage: 75 },
+          meals: [],
         };
 
         mockFetch.mockResolvedValue(createMockFetchResponse(200, mockSummary));
@@ -183,9 +184,10 @@ describe('API Client', () => {
       it('should fetch daily summary with date parameter', async () => {
         const mockSummary: DailySummaryReportDTO = {
           date: '2025-01-10',
+          calorie_goal: 2000,
           totals: { calories: 1800, protein: 90, fat: 60, carbs: 180 },
-          goal: { daily_calorie_goal: 2000 },
-          meals_count: 4,
+          progress: { calories_percentage: 90 },
+          meals: [],
         };
 
         mockFetch.mockResolvedValue(createMockFetchResponse(200, mockSummary));
@@ -201,8 +203,9 @@ describe('API Client', () => {
     describe('getWeeklyTrend', () => {
       it('should fetch weekly trend with default parameters', async () => {
         const mockTrend: WeeklyTrendReportDTO = {
+          start_date: '2025-01-08',
           end_date: '2025-01-15',
-          days: [],
+          points: [],
         };
 
         mockFetch.mockResolvedValue(createMockFetchResponse(200, mockTrend));
@@ -216,8 +219,9 @@ describe('API Client', () => {
 
       it('should fetch weekly trend with endDate and includeMacros parameters', async () => {
         const mockTrend: WeeklyTrendReportDTO = {
+          start_date: '2025-01-03',
           end_date: '2025-01-10',
-          days: [],
+          points: [],
         };
 
         mockFetch.mockResolvedValue(createMockFetchResponse(200, mockTrend));
@@ -235,8 +239,8 @@ describe('API Client', () => {
   describe('Meal Categories endpoint', () => {
     it('should fetch meal categories without locale', async () => {
       const mockCategories: MealCategoryDTO[] = [
-        { code: 'breakfast', locale: 'pl', label: 'Śniadanie' },
-        { code: 'lunch', locale: 'pl', label: 'Obiad' },
+        { code: 'breakfast', label: 'Śniadanie', sort_order: 1 },
+        { code: 'lunch', label: 'Obiad', sort_order: 2 },
       ];
 
       mockFetch.mockResolvedValue(
@@ -254,7 +258,7 @@ describe('API Client', () => {
 
     it('should fetch meal categories with locale parameter', async () => {
       const mockCategories: MealCategoryDTO[] = [
-        { code: 'breakfast', locale: 'en', label: 'Breakfast' },
+        { code: 'breakfast', label: 'Breakfast', sort_order: 1 },
       ];
 
       mockFetch.mockResolvedValue(
@@ -274,12 +278,18 @@ describe('API Client', () => {
       it('should create analysis run with correct parameters', async () => {
         const mockRun: AnalysisRunDetailDTO = {
           id: 'run-123',
-          user_id: 'user-1',
-          meal_id: null,
+          meal_id: 'meal-123',
+          run_no: 1,
           status: 'queued',
-          raw_input: '2 jajka',
+          latency_ms: null,
+          tokens: null,
+          cost_minor_units: null,
+          cost_currency: 'USD',
+          threshold_used: null,
+          retry_of_run_id: null,
+          error_code: null,
+          error_message: null,
           created_at: '2025-01-15T12:00:00Z',
-          started_at: null,
           completed_at: null,
         };
 
@@ -308,17 +318,19 @@ describe('API Client', () => {
           items: [
             {
               id: 'item-1',
-              analysis_run_id: 'run-123',
               ordinal: 1,
               raw_name: 'Jajka',
-              matched_product_id: 'product-1',
+              raw_unit: null,
+              quantity: 2,
+              unit_definition_id: null,
+              product_id: 'product-1',
+              product_portion_id: null,
               weight_grams: 100,
               calories: 155,
               protein: 13,
               fat: 11,
               carbs: 1.1,
               confidence: 0.95,
-              created_at: '2025-01-15T12:00:00Z',
             },
           ],
         };
@@ -339,12 +351,18 @@ describe('API Client', () => {
       it('should retry analysis run with empty command', async () => {
         const mockRun: AnalysisRunDetailDTO = {
           id: 'run-123',
-          user_id: 'user-1',
-          meal_id: null,
+          meal_id: 'meal-123',
+          run_no: 2,
           status: 'queued',
-          raw_input: '2 jajka',
+          latency_ms: null,
+          tokens: null,
+          cost_minor_units: null,
+          cost_currency: 'USD',
+          threshold_used: null,
+          retry_of_run_id: null,
+          error_code: null,
+          error_message: null,
           created_at: '2025-01-15T12:00:00Z',
-          started_at: null,
           completed_at: null,
         };
 
@@ -385,7 +403,6 @@ describe('API Client', () => {
       it('should create meal with AI source', async () => {
         const mockMeal: MealListItemDTO = {
           id: 'meal-1',
-          user_id: 'user-1',
           category: 'breakfast',
           eaten_at: '2025-01-15T12:00:00.000Z',
           source: 'ai',
@@ -393,8 +410,7 @@ describe('API Client', () => {
           protein: 17.8,
           fat: 13.02,
           carbs: 26,
-          analysis_run_id: 'run-123',
-          created_at: '2025-01-15T12:00:00Z',
+          accepted_analysis_run_id: 'run-123',
         };
 
         mockFetch.mockResolvedValue(createMockFetchResponse(200, mockMeal));
@@ -423,7 +439,6 @@ describe('API Client', () => {
       it('should create meal with manual source', async () => {
         const mockMeal: MealListItemDTO = {
           id: 'meal-2',
-          user_id: 'user-1',
           category: 'lunch',
           eaten_at: '2025-01-15T14:00:00.000Z',
           source: 'manual',
@@ -431,8 +446,7 @@ describe('API Client', () => {
           protein: null,
           fat: null,
           carbs: null,
-          analysis_run_id: null,
-          created_at: '2025-01-15T14:00:00Z',
+          accepted_analysis_run_id: null,
         };
 
         mockFetch.mockResolvedValue(createMockFetchResponse(200, mockMeal));
@@ -459,7 +473,6 @@ describe('API Client', () => {
       it('should fetch meal detail with include_analysis_items=true', async () => {
         const mockDetail: MealDetailDTO = {
           id: 'meal-1',
-          user_id: 'user-1',
           category: 'breakfast',
           eaten_at: '2025-01-15T12:00:00.000Z',
           source: 'ai',
@@ -467,11 +480,6 @@ describe('API Client', () => {
           protein: 17.8,
           fat: 13.02,
           carbs: 26,
-          analysis_run_id: 'run-123',
-          created_at: '2025-01-15T12:00:00Z',
-          updated_at: '2025-01-15T12:00:00Z',
-          deleted_at: null,
-          analysis_items: [],
         };
 
         mockFetch.mockResolvedValue(createMockFetchResponse(200, mockDetail));

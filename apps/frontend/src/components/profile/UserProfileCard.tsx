@@ -43,7 +43,7 @@ const useStyles = makeStyles({
 
 type UserProfileCardProps = {
   profile: ProfileViewModel;
-  onSaveGoal: (newGoal: number) => void;
+  onSaveGoal: (newGoal: number) => Promise<void>;
   onLogout: () => void;
 };
 

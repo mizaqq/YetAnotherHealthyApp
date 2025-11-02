@@ -6,9 +6,9 @@ import type { MealCategoryDTO, MealInputFormViewModel } from '@/types';
 
 describe('MealInputStep', () => {
   const mockCategories: MealCategoryDTO[] = [
-    { code: 'breakfast', locale: 'pl', label: 'Śniadanie' },
-    { code: 'lunch', locale: 'pl', label: 'Obiad' },
-    { code: 'dinner', locale: 'pl', label: 'Kolacja' },
+    { code: 'breakfast', label: 'Śniadanie', sort_order: 1 },
+    { code: 'lunch', label: 'Obiad', sort_order: 2 },
+    { code: 'dinner', label: 'Kolacja', sort_order: 3 },
   ];
 
   const defaultInitialData: Partial<MealInputFormViewModel> = {
