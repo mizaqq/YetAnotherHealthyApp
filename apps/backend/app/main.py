@@ -39,6 +39,7 @@ def create_application() -> FastAPI:
     print(f"Supabase URL: {settings.supabase_url}")
     print(f"Supabase service role key: {settings.supabase_service_role_key}")
     print(f"OpenRouter API key: {settings.openrouter_api_key}")
+    print(f"Environment: {settings.app_env}")
     return application
 
 
