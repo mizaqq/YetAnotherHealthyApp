@@ -69,6 +69,7 @@ jobs:
   unit-test-frontend:
     name: Unit Tests - Frontend
     runs-on: ubuntu-latest
+    environment: test
     timeout-minutes: 15
     needs: [lint-frontend]
     defaults:
@@ -180,8 +181,8 @@ jobs:
           echo $! > backend.pid
           sleep 5
         env:
-          APP_ENV: test
-          OPENROUTER_BASE_URL: ${{ secrets.OPENROUTER_BASE_URL }}
+          APP_ENV: ${{ vars.APP_ENV }}
+          OPENROUTER_BASE_URL: ${{ vars.OPENROUTER_BASE_URL }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
@@ -195,9 +196,9 @@ jobs:
         env: 
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          E2E_USERNAME_ID: ${{ secrets.E2E_USERNAME_ID }}
-          E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
-          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+          E2E_USERNAME_ID: ${{ vars.E2E_USERNAME_ID }}
+          E2E_USERNAME: ${{ vars.E2E_USERNAME }}
+          E2E_PASSWORD: ${{ vars.E2E_PASSWORD }}
       - name: Stop backend server
         if: always()
         run: |
