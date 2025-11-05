@@ -1,0 +1,117 @@
+### Guidelines for @fluentui/react-components (v9)
+
+This document provides a set of rules and best practices for using `@fluentui/react-components`, the latest version of Fluent UI React.
+
+#### Installation
+
+To get started, install the necessary packages using npm or yarn.
+
+```bash
+# with npm
+npm install @fluentui/react-components
+
+# with yarn
+yarn add @fluentui/react-components
+```
+
+#### Setup
+
+Every application using Fluent UI v9 must be wrapped with the `FluentProvider` to enable theming and CSS-in-JS capabilities.
+
+**For React 18:**
+
+```jsx
+import React from "react";
+import { createRoot } from "react-dom/client";
+import { FluentProvider, webLightTheme } from "@fluentui/react-components";
+
+import App from "./App";
+
+const root = createRoot(document.getElementById("root"));
+
+root.render(
+  <FluentProvider theme={webLightTheme}>
+    <App />
+  </FluentProvider>
+);
+```
+
+#### Component Usage
+
+Components should be imported directly from `@fluentui/react-components`.
+
+**Example: Button**
+
+```jsx
+import React from "react";
+import { Button } from "@fluentui/react-components";
+
+export const MyComponent = () => (
+  <Button appearance="primary">Get started</Button>
+);
+```
+
+#### Styling
+
+Custom styles should be created using the `makeStyles` hook from `@fluentui/react-components`. This provides access to theme tokens for consistent styling.
+
+```tsx
+import { Avatar, makeStyles, tokens } from "@fluentui/react-components";
+
+const useStyles = makeStyles({
+  customAvatar: {
+    ":focus": {
+      outlineColor: tokens.colorNeutralBackground3Pressed,
+    },
+  },
+});
+
+export const Component = () => {
+  const classes = useStyles();
+  return <Avatar className={classes.customAvatar} />;
+};
+```
+
+#### Migration from Older Versions (v8 and below)
+
+When migrating from `@fluentui/react` (v8) or `@fluentui/react-northstar` (v0), keep the following in mind:
+
+1.  **Package Name:** The package for v9 is `@fluentui/react-components`. Update your `package.json` and all imports.
+
+    ```javascript
+    // Before v9
+    import { Button } from "@fluentui/react";
+
+    // After v9
+    import { Button } from "@fluentui/react-components";
+    ```
+
+2.  **Provider:** Replace `ThemeProvider` with `FluentProvider`.
+
+    ```jsx
+    // Before v9
+    import { ThemeProvider } from "@fluentui/react";
+    <ThemeProvider>{/* ... content ... */}</ThemeProvider>;
+
+    // After v9
+    import { FluentProvider, webLightTheme } from "@fluentui/react-components";
+    <FluentProvider theme={webLightTheme}>
+      {/* ... content ... */}
+    </FluentProvider>;
+    ```
+
+3.  **Component APIs:** Many components and their props have been updated. For example, specialized button components like `PrimaryButton` have been consolidated into the base `Button` component with an `appearance` prop.
+
+    ```jsx
+    {
+      /* Before v9 */
+    }
+    <PrimaryButton>Click me</PrimaryButton>;
+
+    {
+      /* After v9 */
+    }
+    <Button appearance="primary">Click me</Button>;
+    ```
+
+Always refer to the official Fluent UI documentation for detailed migration guides for specific components.

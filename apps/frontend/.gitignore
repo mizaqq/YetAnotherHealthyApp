@@ -1,0 +1,38 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Test coverage
+coverage
+.nyc_output
+htmlcov
+.coverage
+*.lcov
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+*.trace.zip
+
+# Vitest
+.vitest
+
+# Screenshots (may want to commit baseline screenshots)
+screenshots/
+

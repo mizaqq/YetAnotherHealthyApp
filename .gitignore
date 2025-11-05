@@ -72,3 +72,5 @@ apps/supabase/.temp/
 
 # OS
 Thumbs.db
+.env.test
+.env.*

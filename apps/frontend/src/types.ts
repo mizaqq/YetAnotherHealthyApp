@@ -128,7 +128,15 @@ export type MealAnalysisRunSummaryDTO = Pick<
 
 export type MealAnalysisItemDTO = Pick<
   Tables<"analysis_run_items">,
-  "id" | "ordinal" | "raw_name" | "weight_grams" | "calories" | "confidence"
+  | "id"
+  | "ordinal"
+  | "raw_name"
+  | "weight_grams"
+  | "calories"
+  | "protein"
+  | "fat"
+  | "carbs"
+  | "confidence"
 >;
 
 export type MealDetailDTO = Pick<
@@ -231,7 +239,10 @@ export type DailySummaryReportDTO = {
   progress: {
     calories_percentage: number;
   };
-  meals: Array<Pick<MealRow, "id" | "category" | "calories" | "eaten_at">>;
+  meals: Pick<
+    MealRow,
+    "id" | "category" | "calories" | "eaten_at" | "protein" | "fat" | "carbs"
+  >[];
 };
 
 export type WeeklyTrendReportPointDTO = {
@@ -246,4 +257,87 @@ export type WeeklyTrendReportDTO = {
   points: WeeklyTrendReportPointDTO[];
 };
 
+export type Meal = Pick<
+  Tables<"meals">,
+  "id" | "category" | "calories" | "protein" | "fat" | "carbs"
+>;
 
+export type AuthMode = "login" | "register";
+
+export type AuthFormData = {
+  email: string;
+  password: string;
+};
+
+export type AuthFormProps = {
+  mode: AuthMode;
+  onSubmit: (data: AuthFormData) => void;
+  isLoading: boolean;
+  apiError: string | null;
+};
+
+export type ResetPasswordRequestFormData = {
+  email: string;
+};
+
+export type ResetPasswordRequestFormProps = {
+  onSubmit: (data: ResetPasswordRequestFormData) => void;
+  isLoading: boolean;
+  apiError: string | null;
+};
+
+export type ResetPasswordConfirmFormData = {
+  password: string;
+  confirmPassword: string;
+};
+
+export type ResetPasswordConfirmFormProps = {
+  onSubmit: (data: ResetPasswordConfirmFormData) => void;
+  isLoading: boolean;
+  apiError: string | null;
+};
+
+// Add Meal Modal ViewModels
+export type MealInputFormViewModel = {
+  category: string;
+  description: string;
+  isManualMode: boolean;
+  manualCalories: number | null;
+};
+
+export type AnalysisResultsViewModel = {
+  runId: string;
+  totals: {
+    calories: number;
+    protein: number;
+    fat: number;
+    carbs: number;
+  };
+  items: AnalysisRunItemDTO[];
+};
+
+// Onboarding ViewModels
+export type OnboardingFormProps = {
+  onSubmit: (data: CreateOnboardingCommand) => void;
+  isLoading: boolean;
+  apiError: string | null;
+};
+
+// Profile ViewModels
+export type ProfileViewModel = {
+  email: string;
+  dailyCalorieGoal: number;
+  isLoading: boolean;
+  isUpdating: boolean;
+  error: string | null;
+};
+
+export type UpdateProfilePayload = {
+  daily_calorie_goal: number;
+};
+
+// History View ViewModels
+export type GroupedMealViewModel = {
+  date: ISODateString;
+  meals: MealListItemDTO[];
+};

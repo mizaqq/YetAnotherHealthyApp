@@ -11,7 +11,7 @@
 create table public.analysis_runs (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.profiles (user_id) on delete cascade,
-  meal_id uuid not null references public.meals (id) on delete cascade,
+  meal_id uuid references public.meals (id) on delete cascade,
   run_no integer not null check (run_no > 0),
   status public.analysis_run_status not null,
   model text not null,
@@ -27,7 +27,6 @@ create table public.analysis_runs (
   raw_output jsonb,
   created_at timestamptz not null default now(),
   completed_at timestamptz,
-  unique (meal_id, run_no),
   unique (user_id, id),
   check (retry_of_run_id is null or retry_of_run_id <> id)
 );
@@ -36,6 +35,10 @@ create trigger trg_analysis_runs_prevent_user_id_change
 before update on public.analysis_runs
 for each row
 execute function public.prevent_user_id_change();
+
+create unique index analysis_runs_meal_id_run_no_key
+  on public.analysis_runs (meal_id, run_no)
+  where meal_id is not null;
 
 create index analysis_runs_user_id_created_at_idx
   on public.analysis_runs (user_id, created_at desc);
@@ -104,4 +107,3 @@ alter table public.meals
 
 grant select, insert, update, delete on public.analysis_runs to authenticated;
 grant select, insert, update, delete on public.analysis_run_items to authenticated;
-

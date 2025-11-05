@@ -30,7 +30,7 @@ class MealCategoryResponseItem(BaseModel):
     label: str
     sort_order: int
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(extra="forbid")
 
 
 class MealCategoriesResponse(BaseModel):
@@ -38,4 +38,4 @@ class MealCategoriesResponse(BaseModel):
 
     data: list[MealCategoryResponseItem]
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(extra="forbid")

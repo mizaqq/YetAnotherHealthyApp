@@ -7,7 +7,9 @@ import logging
 from fastapi import HTTPException, status
 
 from app.api.v1.schemas import MealCategoriesResponse, MealCategoryResponseItem
-from app.db.repositories.meal_categories_repository import MealCategoriesRepository
+from app.db.repositories.meal_categories_repository import (  # type: ignore[TCH001]
+    MealCategoriesRepository,
+)
 
 logger = logging.getLogger(__name__)
 

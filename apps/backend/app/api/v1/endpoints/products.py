@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from typing import Annotated
-from uuid import UUID
+from uuid import UUID  # type: ignore[TCH003]
 
 from fastapi import APIRouter, Depends, Query
 
@@ -14,12 +14,13 @@ from app.api.v1.schemas.products import (
     ProductPortionsResponse,
     ProductsListResponse,
     ProductSource,
+    SearchMode,
 )
-from app.core.dependencies import (
+from app.core.dependencies import (  # type: ignore[TCH001]
     get_current_user_id,
     get_product_service,
 )
-from app.services.product_service import ProductService
+from app.services.product_service import ProductService  # type: ignore[TCH001]
 
 router = APIRouter()
 
@@ -34,6 +35,7 @@ async def list_products(
     _: Annotated[UUID, Depends(get_current_user_id)],
     service: Annotated[ProductService, Depends(get_product_service)],
     search: Annotated[str | None, Query(alias="search", min_length=2)] = None,
+    search_mode: Annotated[SearchMode, Query(alias="search_mode")] = SearchMode.FULLTEXT,
     off_id: Annotated[str | None, Query(alias="off_id")] = None,
     source: Annotated[ProductSource | None, Query(alias="source")] = None,
     page_size: Annotated[int, Query(alias="page[size]", ge=1, le=50)] = 20,
@@ -47,8 +49,9 @@ async def list_products(
 
     Query Parameters:
         search: Case-insensitive search on product name (min 2 characters)
+        search_mode: Search algorithm - simple (ILIKE), fulltext (word matching), fuzzy (flexible)
         off_id: Filter by Open Food Facts identifier
-        source: Filter by data source (open_food_facts, user_defined, manual)
+        source: Filter by data source (open_food_facts, user_defined, manual, usda_sr_legacy)
         page[size]: Number of results per page (1-50, default 20)
         page[after]: Cursor for next page (base64 encoded)
         include_macros: Include macronutrient breakdown in response (default false)
@@ -64,6 +67,7 @@ async def list_products(
     # Construct query DTO from individual parameters
     query = ProductListParams(
         search=search,
+        search_mode=search_mode,
         off_id=off_id,
         source=source,
         page_size=page_size,
@@ -139,4 +143,3 @@ async def get_product_portions(
         500: Internal server error
     """
     return await service.list_product_portions(product_id=product_id)
-

@@ -60,3 +60,44 @@ class CompleteOnboardingCommand(BaseModel):
     user_id: UUID
     daily_calorie_goal: Decimal
     completed_at: datetime
+
+
+class UpdateProfileRequest(BaseModel):
+    """
+    Request body for updating user profile.
+
+    Allows partial updates to profile fields.
+    """
+
+    daily_calorie_goal: Annotated[
+        Decimal | None,
+        Field(
+            ge=0,
+            le=10000,
+            max_digits=10,
+            decimal_places=2,
+            description="Daily calorie goal in kcal",
+            default=None,
+        ),
+    ] = None
+    onboarding_completed_at: datetime | None = None
+
+    @field_validator("daily_calorie_goal")
+    @classmethod
+    def normalize_decimal_places(cls, v: Decimal | None) -> Decimal | None:
+        """Ensure exactly 2 decimal places."""
+        if v is None:
+            return v
+        return v.quantize(Decimal("0.01"))
+
+
+class UpdateProfileCommand(BaseModel):
+    """
+    Internal command object for updating profile.
+
+    Used to pass validated data from endpoint to service layer.
+    """
+
+    user_id: UUID
+    daily_calorie_goal: Decimal | None = None
+    onboarding_completed_at: datetime | None = None

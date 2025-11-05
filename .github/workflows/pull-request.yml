@@ -1,0 +1,307 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint-frontend:
+    name: Lint Frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Run TypeScript type checking
+        run: npm run typecheck
+
+  lint-backend:
+    name: Lint Backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/backend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Python and uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: 'latest'
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.13
+
+      - name: Install dependencies
+        run: uv sync --locked --all-groups
+
+      - name: Run Ruff linter
+        run: uv run ruff check
+
+  unit-test-frontend:
+    name: Unit Tests - Frontend
+    runs-on: ubuntu-latest
+    environment: test
+    timeout-minutes: 15
+    needs: [lint-frontend]
+    defaults:
+      run:
+        working-directory: apps/frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests with coverage
+        run: npm run test:coverage
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: coverage-frontend
+          path: apps/frontend/coverage
+          retention-days: 7
+
+  unit-test-backend:
+    name: Unit Tests - Backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: test
+    needs: [lint-backend]
+    defaults:
+      run:
+        working-directory: apps/backend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Python and uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: 'latest'
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.13
+
+      - name: Install dependencies
+        run: uv sync --locked --all-groups
+
+      - name: Run pytest with coverage
+        run: uv run pytest --cov=app --cov-report=html --cov-report=term-missing
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: coverage-backend
+          path: apps/backend/htmlcov
+          retention-days: 7
+
+  e2e-test:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    environment: test
+    timeout-minutes: 15
+    needs: [lint-frontend, lint-backend]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/frontend/package-lock.json
+
+      - name: Setup Python and uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: 'latest'
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install 3.13
+
+      - name: Install frontend dependencies
+        working-directory: apps/frontend
+        run: npm ci
+
+      - name: Install backend dependencies
+        working-directory: apps/backend
+        run: uv sync --locked --all-groups
+
+      - name: Install Playwright browsers
+        working-directory: apps/frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Start backend server
+        working-directory: apps/backend
+        run: |
+          uv run uvicorn app.main:app --port 8000 > backend.log 2>&1 &
+          echo $! > backend.pid
+          sleep 5
+        env:
+          APP_ENV: ${{ vars.APP_ENV }}
+          OPENROUTER_BASE_URL: ${{ vars.OPENROUTER_BASE_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      - name: Wait for backend to be ready
+        run: |
+          timeout 30 bash -c 'until curl -sf http://localhost:8000/api/v1/health > /dev/null; do sleep 1; done' || (cat apps/backend/backend.log && exit 1)
+
+      - name: Run E2E tests
+        working-directory: apps/frontend
+        run: npm run test:e2e
+        env:
+          CI: true
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          E2E_USERNAME_ID: ${{ vars.E2E_USERNAME_ID }}
+          E2E_USERNAME: ${{ vars.E2E_USERNAME }}
+          E2E_PASSWORD: ${{ vars.E2E_PASSWORD }}
+      - name: Stop backend server
+        if: always()
+        run: |
+          if [ -f apps/backend/backend.pid ]; then
+            kill $(cat apps/backend/backend.pid) || true
+            rm apps/backend/backend.pid
+          fi
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: playwright-report
+          path: apps/frontend/playwright-report
+          retention-days: 7
+
+      - name: Upload Playwright test results
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: playwright-test-results
+          path: apps/frontend/test-results
+          retention-days: 7
+
+  status-comment:
+    name: Post Status Comment
+    runs-on: ubuntu-latest
+    needs: [lint-frontend, lint-backend, unit-test-frontend, unit-test-backend, e2e-test]
+    if: always()
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Post PR comment with status
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('## Pull Request Checks Status')
+            );
+
+            const frontendTest = '${{ needs.unit-test-frontend.result }}';
+            const backendTest = '${{ needs.unit-test-backend.result }}';
+            const e2eTest = '${{ needs.e2e-test.result }}';
+
+            const getEmoji = (status) => {
+              switch(status) {
+                case 'success': return '✅';
+                case 'failure': return '❌';
+                case 'cancelled': return '⚠️';
+                case 'skipped': return '⏭️';
+                default: return '❓';
+              }
+            };
+
+            const allPassed = frontendTest === 'success' && 
+                             backendTest === 'success' && 
+                             e2eTest === 'success';
+
+            const commentBody = `## Pull Request Checks Status
+
+            ${allPassed ? '### ✅ All checks passed!' : '### ⚠️ Some checks failed'}
+
+            | Job | Status |
+            |-----|--------|
+            | Frontend Unit Tests | ${getEmoji(frontendTest)} ${frontendTest} |
+            | Backend Unit Tests | ${getEmoji(backendTest)} ${backendTest} |
+            | E2E Tests | ${getEmoji(e2eTest)} ${e2eTest} |
+
+            ### 📊 Coverage Reports
+
+            Coverage reports are available as workflow artifacts:
+            - [Frontend Coverage](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+            - [Backend Coverage](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+            - [Playwright Report](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+
+            ---
+            *Workflow run: [#${context.runId}](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})*
+            `;
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: commentBody
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody
+              });
+            }
+

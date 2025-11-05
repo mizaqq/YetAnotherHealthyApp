@@ -3,16 +3,16 @@
 from __future__ import annotations
 
 from typing import Annotated
-from uuid import UUID
+from uuid import UUID  # type: ignore[TCH003]
 
 from fastapi import APIRouter, Depends
 
 from app.api.v1.schemas import MealCategoriesQueryParams, MealCategoriesResponse
-from app.core.dependencies import (
+from app.core.dependencies import (  # type: ignore[TCH001]
     get_current_user_id,
     get_meal_categories_service,
 )
-from app.services.meal_categories_service import MealCategoriesService
+from app.services.meal_categories_service import MealCategoriesService  # type: ignore[TCH001]
 
 router = APIRouter()
 

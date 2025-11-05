@@ -88,7 +88,8 @@ Kryteria akceptacji:
 
 - System wymaga unikalnego adresu e-mail oraz hasła o długości co najmniej 8 znaków z cyfrą i literą.
 - Jeśli adres e-mail jest już zajęty, użytkownik otrzymuje komunikat i rejestracja nie dochodzi do skutku.
-- Po poprawnej rejestracji użytkownik jest automatycznie zalogowany i przekierowany do ustawienia celu kalorycznego.
+- Po poprawnej rejestracji użytkownik otrzymuje email z linkiem potwierdzającym, który musi kliknąć aby aktywować konto.
+- Po potwierdzeniu emaila użytkownik może się zalogować i jest przekierowany do ustawienia celu kalorycznego.
 
 ### US-002
 

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from uuid import UUID
+from uuid import UUID  # type: ignore[TCH003]
 
 from fastapi import HTTPException, status
 
@@ -12,12 +12,12 @@ from app.api.v1.schemas.products import (
     ProductDetailDTO,
     ProductListParams,
     ProductPortionsResponse,
-    ProductsListResponse,
     ProductSearchFilter,
+    ProductsListResponse,
     decode_cursor,
     encode_cursor,
 )
-from app.db.repositories.product_repository import ProductRepository
+from app.db.repositories.product_repository import ProductRepository  # type: ignore[TCH001]
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +65,7 @@ class ProductService:
             # Build search filter
             search_filter = ProductSearchFilter(
                 search=query.search,
+                search_mode=query.search_mode,
                 off_id=query.off_id,
                 source=query.source,
                 page_size=query.page_size,
@@ -75,6 +76,7 @@ class ProductService:
             # Fetch page_size + 1 to detect if there are more results
             products = self._repository.list_products(
                 search=search_filter.search,
+                search_mode=search_filter.search_mode,
                 off_id=search_filter.off_id,
                 source=search_filter.source,
                 page_size=search_filter.page_size,

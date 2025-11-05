@@ -37,11 +37,15 @@ Data is stored per user with row‑level security (RLS) in Supabase. The primary
   - Settings/infrastructure in `apps/backend/app/core/` (e.g., `config.py` reads `.env`).
   - Domain/services in `apps/backend/app/services/`; models/schemas in `apps/backend/app/models/` and `apps/backend/app/schemas/`.
   - Dependencies: `fastapi[standard]`, `pydantic-settings`; dev tooling: `ruff`.
+- **Testing & Quality Assurance**
+  - **Frontend**: Vitest + React Testing Library (unit tests), MSW (API mocking), Playwright (E2E tests), axe-core (accessibility), ESLint (linting), TypeScript (type checking).
+  - **Backend**: pytest (unit/integration tests), FastAPI TestClient/httpx (API tests), respx/pytest-httpx (HTTP mocking), Schemathesis (contract tests), Ruff (linting/formatting), pytest-cov (coverage).
+  - **Performance**: k6 (load testing), Lighthouse (UI performance metrics), Coveralls/Codecov (coverage reporting).
 - **AI — via OpenRouter (planned)**
   - Centralized access to multiple model providers with API key and cost controls.
   - Integration is intended in backend services, configured via environment variables.
 - **CI/CD & Hosting (planned)**
-  - GitHub Actions for CI, optional Docker images, DigitalOcean for hosting.
+  - GitHub Actions for CI with test matrix (linting, unit, integration, contract, E2E tests), optional Docker images, DigitalOcean for hosting.
 
 Repository layout:
 

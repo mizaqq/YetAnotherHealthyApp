@@ -6,13 +6,23 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "fastapi[standard]>=0.119.0",
+    "httpx>=0.27.0",
     "pydantic-settings>=2.6.1",
+    "ruff>=0.7.0",
     "supabase>=2.22.0",
+    "tenacity>=9.0.0",
 ]
 
 [dependency-groups]
 dev = [
     "ruff>=0.7.0",
+]
+test = [
+    "pytest>=8.3.0",
+    "pytest-cov>=6.0.0",
+    "pytest-asyncio>=0.24.0",
+    "respx>=0.21.0",
+    "pytest-env>=1.0.0",
 ]
 
 [tool.ruff]
@@ -38,6 +48,9 @@ ignore = [
     "ANN401", # allow typing.Any in exceptions where unavoidable
     "D",      # ignore pydocstyle; rely on targeted docs instead
     "TD003",  # missing issue link in TODOs
+    "TCH001", # Move application import into TYPE_CHECKING block - breaks FastAPI DI
+    "TCH002", # Move third-party import into TYPE_CHECKING block - breaks runtime usage
+    "TCH003", # Move standard library import into TYPE_CHECKING block - breaks runtime usage
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -51,3 +64,26 @@ mypy-init-return = true
 
 [tool.ruff.lint.mccabe]
 max-complexity = 8
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+addopts = [
+    "-ra",
+    "--strict-markers",
+    "--strict-config",
+    "--showlocals",
+    "--tb=short",
+]
+env = [
+    "APP_ENV=test",
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Slow running tests",
+]
+

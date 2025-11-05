@@ -5,7 +5,7 @@ from __future__ import annotations
 import base64
 import json
 from datetime import datetime
-from decimal import Decimal
+from decimal import Decimal  # type: ignore[TCH003]
 from enum import Enum
 from typing import Annotated
 from uuid import UUID
@@ -20,6 +20,14 @@ class ProductSource(str, Enum):
     USER_DEFINED = "user_defined"
     MANUAL = "manual"
     USDA_SR_LEGACY = "usda_sr_legacy"
+
+
+class SearchMode(str, Enum):
+    """Search mode for product queries."""
+
+    SIMPLE = "simple"  # Basic ILIKE search (default, backward compatible)
+    FULLTEXT = "fulltext"  # Full-text search with word stemming
+    FUZZY = "fuzzy"  # Trigram similarity search (typo-tolerant)
 
 
 class MacroBreakdownDTO(BaseModel):
@@ -81,6 +89,17 @@ class ProductListParams(BaseModel):
             description="Case-insensitive search on product name (min 2 chars)",
         ),
     ] = None
+
+    search_mode: Annotated[
+        SearchMode,
+        Field(
+            default=SearchMode.FULLTEXT,
+            description=(
+                "Search mode: simple (ILIKE), fulltext (word matching), fuzzy (typo-tolerant)"
+            ),
+            alias="search_mode",
+        ),
+    ] = SearchMode.FULLTEXT
 
     off_id: Annotated[
         str | None,
@@ -308,6 +327,7 @@ class ProductSearchFilter(BaseModel):
     """Encapsulates product search criteria and pagination."""
 
     search: str | None = None
+    search_mode: SearchMode = SearchMode.FULLTEXT
     off_id: str | None = None
     source: ProductSource | None = None
     page_size: int = 20
