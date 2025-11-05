@@ -17,7 +17,7 @@ import type {
 
 export type HealthResponse = { status: string };
 
-const DEFAULT_API_BASE = "/api/v1";
+const DEFAULT_API_BASE = "https://yetanotherhealthyapp-latest.onrender.com/api/v1";
 type ImportMetaEnv = {
   readonly VITE_API_BASE?: string;
 };
