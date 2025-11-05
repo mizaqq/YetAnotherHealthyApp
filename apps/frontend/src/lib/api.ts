@@ -25,6 +25,10 @@ type ImportMetaEnv = {
 const { env } = import.meta as unknown as { env: ImportMetaEnv };
 const API_BASE = env?.VITE_API_BASE ?? DEFAULT_API_BASE;
 
+// Temporary debug logging
+console.log("🔍 API_BASE configured as:", API_BASE);
+console.log("🔍 VITE_API_BASE env var:", env?.VITE_API_BASE);
+
 /**
  * Authenticated fetch wrapper that includes Supabase auth token
  */
