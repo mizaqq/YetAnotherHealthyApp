@@ -17,21 +17,11 @@ import type {
 
 export type HealthResponse = { status: string };
 
-const DEFAULT_API_BASE = "https://yetanotherhealthyapp-latest.onrender.com/api/v1";
-type ImportMetaEnv = {
-  readonly VITE_API_BASE?: string;
-};
+const DEFAULT_API_BASE = "/api/v1";
 
-const { env } = import.meta as unknown as { env: ImportMetaEnv };
-const API_BASE = env?.VITE_API_BASE ?? DEFAULT_API_BASE;
+// Access Vite environment variables directly
+const API_BASE = import.meta.env.VITE_API_BASE ?? DEFAULT_API_BASE;
 
-// Temporary debug logging
-console.log("🔍 API_BASE configured as:", API_BASE);
-console.log("🔍 VITE_API_BASE env var:", env?.VITE_API_BASE);
-
-/**
- * Authenticated fetch wrapper that includes Supabase auth token
- */
 async function authenticatedFetch(
   url: string,
   options: RequestInit = {}
