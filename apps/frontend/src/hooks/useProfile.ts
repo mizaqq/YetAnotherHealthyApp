@@ -1,120 +1,115 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { getProfile, updateProfile } from "@/lib/api";
-import { supabase } from "@/lib/supabaseClient";
-import { toast } from "sonner";
-import { type ProfileViewModel } from "@/types";
+import { getProfile, updateProfile as updateProfileApi } from "@/lib/api";
+import { useAuthStore, signOut as signOutFromStore } from "@/lib/authStore";
+import type { ProfileDTO } from "@/types";
 
-export function useProfile() {
-  const [profile, setProfile] = useState<ProfileViewModel>({
-    email: "",
-    dailyCalorieGoal: 0,
-    isLoading: true,
-    isUpdating: false,
-    error: null,
-  });
+type UseProfileResult = {
+  profile: ProfileDTO | null;
+  loading: boolean;
+  error: string | null;
+  refetch: () => Promise<void>;
+  updateCalorieGoal: (dailyCalorieGoal: number) => Promise<void>;
+  logout: () => Promise<void>;
+};
+
+/**
+ * Hook to fetch and manage user profile data
+ * Only fetches when authenticated
+ * Handles 404 (redirect to onboarding) and 401 (sign out + redirect to login)
+ */
+export function useProfile(): UseProfileResult {
+  const { status, isAuthenticated } = useAuthStore();
+  const [profile, setProfile] = useState<ProfileDTO | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // Fetch profile data on mount
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        setProfile((prev) => ({ ...prev, isLoading: true, error: null }));
-        
-        // Get email from Supabase session
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        
-        if (!session?.user?.email) {
-          throw new Error("No authenticated user found");
-        }
+  const fetchProfile = useCallback(async (): Promise<void> => {
+    // Only fetch if authenticated
+    if (!isAuthenticated || status !== "authenticated") {
+      setProfile(null);
+      setLoading(false);
+      return;
+    }
 
-        // Get profile data from API
-        const profileData = await getProfile();
+    setLoading(true);
+    setError(null);
 
-        setProfile({
-          email: session.user.email,
-          dailyCalorieGoal: profileData.daily_calorie_goal,
-          isLoading: false,
-          isUpdating: false,
-          error: null,
-        });
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "Nie udało się załadować profilu. Spróbuj ponownie później.";
+    try {
+      const profileData = await getProfile();
+      setProfile(profileData);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      console.error("Failed to fetch profile:", errorMessage);
 
-        setProfile((prev) => ({
-          ...prev,
-          isLoading: false,
-          error: errorMessage,
-        }));
+      // Handle 404 - profile not found, redirect to onboarding
+      const isNotFoundError =
+        errorMessage.toLowerCase().includes("not found") ||
+        errorMessage.toLowerCase().includes("404");
 
-        // If unauthorized, redirect to login
-        if (error instanceof Error && error.message.includes("Unauthorized")) {
-          await supabase.auth.signOut();
-          navigate("/login", { replace: true });
-        }
+      if (isNotFoundError) {
+        console.log("Profile not found, redirecting to onboarding");
+        navigate("/onboarding", { replace: true });
+        return;
       }
-    };
 
-    void fetchProfile();
-  }, [navigate]);
+      // Handle 401 - unauthorized, sign out and redirect to login
+      const isUnauthorizedError =
+        errorMessage.toLowerCase().includes("unauthorized") ||
+        errorMessage.toLowerCase().includes("401");
 
-  // Update calorie goal
-  const updateCalorieGoal = useCallback(async (newGoal: number) => {
-    try {
-      setProfile((prev) => ({ ...prev, isUpdating: true, error: null }));
+      if (isUnauthorizedError) {
+        console.log("Unauthorized, signing out");
+        await signOutFromStore({ scope: "global" });
+        navigate("/login", { replace: true });
+        return;
+      }
 
-      const updatedProfile = await updateProfile({
-        daily_calorie_goal: newGoal,
-      });
-
-      setProfile((prev) => ({
-        ...prev,
-        dailyCalorieGoal: updatedProfile.daily_calorie_goal,
-        isUpdating: false,
-        error: null,
-      }));
-
-      toast.success("Cel kaloryczny został zaktualizowany");
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Błąd zapisu. Sprawdź wartość i spróbuj ponownie.";
-
-      setProfile((prev) => ({
-        ...prev,
-        isUpdating: false,
-        error: errorMessage,
-      }));
-
-      toast.error(errorMessage);
-
-      // Re-throw to allow component to handle if needed
-      throw error;
+      // For other errors, set error state
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
     }
-  }, []);
+  }, [isAuthenticated, status, navigate]);
 
-  // Logout
-  const logout = useCallback(async () => {
+  const updateCalorieGoal = useCallback(async (dailyCalorieGoal: number): Promise<void> => {
+    if (!profile) {
+      throw new Error("Cannot update profile: not loaded");
+    }
+
     try {
-      await supabase.auth.signOut();
-      toast.success("Wylogowano pomyślnie");
+      const updatedProfile = await updateProfileApi({ daily_calorie_goal: dailyCalorieGoal });
+      setProfile(updatedProfile);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to update calorie goal";
+      console.error("Failed to update calorie goal:", errorMessage);
+      throw err;
+    }
+  }, [profile]);
+
+  const logout = useCallback(async (): Promise<void> => {
+    try {
+      await signOutFromStore({ scope: "global" });
       navigate("/login", { replace: true });
-    } catch (error) {
-      toast.error("Błąd podczas wylogowywania");
-      console.error("Logout error:", error);
+    } catch (err) {
+      console.error("Logout failed:", err);
+      // Still navigate to login even if logout fails
+      navigate("/login", { replace: true });
     }
   }, [navigate]);
+
+  // Fetch profile when authentication status changes
+  useEffect(() => {
+    void fetchProfile();
+  }, [fetchProfile]);
 
   return {
     profile,
+    loading,
+    error,
+    refetch: fetchProfile,
     updateCalorieGoal,
     logout,
   };
 }
-

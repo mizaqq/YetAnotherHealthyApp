@@ -15,6 +15,8 @@ import { AuthProvider } from "./lib/AuthProvider";
 import { ErrorBoundary } from "./components/common/ErrorBoundary";
 import { AppLayout } from "./components/navigation/AppLayout";
 import { DashboardRefreshProvider } from "./lib/DashboardRefreshContext";
+import { ProtectedRoute } from "./routes/ProtectedRoute";
+import { PublicRoute } from "./routes/PublicRoute";
 import "./index.css";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "./lib/ThemeProvider";
@@ -32,15 +34,74 @@ function AppWithErrorBoundary() {
       <AuthProvider>
         <DashboardRefreshProvider>
           <Routes>
-            <Route path="/" element={<AppLayout><DashboardPage /></AppLayout>} />
-            <Route path="/history" element={<AppLayout><HistoryPage /></AppLayout>} />
-            <Route path="/profile" element={<AppLayout><ProfilePage /></AppLayout>} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/reset-password" element={<ResetPasswordRequestPage />} />
-            <Route path="/reset-password/confirm" element={<ResetPasswordConfirmPage />} />
-            <Route path="/email-confirmation" element={<EmailConfirmationPage />} />
-            <Route path="/onboarding" element={<OnboardingPage />} />
+            <Route 
+              path="/" 
+              element={
+                <ProtectedRoute>
+                  <AppLayout><DashboardPage /></AppLayout>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/history" 
+              element={
+                <ProtectedRoute>
+                  <AppLayout><HistoryPage /></AppLayout>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <AppLayout><ProfilePage /></AppLayout>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/onboarding" 
+              element={
+                <ProtectedRoute>
+                  <OnboardingPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/login" 
+              element={
+                <PublicRoute>
+                  <LoginPage />
+                </PublicRoute>
+              } 
+            />
+            <Route 
+              path="/register" 
+              element={
+                <PublicRoute>
+                  <RegisterPage />
+                </PublicRoute>
+              } 
+            />
+            <Route 
+              path="/reset-password" 
+              element={
+                <PublicRoute>
+                  <ResetPasswordRequestPage />
+                </PublicRoute>
+              } 
+            />
+            <Route 
+              path="/reset-password/confirm" 
+              element={<ResetPasswordConfirmPage />} 
+            />
+            <Route 
+              path="/email-confirmation" 
+              element={
+                <PublicRoute>
+                  <EmailConfirmationPage />
+                </PublicRoute>
+              } 
+            />
           </Routes>
         </DashboardRefreshProvider>
         <Toaster />

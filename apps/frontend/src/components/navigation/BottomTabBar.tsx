@@ -108,6 +108,8 @@ export function BottomTabBar(): JSX.Element {
       >
         {tabs.map((tab) => {
           const isActive = activeTab === tab.path;
+          // Create data-testid from path, e.g., "/" -> "nav-home", "/profile" -> "nav-profile"
+          const testId = `nav-${tab.path === "/" ? "home" : tab.path.replace("/", "")}`;
           return (
             <Tab
               key={tab.path}
@@ -116,6 +118,7 @@ export function BottomTabBar(): JSX.Element {
               aria-label={tab.label}
               aria-current={isActive ? "page" : undefined}
               className={styles.tab}
+              data-testid={testId}
             >
               {tab.label}
             </Tab>

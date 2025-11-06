@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
-import { useAuthContext } from "@/lib/AuthProvider";
+import { clearPasswordRecovery, signOut } from "@/lib/authStore";
 import { 
   postAuthRegister, 
   postAuthPasswordResetRequest, 
@@ -49,8 +48,6 @@ const mapApiErrorToMessage = (error: unknown): string => {
 export function useAuth() {
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
-  const navigate = useNavigate();
-  const { clearPasswordRecovery } = useAuthContext();
 
   const login = async (data: AuthFormData) => {
     setIsLoading(true);
@@ -71,15 +68,16 @@ export function useAuth() {
     }
   };
 
-  const register = async (data: AuthFormData) => {
+  const register = async (data: AuthFormData): Promise<boolean> => {
     setIsLoading(true);
     setApiError(null);
     try {
       await postAuthRegister({ email: data.email, password: data.password });
-      // Navigate to email confirmation page on success
-      navigate("/email-confirmation", { state: { email: data.email } });
+      // Success - component will handle navigation
+      return true;
     } catch (error) {
       setApiError(mapApiErrorToMessage(error));
+      return false;
     } finally {
       setIsLoading(false);
     }
@@ -101,7 +99,7 @@ export function useAuth() {
     }
   };
 
-  const resetPassword = async (data: ResetPasswordConfirmFormData) => {
+  const resetPassword = async (data: ResetPasswordConfirmFormData): Promise<boolean> => {
     setIsLoading(true);
     setApiError(null);
     try {
@@ -109,16 +107,14 @@ export function useAuth() {
       // Clear password recovery flag immediately
       clearPasswordRecovery();
       
-      // Sign out globally (removes session from server) instead of just local
-      await supabase.auth.signOut({ scope: "global" });
+      // Sign out globally (removes session from server)
+      await signOut({ scope: "global" });
       
-      // Give Supabase a moment to complete the sign-out
-      await new Promise(r => setTimeout(r, 100));
-      
-      // Navigate to login with success flag
-      navigate("/login?reset=success", { replace: true });
+      // Success - component will handle navigation to /login?reset=success
+      return true;
     } catch (error) {
       setApiError(mapApiErrorToMessage(error));
+      return false;
     } finally {
       setIsLoading(false);
     }
