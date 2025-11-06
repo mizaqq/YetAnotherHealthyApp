@@ -30,6 +30,8 @@ const mockGetSession = vi.mocked(supabase.auth.getSession);
 describe('API Client', () => {
   const mockFetch = vi.fn();
   const mockSession = createMockSession('test-token-123');
+  // Use the actual API_BASE from environment (http://127.0.0.1:8000 in tests)
+  const API_BASE = import.meta.env.VITE_API_BASE ?? '/api/v1';
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -68,7 +70,7 @@ describe('API Client', () => {
         const result = await api.getProfile();
 
         expect(mockFetch).toHaveBeenCalledWith(
-          '/api/v1/profile',
+          `${API_BASE}/profile`,
           expect.objectContaining({
             headers: expect.objectContaining({
               Authorization: 'Bearer test-token-123',
@@ -102,7 +104,7 @@ describe('API Client', () => {
         const result = await api.updateProfile({ daily_calorie_goal: 2500 });
 
         expect(mockFetch).toHaveBeenCalledWith(
-          '/api/v1/profile',
+          `${API_BASE}/profile`,
           expect.objectContaining({
             method: 'PATCH',
             headers: expect.objectContaining({
@@ -131,7 +133,7 @@ describe('API Client', () => {
         const result = await api.completeOnboarding({ daily_calorie_goal: 2000 });
 
         expect(mockFetch).toHaveBeenCalledWith(
-          '/api/v1/profile/onboarding',
+          `${API_BASE}/profile/onboarding`,
           expect.objectContaining({
             method: 'POST',
             body: JSON.stringify({ daily_calorie_goal: 2000 }),
@@ -149,7 +151,7 @@ describe('API Client', () => {
       const result = await api.getHealth();
 
       expect(mockFetch).toHaveBeenCalledWith(
-        '/api/v1/health',
+        `${API_BASE}/health`,
         expect.objectContaining({
           method: 'GET',
           headers: { Accept: 'application/json' },
@@ -175,7 +177,7 @@ describe('API Client', () => {
         const result = await api.getDailySummary();
 
         expect(mockFetch).toHaveBeenCalledWith(
-          'http://localhost:3000/api/v1/reports/daily-summary',
+          `${API_BASE}/reports/daily-summary`,
           expect.any(Object)
         );
         expect(result).toEqual(mockSummary);
@@ -250,7 +252,7 @@ describe('API Client', () => {
       const result = await api.getMealCategories();
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:3000/api/v1/meal-categories',
+        `${API_BASE}/meal-categories`,
         expect.any(Object)
       );
       expect(result).toEqual(mockCategories);
@@ -301,7 +303,7 @@ describe('API Client', () => {
         });
 
         expect(mockFetch).toHaveBeenCalledWith(
-          '/api/v1/analysis-runs',
+          `${API_BASE}/analysis-runs`,
           expect.objectContaining({
             method: 'POST',
             body: JSON.stringify({ input_text: '2 jajka', meal_id: null }),
@@ -340,7 +342,7 @@ describe('API Client', () => {
         const result = await api.getAnalysisRunItems('run-123');
 
         expect(mockFetch).toHaveBeenCalledWith(
-          '/api/v1/analysis-runs/run-123/items',
+          `${API_BASE}/analysis-runs/run-123/items`,
           expect.any(Object)
         );
         expect(result).toEqual(mockItems);
@@ -371,7 +373,7 @@ describe('API Client', () => {
         const result = await api.retryAnalysisRun('run-123', {});
 
         expect(mockFetch).toHaveBeenCalledWith(
-          '/api/v1/analysis-runs/run-123/retry',
+          `${API_BASE}/analysis-runs/run-123/retry`,
           expect.objectContaining({
             method: 'POST',
             body: JSON.stringify({}),
@@ -388,7 +390,7 @@ describe('API Client', () => {
         await api.cancelAnalysisRun('run-123');
 
         expect(mockFetch).toHaveBeenCalledWith(
-          '/api/v1/analysis-runs/run-123/cancel',
+          `${API_BASE}/analysis-runs/run-123/cancel`,
           expect.objectContaining({
             method: 'POST',
             body: JSON.stringify({}),
@@ -427,7 +429,7 @@ describe('API Client', () => {
         });
 
         expect(mockFetch).toHaveBeenCalledWith(
-          '/api/v1/meals',
+          `${API_BASE}/meals`,
           expect.objectContaining({
             method: 'POST',
             body: expect.stringContaining('"source":"ai"'),
@@ -459,7 +461,7 @@ describe('API Client', () => {
         });
 
         expect(mockFetch).toHaveBeenCalledWith(
-          '/api/v1/meals',
+          `${API_BASE}/meals`,
           expect.objectContaining({
             method: 'POST',
             body: expect.stringContaining('"source":"manual"'),
@@ -499,7 +501,7 @@ describe('API Client', () => {
         await api.deleteMeal('meal-1');
 
         expect(mockFetch).toHaveBeenCalledWith(
-          '/api/v1/meals/meal-1',
+          `${API_BASE}/meals/meal-1`,
           expect.objectContaining({
             method: 'DELETE',
           })
@@ -549,7 +551,7 @@ describe('API Client', () => {
         await api.postAuthRegister({ email: 'test@example.com', password: 'password123' });
 
         expect(mockFetch).toHaveBeenCalledWith(
-          '/api/v1/auth/register',
+          `${API_BASE}/auth/register`,
           expect.objectContaining({
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
@@ -566,7 +568,7 @@ describe('API Client', () => {
         await api.postAuthPasswordResetRequest({ email: 'test@example.com' });
 
         expect(mockFetch).toHaveBeenCalledWith(
-          '/api/v1/auth/password/reset-request',
+          `${API_BASE}/auth/password/reset-request`,
           expect.objectContaining({
             method: 'POST',
             body: JSON.stringify({ email: 'test@example.com' }),
@@ -582,7 +584,7 @@ describe('API Client', () => {
         await api.postAuthPasswordResetConfirm({ password: 'newpassword123' });
 
         expect(mockFetch).toHaveBeenCalledWith(
-          '/api/v1/auth/password/reset-confirm',
+          `${API_BASE}/auth/password/reset-confirm`,
           expect.objectContaining({
             method: 'POST',
             headers: expect.objectContaining({
