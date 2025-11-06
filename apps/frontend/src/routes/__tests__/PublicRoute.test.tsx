@@ -33,6 +33,8 @@ describe("PublicRoute", () => {
       loading: false,
       error: null,
       refetch: vi.fn(),
+      updateCalorieGoal: vi.fn(),
+      logout: vi.fn(),
     });
 
     render(
@@ -85,8 +87,7 @@ describe("PublicRoute", () => {
 
     vi.mocked(useProfileHook.useProfile).mockReturnValue({
       profile: {
-        id: "user-123",
-        email: "test@example.com",
+        user_id: "user-123",
         daily_calorie_goal: 2000,
         onboarding_completed_at: new Date().toISOString(),
         created_at: new Date().toISOString(),
@@ -95,6 +96,8 @@ describe("PublicRoute", () => {
       loading: false,
       error: null,
       refetch: vi.fn(),
+      updateCalorieGoal: vi.fn(),
+      logout: vi.fn(),
     });
 
     render(
@@ -155,6 +158,8 @@ describe("PublicRoute", () => {
       loading: true,
       error: null,
       refetch: vi.fn(),
+      updateCalorieGoal: vi.fn(),
+      logout: vi.fn(),
     });
 
     render(
@@ -208,9 +213,8 @@ describe("PublicRoute", () => {
 
     vi.mocked(useProfileHook.useProfile).mockReturnValue({
       profile: {
-        id: "user-123",
-        email: "test@example.com",
-        daily_calorie_goal: null,
+        user_id: "user-123",
+        daily_calorie_goal: 0,
         onboarding_completed_at: null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -218,6 +222,8 @@ describe("PublicRoute", () => {
       loading: false,
       error: null,
       refetch: vi.fn(),
+      updateCalorieGoal: vi.fn(),
+      logout: vi.fn(),
     });
 
     render(
