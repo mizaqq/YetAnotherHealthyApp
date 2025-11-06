@@ -118,10 +118,7 @@ const NEW_CALORIE_GOAL = 2200;
     // Verify meal was added to dashboard
     await expect(dashboardPage.mealsList).toBeVisible();
 
-    // Debug: check what's happening with getMealsCount
-    console.log('Checking meals count...');
     const mealsCount = await dashboardPage.getMealsCount();
-    console.log('Meals count result:', mealsCount, typeof mealsCount);
     await expect(mealsCount).toBeGreaterThan(0);
 
     // Step 6: Add lunch meal

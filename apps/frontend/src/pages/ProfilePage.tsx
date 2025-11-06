@@ -8,7 +8,7 @@ import {
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { ErrorState } from "@/components/common/ErrorState";
 import { UserProfileCard } from "@/components/profile/UserProfileCard";
-import { useProfile } from "@/hooks/useProfile";
+import { useProfile } from "@/lib/ProfileProvider";
 import { useAuthStore } from "@/lib/authStore";
 
 const useStyles = makeStyles({

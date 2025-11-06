@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useAuthStore } from "@/lib/authStore";
-import { useProfile } from "@/hooks/useProfile";
+import { useProfile } from "@/lib/ProfileProvider";
 
 type PublicRouteProps = {
   children: React.ReactNode;

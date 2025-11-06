@@ -1,4 +1,4 @@
-import React from "react";
+import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import { App } from "./App";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
@@ -12,6 +12,7 @@ import { ResetPasswordConfirmPage } from "./pages/auth/ResetPasswordConfirmPage"
 import { EmailConfirmationPage } from "./pages/auth/EmailConfirmationPage";
 import { OnboardingPage } from "./pages/OnboardingPage";
 import { AuthProvider } from "./lib/AuthProvider";
+import { ProfileProvider } from "./lib/ProfileProvider";
 import { ErrorBoundary } from "./components/common/ErrorBoundary";
 import { AppLayout } from "./components/navigation/AppLayout";
 import { DashboardRefreshProvider } from "./lib/DashboardRefreshContext";
@@ -32,8 +33,9 @@ function AppWithErrorBoundary() {
   return (
     <ErrorBoundary onReset={handleReset}>
       <AuthProvider>
-        <DashboardRefreshProvider>
-          <Routes>
+        <ProfileProvider>
+          <DashboardRefreshProvider>
+            <Routes>
             <Route 
               path="/" 
               element={
@@ -102,16 +104,17 @@ function AppWithErrorBoundary() {
                 </PublicRoute>
               } 
             />
-          </Routes>
-        </DashboardRefreshProvider>
-        <Toaster />
+            </Routes>
+          </DashboardRefreshProvider>
+          <Toaster />
+        </ProfileProvider>
       </AuthProvider>
     </ErrorBoundary>
   );
 }
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
+  <StrictMode>
     <ThemeProvider>
       <App>
         <BrowserRouter>
@@ -119,7 +122,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         </BrowserRouter>
       </App>
     </ThemeProvider>
-  </React.StrictMode>,
+  </StrictMode>,
 );
 
 

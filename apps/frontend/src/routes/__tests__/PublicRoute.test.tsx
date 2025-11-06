@@ -3,14 +3,14 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { PublicRoute } from "../PublicRoute";
 import * as authStore from "../../lib/authStore";
-import * as useProfileHook from "../../hooks/useProfile";
+import * as profileProvider from "../../lib/ProfileProvider";
 
-// Mock the auth store and useProfile hook
+// Mock the auth store and ProfileProvider
 vi.mock("../../lib/authStore", () => ({
   useAuthStore: vi.fn(),
 }));
 
-vi.mock("../../hooks/useProfile", () => ({
+vi.mock("../../lib/ProfileProvider", () => ({
   useProfile: vi.fn(),
 }));
 
@@ -28,7 +28,7 @@ describe("PublicRoute", () => {
       isRecovery: false,
     });
 
-    vi.mocked(useProfileHook.useProfile).mockReturnValue({
+    vi.mocked(profileProvider.useProfile).mockReturnValue({
       profile: null,
       loading: false,
       error: null,
@@ -85,7 +85,7 @@ describe("PublicRoute", () => {
       isRecovery: false,
     });
 
-    vi.mocked(useProfileHook.useProfile).mockReturnValue({
+    vi.mocked(profileProvider.useProfile).mockReturnValue({
       profile: {
         user_id: "user-123",
         daily_calorie_goal: 2000,
@@ -153,7 +153,7 @@ describe("PublicRoute", () => {
       isRecovery: false,
     });
 
-    vi.mocked(useProfileHook.useProfile).mockReturnValue({
+    vi.mocked(profileProvider.useProfile).mockReturnValue({
       profile: null,
       loading: true,
       error: null,
@@ -211,7 +211,7 @@ describe("PublicRoute", () => {
       isRecovery: false,
     });
 
-    vi.mocked(useProfileHook.useProfile).mockReturnValue({
+    vi.mocked(profileProvider.useProfile).mockReturnValue({
       profile: {
         user_id: "user-123",
         daily_calorie_goal: 0,
