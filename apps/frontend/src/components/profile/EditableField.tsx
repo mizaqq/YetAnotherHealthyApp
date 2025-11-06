@@ -52,7 +52,7 @@ const useStyles = makeStyles({
 
 type EditableFieldProps = {
   label: string;
-  initialValue: number;
+  initialValue: number | null | undefined;
   isUpdating: boolean;
   onSave: (newValue: number) => Promise<void>;
 };
@@ -65,12 +65,12 @@ export function EditableField({
 }: EditableFieldProps): JSX.Element {
   const styles = useStyles();
   const [isEditing, setIsEditing] = useState(false);
-  const [value, setValue] = useState(initialValue.toString());
+  const [value, setValue] = useState(initialValue?.toString() ?? "");
   const [error, setError] = useState<string | null>(null);
 
   // Update local value when initialValue changes (after successful save)
   useEffect(() => {
-    setValue(initialValue.toString());
+    setValue(initialValue?.toString() ?? "");
   }, [initialValue]);
 
   const validateValue = (val: string): boolean => {
@@ -96,13 +96,13 @@ export function EditableField({
   };
 
   const handleEdit = () => {
-    setValue(initialValue.toString());
+    setValue(initialValue?.toString() ?? "");
     setError(null);
     setIsEditing(true);
   };
 
   const handleCancel = () => {
-    setValue(initialValue.toString());
+    setValue(initialValue?.toString() ?? "");
     setError(null);
     setIsEditing(false);
   };
@@ -143,7 +143,7 @@ export function EditableField({
       <div className={styles.container}>
         <Label>{label}</Label>
         <div className={styles.viewMode}>
-          <Text className={styles.valueText}>{initialValue} kcal</Text>
+          <Text className={styles.valueText}>{initialValue ?? 0} kcal</Text>
           <Button
             appearance="subtle"
             icon={<EditRegular />}

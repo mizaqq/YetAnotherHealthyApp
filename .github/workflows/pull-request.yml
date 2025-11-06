@@ -200,6 +200,7 @@ jobs:
           CI: true
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_API_BASE: ${{ vars.VITE_API_BASE }}
           E2E_USERNAME_ID: ${{ vars.E2E_USERNAME_ID }}
           E2E_USERNAME: ${{ vars.E2E_USERNAME }}
           E2E_PASSWORD: ${{ vars.E2E_PASSWORD }}

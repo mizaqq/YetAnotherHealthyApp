@@ -3,13 +3,19 @@ import { ResetPasswordConfirmForm } from "@/components/auth/ResetPasswordConfirm
 import { type ResetPasswordConfirmFormData } from "@/types";
 import { useAuth } from "@/hooks/useAuth";
 import { useAuthContext } from "@/lib/AuthProvider";
+import { useNavigate } from "react-router-dom";
 
 export function ResetPasswordConfirmPage(): JSX.Element {
   const { resetPassword, isLoading, apiError } = useAuth();
   const { isPasswordRecovery } = useAuthContext();
+  const navigate = useNavigate();
 
   const handleSubmit = async (data: ResetPasswordConfirmFormData) => {
-    await resetPassword(data);
+    const success = await resetPassword(data);
+    if (success) {
+      // Navigate to login page with success message
+      navigate("/login?reset=success", { replace: true });
+    }
   };
 
   // Show error if not in password recovery mode

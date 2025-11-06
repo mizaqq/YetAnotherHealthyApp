@@ -10,7 +10,7 @@ import {
 } from "@fluentui/react-components";
 import { SignOutRegular } from "@fluentui/react-icons";
 import { EditableField } from "./EditableField";
-import { type ProfileViewModel } from "@/types";
+import { type ProfileDTO } from "@/types";
 
 const useStyles = makeStyles({
   card: {
@@ -42,13 +42,17 @@ const useStyles = makeStyles({
 });
 
 type UserProfileCardProps = {
-  profile: ProfileViewModel;
+  profile: ProfileDTO;
+  userEmail: string | undefined;
+  isUpdating?: boolean;
   onSaveGoal: (newGoal: number) => Promise<void>;
   onLogout: () => void;
 };
 
 export function UserProfileCard({
   profile,
+  userEmail,
+  isUpdating = false,
   onSaveGoal,
   onLogout,
 }: UserProfileCardProps): JSX.Element {
@@ -64,7 +68,7 @@ export function UserProfileCard({
       {/* Email field - read only */}
       <div className={styles.field}>
         <Label>Email</Label>
-        <Text className={styles.valueText}>{profile.email}</Text>
+        <Text className={styles.valueText}>{userEmail ?? "Brak adresu email"}</Text>
       </div>
 
       <div className={styles.divider} role="separator" />
@@ -72,8 +76,8 @@ export function UserProfileCard({
       {/* Editable calorie goal */}
       <EditableField
         label="Dzienny cel kaloryczny"
-        initialValue={profile.dailyCalorieGoal}
-        isUpdating={profile.isUpdating}
+        initialValue={profile.daily_calorie_goal}
+        isUpdating={isUpdating}
         onSave={onSaveGoal}
       />
 

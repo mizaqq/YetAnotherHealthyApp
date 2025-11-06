@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Title1,
   makeStyles,
@@ -8,6 +9,7 @@ import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { ErrorState } from "@/components/common/ErrorState";
 import { UserProfileCard } from "@/components/profile/UserProfileCard";
 import { useProfile } from "@/hooks/useProfile";
+import { useAuthStore } from "@/lib/authStore";
 
 const useStyles = makeStyles({
   root: {
@@ -26,10 +28,12 @@ const useStyles = makeStyles({
 
 export default function ProfilePage() {
   const styles = useStyles();
-  const { profile, updateCalorieGoal, logout } = useProfile();
+  const { profile, loading, error, updateCalorieGoal, logout } = useProfile();
+  const { user } = useAuthStore();
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  // Loading state
-  if (profile.isLoading) {
+  // Early return: Loading state
+  if (loading) {
     return (
       <div className={styles.root}>
         <div className={styles.container}>
@@ -40,14 +44,14 @@ export default function ProfilePage() {
     );
   }
 
-  // Error state
-  if (profile.error) {
+  // Early return: Error state
+  if (error) {
     return (
       <div className={styles.root}>
         <div className={styles.container}>
           <Title1 as="h1">Profil</Title1>
           <ErrorState
-            message={profile.error}
+            message={error}
             onRetry={() => window.location.reload()}
           />
         </div>
@@ -55,14 +59,41 @@ export default function ProfilePage() {
     );
   }
 
-  // Success state
+  // Early return: No profile loaded
+  if (!profile) {
+    return (
+      <div className={styles.root}>
+        <div className={styles.container}>
+          <Title1 as="h1">Profil</Title1>
+          <ErrorState
+            message="Nie znaleziono profilu użytkownika"
+            onRetry={() => window.location.reload()}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Wrapper for updateCalorieGoal to track updating state
+  const handleUpdateGoal = async (newGoal: number): Promise<void> => {
+    setIsUpdating(true);
+    try {
+      await updateCalorieGoal(newGoal);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  // Happy path: Success state with loaded profile
   return (
     <div className={styles.root}>
       <div className={styles.container}>
         <Title1 as="h1">Profil</Title1>
         <UserProfileCard
           profile={profile}
-          onSaveGoal={updateCalorieGoal}
+          userEmail={user?.email}
+          isUpdating={isUpdating}
+          onSaveGoal={handleUpdateGoal}
           onLogout={() => { void logout(); }}
         />
       </div>

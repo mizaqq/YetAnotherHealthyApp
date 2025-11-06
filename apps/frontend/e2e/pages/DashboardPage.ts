@@ -26,7 +26,7 @@ export class DashboardPage {
     this.mealsList = page.getByTestId('dashboard-meals-list');
     this.macroDisplay = page.getByTestId('dashboard-macro-display');
     this.weeklyChart = page.getByTestId('dashboard-weekly-chart');
-    this.profileLink = page.getByRole('tab', { name: /profil/i });
+    this.profileLink = page.getByTestId('nav-profile');
   }
 
   /**
